@@ -88,6 +88,7 @@ for(id in names(fixtures)){
   if(length(n$statistic)==1)same(d$statistic[1],n$statistic)
   stopifnot(all(is.na(d$conf.low)),all(is.na(d$conf.high)))
  }
+ if(id=='cochran_armitage_trend')stopifnot(all(d$n==sum(n$totals)),all(d$n.excluded==0))
  if(length(n$n_used)==1)stopifnot(all(d$n==n$n_used))
  if(length(n$n_excluded)==1)stopifnot(all(d$n.excluded==n$n_excluded))
  checked<-c(checked,id)

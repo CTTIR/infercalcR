@@ -33,13 +33,13 @@
   if (identical(native$decision, "unresolved") || identical(native$decision, "numerically_indeterminate")) state <- "unresolved"
   reason <- .ic_text(native$reason)
   n_input <- if (is.data.frame(args$data)) nrow(args$data) else if (is.data.frame(args$evaluation)) nrow(args$evaluation) else
-    if (is.numeric(args$x)) length(args$x) + if (is.numeric(args$y)) length(args$y) else 0 else
+    if (!is.null(args$x) && is.atomic(args$x)) length(args$x) + if (is.numeric(args$y)) length(args$y) else 0 else
     if (is.numeric(args$counts)) sum(args$counts) else if (is.numeric(args$table)) sum(args$table) else
-    if (is.numeric(args$observed)) sum(args$observed) else .ic_scalar(args$n)
+    if (is.numeric(args$observed)) sum(args$observed) else if (is.numeric(args$totals)) sum(args$totals) else .ic_scalar(args$n)
   n <- .ic_first_number(native$n_nonzero, native$n_discordant, native$n_used, native$n, native$n_complete, native$n_pairs,
     native$n_total, if (length(native$group_sizes)) sum(native$group_sizes), n_input)
   if (id %in% c("signed_rank_wilcoxon", "signed_rank_wilcoxon_one_sample") && is.numeric(native$n_zero)) n <- n_input - native$n_zero
-  excluded <- .ic_first_number(native$n_excluded, if (is.finite(n_input) && is.finite(n)) n_input - n else 0)
+  excluded <- .ic_first_number(native$n_excluded, if (is.finite(n_input) && is.finite(n)) n_input - n else NA_real_)
   level <- .ic_first_number(native$attained_confidence_level, native$confidence_level,
     native$requested_confidence_level, spec$conf.level)
   alternative <- if (!is.null(.ic_method_info[[id]]) && !.ic_method_info[[id]]$hypothesis) NA_character_ else spec$alternative

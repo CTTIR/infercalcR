@@ -46,7 +46,7 @@ z<-run_inference(method_spec('unconditional_exact_z_pooled'),table=matrix(c(4,1,
 zd<-result_data(z);stopifnot(all(is.na(zd$conf.low)),all(is.na(zd$conf.high)),is.finite(zd$p.upper[1L]),zd$p.lower[1L]<=zd$p.upper[1L])
 # Descriptions retain numeric precision and suppress any internal test p-values.
 desc<-run_inference(method_spec('descriptive_summary'),x=factor(c('a','a','b'),levels=c('a','b')),measurement='binary',event='a')
-stopifnot(result_data(desc)$estimate==2/3,all(is.na(result_data(desc)$p.value)),result_data(desc)$n==3)
+stopifnot(result_data(desc)$estimate==2/3,all(is.na(result_data(desc)$p.value)),result_data(desc)$n==3,result_data(desc)$n.excluded==0)
 fixtures<-readRDS(system.file('methods','synthetic-baseline.rds',package='infercalcR'))
 invoke<-function(id) {a<-fixtures[[id]]$arguments;a[c('alternative','conf.level')]<-NULL;do.call(run_inference,c(list(spec=method_spec(id)),a))}
 factorial<-invoke('anova_factorial');fd<-result_data(factorial)
