@@ -64,6 +64,8 @@ validate_inference <- function(x) {
     p <- d[[nm]]
     if (any(is.nan(p)) || any(!is.na(p) & (!is.finite(p) | p < 0 | p > 1))) .ic_abort(paste(nm, "must be NA or in [0, 1]"))
   }
+  if (any(vapply(d[c("estimate", "statistic", "df", "conf.low", "conf.high")],
+                 function(v) any(is.nan(v)), logical(1)))) .ic_abort("use explicit NA and status for undefined numerical quantities, not NaN")
   if (any(!is.na(d$conf.level) & (!is.finite(d$conf.level) | d$conf.level <= 0 | d$conf.level >= 1))) .ic_abort("invalid confidence level")
   if (any(!is.na(d$conf.low) & !is.na(d$conf.high) & d$conf.low > d$conf.high)) .ic_abort("reversed confidence limits")
   for (nm in c("n", "n.excluded", "family_size")) {
@@ -72,6 +74,7 @@ validate_inference <- function(x) {
   }
   if (!.ic_string(x$metadata$method_id) || !.ic_string(x$metadata$variant_id) ||
       !.ic_string(x$metadata$result_id) || !identical(x$metadata$contract_version, "1.0.0") ||
+      !.ic_string(x$metadata$kind) ||
       !x$metadata$kind %in% c("inference", "planning", "classification", "descriptive")) .ic_abort("invalid result metadata")
   invisible(x)
 }

@@ -14,7 +14,11 @@ invalid(adjust_inference(y, "holm", family_id = "again"))
 invalid(new_inference_result(data.frame(row_id = c("a", "a")), list(method_id = "test")))
 invalid(new_inference_result(data.frame(p.value = 2), list(method_id = "test")))
 invalid(new_inference_result(data.frame(n = -1), list(method_id = "test")))
+invalid(new_inference_result(data.frame(estimate = NaN), list(method_id = "test")))
 invalid(new_inference_result(data.frame(conf.low = 3, conf.high = 2), list(method_id = "test")))
+malformed <- x
+malformed$metadata$kind <- NULL
+invalid(validate_inference(malformed))
 invalid(method_spec("not_registered"))
 invalid(method_spec("descriptive_summary", options = list(unknown = TRUE)))
 invalid(method_spec("descriptive_summary", conf.level = 1))
