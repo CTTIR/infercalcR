@@ -28,6 +28,13 @@ adjust_inference(x, method = "holm", family_id, rows = NULL)
 }
 \details{Rows distinguish estimate, statistic, degrees of freedom, confidence limits and their level/method/scale/scope, raw p.value, p.adjusted and p.reported, family metadata, null/alternative, sample and exclusion counts, status and reason. NA means unavailable; legitimate unbounded confidence limits remain infinite. A numerical p-value bound is a separate method-specific quantity and is never a sampling confidence interval.
 
+A finalized \code{conf.level} is NA when unavailable or a finite attained/reported
+level in \code{(0, 1]}. Conservative discrete intervals can attain level 1,
+including intervals with infinite endpoints. The native level, endpoints and
+diagnostics are preserved. Requested confidence levels in \code{method_spec()}
+remain strictly between zero and one; the requested level must not replace a
+different attained level.
+
 Adjustment rejects missing raw p-values and already adjusted families. It is performed once on the declared complete family before display filtering. It does not adjust confidence intervals. Results retain computation status separately from validation evidence. Result IDs are stable labels, not cryptographic hashes. RDS round trips are suitable only for trusted objects.}
 \value{Constructors and adapters return an S3 inference_result; result_data returns a data.frame, result_metadata a list. Validation returns the object invisibly.}
 \examples{
