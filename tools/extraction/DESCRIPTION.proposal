@@ -1,0 +1,4 @@
+Imports additions: none
+Suggests retained: digest, jsonlite
+Production references to inferguidR/infereportR namespaces: none
+Historical identity features use optional digest/jsonlite; numeric core and Boschloo common results do not.

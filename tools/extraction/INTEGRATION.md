@@ -1,0 +1,21 @@
+# Kernel extraction integration
+
+Source: inferguidR e91938f77eaa991b69989b121bfd32c124c95db0.
+
+`source-map.csv` lists every copied source object and its new file. Remove numerical bodies from guidance only after replacing actual consumers. `guid-forwarders.R` gives explicit production-helper routes; it is a development handoff, not loaded package code. Merge `NAMESPACE.additions` into calc NAMESPACE. DESCRIPTION already declares optional digest/jsonlite; no further runtime imports are needed.
+
+All exported functions listed in NAMESPACE.additions whose names existed in guid keep the original signatures. Guidance should re-export/import these functions from calc or use thin wrappers; classes and hash bytes are preserved. Producing call strings now name infercalcR, and Boschloo's engine label names infercalcR. These are deliberate new-result provenance changes, not historical-reader rewrites. Existing condition classes retain inferguidR_<code> first and additionally inherit infercalcR_<code>.
+
+Keep guidance allocation/search and power object construction: boschloo-design.R, boschloo-method.R, boschloo_power/.bl_power_object and their print methods from boschloo-region.R, power-n/effect/allocation plotdata from boschloo-plotdata.R. Keep .bl_is_count/.bl_check_alpha/.bl_check_prob/.bl_fmt as local basic argument/display helpers or replace them with local validation; they are not numerical test engines. .bl_control_key can remain only if a caller needs it for compatibility tests, not an engine; the copied numerical cache no longer uses legacy canonical formatting.
+
+Keep guidance's core JSON schema dispatch, ig_to_json/ig_from_json, .ig_to_plain and object converters. Delete the duplicated canonical helper implementation after installing the explicit public forwarding functions. Guidance .ig_canonical_json/.ig_hash_value must call .ig_to_plain before the calc provider, because calc intentionally has no power/advisor/report dispatch callbacks.
+
+Keep basic guidance status/validation helper implementations if useful; they do not compute inference. Import calc ig_status/ig_status_codes/is_ig_status rather than defining a competing exported status API. Calc registers the ig_frozen replacement S3 methods; remove duplicate guidance registrations and bodies when loading calc as an Import. Basic print/format methods for extracted classes are registered by calc. Common classification_result objects and legacy classification_result objects share a historical class name; calc methods distinguish the presence of inheritance from inference_result before extracting or printing.
+
+Keep four num-dist planning helpers in guid: .ig_critical_symmetric, .ig_critical_values, .ig_two_sided_prob, .ig_power_t_test. All remaining shared probability primitives and calculator bodies have one owner in calc. Public provider routes in guid-forwarders.R cover their actual current production consumers.
+
+Classification plot data lives in calc; rendering/UI stays guid. .ig_cls_pd_probability moved out of the mixed probability-panels file; preserve only its renderer there. All app-classifier*, classif-render*, classif-format, classif-interval-overlay and native report exports stay guid during this migration. Static dictionary JSON remains preserved in calc, with an ASCII R representation for base-only numeric use.
+
+Legacy regression handling: original testthat files remain in the source repository until their equivalent installed checks run. Numerical-only tests can execute with calc as their package context; mixed JSON/export/planning/UI files need the integrated guid candidate. Do not add exports solely for old whitebox tests. New base-R tests kernels.R and classification.R cover the public providers. kernels-baseline.R executes the explicitly supplied trusted historical fixture lane and does not count its absent fixture as PASS.
+
+Validation to date is recorded in the ignored validation/ folder and the coordinator handoff. A staged source package with proposed metadata was installed. Independent small-support Boschloo calculations, all small-table membership decisions for four variants, core metrics, classifier direction/ties/missingness/fingerprints/bootstrap state and 20 complete baseline API objects passed. Exact integrated commits still require coordinator build/check and the full suite gates.
