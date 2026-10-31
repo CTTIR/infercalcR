@@ -9,6 +9,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
 Imports: stats, utils
-Suggests: digest, jsonlite
+Suggests: digest, jsonlite, cluster, nlme, MASS, nnet, lme4, geepack, testthat (>= 3.0.0), withr
 URL: https://github.com/CTTIR/infercalcR
 BugReports: https://github.com/CTTIR/infercalcR/issues
+Config/testthat/edition: 3

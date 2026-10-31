@@ -8,7 +8,7 @@
 method_spec(method_id, alternative = "two.sided", conf.level = 0.95,
   missing = "error", options = list())
 method_catalogue()
-run_inference(spec, ...)
+run_inference(spec, ..., result_id = NULL)
 }
 \arguments{
 \item{method_id}{An identity from method_catalogue().}
@@ -17,6 +17,7 @@ run_inference(spec, ...)
 \item{missing}{Explicit error or omit policy, subject to each procedure's supported scope.}
 \item{options}{Uniquely named list of supported procedure settings. Unknown settings are errors.}
 \item{spec}{A method_spec.}
+\item{result_id}{Optional explicit stable identifier for joining distinct results.}
 \item{...}{Observations and design arguments for the selected method.}
 }
 \value{A specification, capability data frame, or finalized common result respectively.}

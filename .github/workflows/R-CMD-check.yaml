@@ -1,0 +1,49 @@
+name: R-CMD-check
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    name: ${{ matrix.os }} / R ${{ matrix.r }} / ${{ matrix.lane }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, r: release, lane: full}
+          - {os: windows-latest, r: release, lane: full}
+          - {os: macos-latest, r: release, lane: full}
+          - {os: ubuntu-latest, r: '4.1', lane: minimal}
+    env:
+      INFER_SUITE_FULL: ${{ matrix.lane == 'full' && 'true' || 'false' }}
+      _R_CHECK_FORCE_SUGGESTS_: 'false'
+      TESTTHAT_CPUS: '2'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: r-lib/actions/setup-pandoc@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05
+      - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05
+        with:
+          r-version: ${{ matrix.r }}
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05
+        with:
+          dependencies: ${{ matrix.lane == 'full' && '"all"' || '"hard"' }}
+          extra-packages: any::rcmdcheck
+          needs: check
+      - uses: r-lib/actions/check-r-package@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05
+        with:
+          args: 'c("--no-manual", "--as-cran")'
+          error-on: '"warning"'
