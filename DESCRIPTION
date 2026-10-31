@@ -1,0 +1,14 @@
+Package: infercalcR
+Type: Package
+Title: Statistical Inference and Diagnostic Calculations
+Version: 0.0.0.9000
+Authors@R: person("Raban", "Heller", , "raban.heller@charite.de",
+    role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0001-8006-9742"))
+Description: Provides explicit statistical procedures, descriptive summaries, diagnostic calculations and a common result contract. Standard R methods and scoped optional backends preserve method identity and numerical provenance.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: stats, utils
+Suggests: digest, jsonlite
+URL: https://github.com/CTTIR/infercalcR
+BugReports: https://github.com/CTTIR/infercalcR/issues
