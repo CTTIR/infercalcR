@@ -48,3 +48,33 @@ pr<-result_data(as_inference(prop_many,population='three groups',event='success'
 stopifnot(pr$component=='omnibus',is.na(pr$estimate),is.na(pr$conf.low),pr$p.value==prop_many$p.value)
 err(as_inference(b,population='trials',event='success',n=NaN))
 err(as_inference(b,population='trials',event='success',n_excluded='unknown'))
+
+# Signed-rank htest labels do not identify whether observations or paired differences were supplied.
+wx<-c(2,5,9,14,20,27,35,44);wy<-c(1,3,6,10,15,21,28,36)
+for(exact in c(TRUE,FALSE))for(alternative in c('two.sided','greater')){
+ one_sample<-stats::wilcox.test(wx-wy,conf.int=TRUE,conf.level=.9,exact=exact,alternative=alternative)
+ paired<-stats::wilcox.test(wx,wy,paired=TRUE,conf.int=TRUE,conf.level=.9,exact=exact,alternative=alternative)
+ stopifnot(identical(one_sample$method,paired$method))
+ for(origin in c('one_sample','paired')){
+  native<-if(origin=='paired')paired else one_sample;original<-serialize(native,NULL)
+  generic<-as_inference(native,population='synthetic supplied analysis',n=length(wx))
+  stopifnot(result_metadata(generic)$method_id=='imported_signed_rank',
+   result_metadata(generic)$variant_id=='imported_signed_rank',result_metadata(generic)$design=='unknown')
+  id<-if(origin=='paired')'signed_rank_wilcoxon' else 'signed_rank_wilcoxon_one_sample'
+  declared<-as_inference(native,method_id=id,population='synthetic declared design',n=length(wx),
+   groups=if(origin=='paired')c('x','y') else NULL)
+  stopifnot(result_metadata(declared)$method_id==id,result_metadata(declared)$variant_id==id,
+   result_metadata(declared)$design==origin,result_metadata(declared)$design_source=='caller_declared')
+  if(origin=='paired')stopifnot(grepl('paired differences',result_data(declared)$estimand),result_data(declared)$contrast=='x minus y')
+  for(value in list(generic,declared)){
+   row<-result_data(value)
+   stopifnot(row$estimate==unname(native$estimate),row$statistic==unname(native$statistic),
+    row$p.value==native$p.value,row$null.value==unname(native$null.value),row$n==length(wx),
+    identical(c(row$conf.low,row$conf.high),as.numeric(native$conf.int)),
+    row$conf.level==attr(native$conf.int,'conf.level'),row$alternative==native$alternative)
+  }
+  stopifnot(identical(original,serialize(native,NULL)))
+  err(as_inference(native,method_id='rank_sum_mann_whitney',population='incompatible design'))
+ }
+}
+cat('PASS signed-rank design ambiguity, explicit paired/one-sample identity and preserved exact/approximate intervals\n')

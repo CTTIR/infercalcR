@@ -28,8 +28,12 @@ correlations and uses independent column permutations. It supplies exploratory
 leading-factor guidance without fitting or selecting an ML factor model. Failed
 replicates are retained and prevent a selected count.
 
-Linear prediction intervals are pointwise normal-model t intervals, with new
-residual variation included only for \code{"prediction"}. Logistic risk intervals
+Linear \code{"mean"} intervals are pointwise normal-model t confidence intervals
+for the conditional mean. Linear \code{"prediction"} intervals instead cover one
+independent new outcome and include new-outcome residual variation. Common-row
+estimands and interval-method labels distinguish these targets; metadata also
+records the interval target, type and native interpretation. Point predictions
+without requested intervals have no interval scope. Logistic risk intervals
 use already fitted bootstrap models and type-6 percentile limits, requiring at
 least five expected replicates per tail. They concern risk estimation, not a
 binary outcome, validation performance, or Monte Carlo precision. No model is

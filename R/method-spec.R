@@ -110,23 +110,31 @@ predict_inference <- function(result, newdata, interval = "none", conf.level = N
   validate_inference(result)
   id <- result_metadata(result)$method_id
   if (!id %in% c("prediction_model_linear", "prediction_model_logistic")) .ic_abort("predict_inference requires a prediction-development result")
+  interval <- match.arg(interval, if (id == "prediction_model_linear") c("none", "mean", "prediction") else c("none", "risk"))
   native <- result$payload$native
   if (is.null(conf.level)) conf.level <- native$requested_confidence_level
   fun <- if (id == "prediction_model_linear") .obs_prediction_model_linear_predict_new else .obs_prediction_model_logistic_predict_new
   out <- fun(native, newdata, interval = interval, conf.level = conf.level)
   if (is.numeric(out)) out <- list(status = "ok", estimate = out, interval = "none")
   n <- length(out$estimate)
+  target <- if (id == "prediction_model_logistic") "event_probability" else if (interval == "prediction") "new_outcome" else "conditional_mean"
+  interval_type <- if (interval == "none") "none" else if (target == "new_outcome") "prediction" else "confidence"
+  interval_method <- if (interval == "none") "not_requested" else if (id == "prediction_model_linear") {
+    if (interval == "prediction") "normal-model t prediction interval (includes new-outcome residual variation)" else
+      "normal-model t confidence interval for the conditional mean"
+  } else .ic_text(out$method, "ordinary-bootstrap percentile interval for fitted event risk")
   rows <- data.frame(row_id = paste0("prediction:", seq_len(n)), component = "prediction",
-    estimand = if (id == "prediction_model_linear") "conditional mean of a new outcome" else "event probability for a new case",
+    estimand = if (target == "new_outcome") "one independent new outcome" else if (target == "conditional_mean") "conditional mean of a new outcome" else "event probability for a new case",
     estimate = as.double(out$estimate), conf.low = if (is.null(out$lower)) rep(NA_real_, n) else out$lower,
     conf.high = if (is.null(out$upper)) rep(NA_real_, n) else out$upper,
     conf.level = if (is.null(out$lower)) NA_real_ else conf.level,
-    interval.method = if (is.null(out$method)) if (interval == "none") "not_requested" else "normal-model t" else out$method,
-    interval.scope = "pointwise", interval.scale = if (id == "prediction_model_linear") "outcome" else "probability",
+    interval.method = interval_method,
+    interval.scope = if (is.null(out$lower)) NA_character_ else "pointwise", interval.scale = if (id == "prediction_model_linear") "outcome" else "probability",
     status = .ic_native_status(out$status), reason = if (is.null(out$reason)) NA_character_ else out$reason,
     stringsAsFactors = FALSE)
   new_inference_result(rows, list(method_id = paste0(id, ".predict_new"), source_result_id = result$metadata$result_id,
-    interval = interval, source_status = out$status, assumptions = out$assumptions), payload = list(native = out))
+    interval = interval, interval_target = target, interval_type = interval_type,
+    interval_interpretation = out$interpretation, source_status = out$status, assumptions = out$assumptions), payload = list(native = out))
 }
 
 .ic_validate_options <- function(method_id, options) {

@@ -10,6 +10,9 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
   if (!.ic_string(label)) .ic_abort("htest method label is missing")
   is_t <- grepl("t-test", label, fixed = TRUE) && !grepl("Wilcoxon", label)
   is_wilcox <- grepl("Wilcoxon", label)
+  is_rank_sum <- is_wilcox && grepl("rank sum", label, fixed = TRUE)
+  is_signed_rank <- is_wilcox && grepl("signed rank", label, fixed = TRUE)
+  if (is_wilcox && !is_rank_sum && !is_signed_rank) .ic_abort("No explicit htest mapping for this Wilcoxon method", "unsupported")
   is_binom <- grepl("binomial test", label, ignore.case = TRUE)
   is_prop <- grepl("proportions", label, ignore.case = TRUE)
   is_fisher <- grepl("Fisher", label)
@@ -20,10 +23,22 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
   is_omnibus <- effectless_fisher || omnibus_prop || grepl("Pearson's Chi-squared|McNemar|Kruskal-Wallis|Friedman|Fligner-Killeen|One-way analysis of means", label)
   if (!any(c(is_t, is_wilcox, is_binom, is_prop, is_fisher, is_cor, is_var, is_omnibus))) .ic_abort("No explicit htest mapping for this method", "unsupported")
   inferred <- if (is_t) if (grepl("Welch", label)) "t_means_two_independent_welch" else if (grepl("Paired", label)) "t_means_paired" else if (length(x$estimate) == 2L) "t_means_two_independent_student" else "t_mean_one_sample" else
-    if (is_wilcox) if (grepl("rank sum", label)) "rank_sum_mann_whitney" else "signed_rank_wilcoxon_one_sample" else
+    if (is_wilcox) if (is_rank_sum) "rank_sum_mann_whitney" else "imported_signed_rank" else
     if (is_binom) "binomial_exact_one_sample" else if (is_prop) "imported_proportion_test" else if (is_fisher) if (length(x$estimate)) "fisher_exact_2x2" else "fisher_exact_rxc" else
     if (is_cor) if (grepl("Pearson", label)) "correlation_pearson" else if (grepl("Spearman", label)) "correlation_spearman" else "correlation_kendall" else
     if (is_var) "variance_f_test_two" else "imported_omnibus_test"
+  signed_rank_design <- NULL
+  signed_rank_design_source <- NULL
+  if (is_signed_rank) {
+    # Both source designs have the same htest method label; data.name is not design metadata.
+    signed_rank_design <- "unknown"
+    signed_rank_design_source <- "not recoverable from the supplied htest"
+    if (.ic_string(method_id) && method_id %in% c("signed_rank_wilcoxon", "signed_rank_wilcoxon_one_sample")) {
+      inferred <- method_id
+      signed_rank_design <- if (method_id == "signed_rank_wilcoxon") "paired" else "one_sample"
+      signed_rank_design_source <- "caller_declared"
+    }
+  }
   if (!is.null(method_id) && !identical(method_id, inferred)) .ic_abort("method_id conflicts with the stored htest method; conversion cannot relabel a procedure")
   estimate <- NA_real_; estimand <- "omnibus hypothesis"; null <- .ic_scalar(x$null.value)
   scale <- "identity"; interval <- NA_character_; contrast <- NA_character_
@@ -34,11 +49,15 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
     } else { estimate <- .ic_scalar(x$estimate); estimand <- if (grepl("Paired", label)) "population mean paired difference" else "population mean" }
     interval <- if (grepl("Welch", label)) "Welch t" else "Student t"
   } else if (is_wilcox) {
-    if (grepl("rank sum", label)) {
+    if (is_rank_sum || (identical(signed_rank_design, "paired") && !is.null(groups))) {
       if (!is.character(groups) || length(groups) != 2L || anyNA(groups) || any(!nzchar(groups)) || anyDuplicated(groups)) .ic_abort("Declare two ordered groups for the location contrast")
       contrast <- paste(groups, collapse = " minus ")
     }
-    estimate <- .ic_scalar(x$estimate); estimand <- if (grepl("rank sum", label)) "location shift under common-shape shift model" else "location pseudomedian under symmetric shift model"
+    estimate <- .ic_scalar(x$estimate)
+    estimand <- if (is_rank_sum) "location shift under common-shape shift model" else
+      if (identical(signed_rank_design, "paired")) "pseudomedian of paired differences under symmetric shift model" else
+      if (identical(signed_rank_design, "one_sample")) "location pseudomedian under symmetric shift model" else
+      "pseudomedian of supplied observations or differences under symmetric shift model"
     interval <- "Wilcoxon inversion for location; not a general median difference"
   } else if (omnibus_prop) {
     if (!.ic_string(event)) .ic_abort("Declare the event definition for a proportions object")
@@ -73,6 +92,7 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
     n = if (anyNA(n)) NA_real_ else sum(n), n.excluded = .ic_scalar(n_excluded), status = status, stringsAsFactors = FALSE)
   new_inference_result(d, list(method_id = inferred, imported = TRUE, source_method = label,
     population = population, group_sizes = n, groups = groups, event = event,
+    design = signed_rank_design, design_source = signed_rank_design_source,
     unknown_metadata = "Sample/exclusion counts and populations are never reconstructed from degrees of freedom.",
     validation = "conversion of supplied finalized htest"), payload = list(native = x))
 }

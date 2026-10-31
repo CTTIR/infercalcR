@@ -13,10 +13,10 @@
 }
 \arguments{
 \item{x}{A recognized \code{htest}, \code{lm} or \code{glm} object.}
-\item{method_id}{Optional identity, which must agree with the stored test.}
+\item{method_id}{Optional identity, which must agree with the stored test. For an imported signed-rank test, a compatible explicit identity declares the otherwise unrecoverable one-sample or paired design.}
 \item{n}{Known analysis sample counts, or explicit NA when unavailable. Never reconstructed from degrees of freedom.}
 \item{population}{Required description of the supplied analysis population.}
-\item{groups}{Two ordered labels for independent two-sample location, odds-ratio or variance-ratio contrasts.}
+\item{groups}{Two ordered labels for independent two-sample location, odds-ratio or variance-ratio contrasts; optionally, labels of the two measurements for a declared paired signed-rank contrast.}
 \item{event}{Explicit event definition for binary/proportion and odds-ratio tests.}
 \item{n_excluded}{Known exclusion count, otherwise NA.}
 \item{conf.level}{Requested confidence level for summaries of supplied models.}
@@ -29,6 +29,16 @@ estimates, intervals and p-values are preserved with method-specific estimands.
 Two group means become their difference; no odds ratio is invented for a general
 contingency table. Proportion tests across more than two groups retain an omnibus
 row without a fabricated scalar probability. Unknown htest methods are rejected.
+
+A signed-rank htest has the same method label whether it came from a one-sample
+analysis or paired differences. Its default identity is therefore
+\code{imported_signed_rank}, with unknown design. Supplying
+\code{method_id = "signed_rank_wilcoxon_one_sample"} or
+\code{method_id = "signed_rank_wilcoxon"} declares the one-sample or paired design,
+respectively; metadata records that this design was declared by the caller.
+The converter never infers design from the printed data expression. Stored
+estimates, confidence intervals, null values and p-values are unchanged.
+For a paired result, supplied \code{n} counts analyzed pairs, not twice the pair count.
 
 Linear models use classical model-based marginal t intervals. GLM conversion is
 restricted to binomial-logit, Poisson-log and Gaussian-identity models; it uses
