@@ -48,9 +48,14 @@ as_inference.boschloo_test <- function(x, ...) {
 result_data.boschloo_test <- function(x, ...) result_data(as_inference(x), ...)
 result_metadata.boschloo_test <- function(x, ...) result_metadata(as_inference(x), ...)
 
-.ic_classifier_status <- function(x) {
+.ic_classifier_status <- function(x, reason_code = NULL) {
   out <- x
-  out[x %in% c("positive_infinity", "not_computed")] <- "undefined"
+  out[x == "positive_infinity"] <- "undefined"
+  out[x == "not_computed"] <- "unsupported"
+  if (!is.null(reason_code)) {
+    out[x == "not_computed" & !is.na(reason_code) & reason_code == "not_requested"] <- "not_applicable"
+    out[x == "not_computed" & !is.na(reason_code) & reason_code == "outside_double_range"] <- "numerical_failure"
+  }
   out[is.na(out) | !out %in% .ic_statuses] <- "undefined"
   out
 }
@@ -86,7 +91,7 @@ as_inference.classification_result <- function(x, ...) {
             interval.method = if(is.null(ci)) NA_character_ else ci$method,
             interval.scale = if(is.null(ci)) NA_character_ else "metric",
             interval.scope = if(is.null(ci)) NA_character_ else "pointwise",
-            n = n, n.excluded = excluded, status = .ic_classifier_status(r$status),
+            n = n, n.excluded = excluded, status = .ic_classifier_status(r$status, r$reason_code),
             reason = r$reason, source_status = r$status,
             interval.status = if(is.null(ci)) NA_character_ else ci$status,
             interval.reason = if(is.null(ci)) NA_character_ else ci$reason,
@@ -114,7 +119,7 @@ as_inference.classification_result <- function(x, ...) {
       statistic=r$z,p.value=r$p_value,null.value=0,alternative="two.sided",
       conf.low=r$lower,conf.high=r$upper,conf.level=r$level,
       interval.method=r$method,interval.scale="AUC difference",interval.scope="pointwise",
-      status=.ic_classifier_status(r$inference_status),reason=r$reason,
+      status=.ic_classifier_status(r$inference_status, r$reason_code),reason=r$reason,
       stringsAsFactors=FALSE))
   }
   if (!length(rows)) .ic_abort("classification result has no retained numerical rows", "unsupported")

@@ -31,6 +31,7 @@ if (requireNamespace('digest',quietly=TRUE)&&requireNamespace('jsonlite',quietly
     result_metadata(common)$evaluation$evaluation_split=='held_out_test',
     is.null(attr(common$payload$native,'ig_cls_evaluated_spec')),
     is.null(attr(common$payload$native,'ig_cls_data')),
+    all(rd$status[rd$source_status=='not_computed' & !is.na(rd$source_status)]!='undefined'),
     any(rd$interval.method=='wilson',na.rm=TRUE),any(rd$interval.method=='clopper_pearson',na.rm=TRUE))
   # Raw rows and subject identifiers are omitted recursively from portable payloads.
   attrs<-function(q){if(is.list(q)) c(names(attributes(q)),unlist(lapply(q,attrs))) else names(attributes(q))}
