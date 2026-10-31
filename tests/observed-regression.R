@@ -19,10 +19,12 @@ for (id in names(fixtures)) {
   level <- if (is.null(args$conf.level)) .95 else args$conf.level
   args[c('alternative','conf.level')] <- NULL
   spec <- method_spec(id, alternative=alt, conf.level=level)
+  attached <- search(); directory <- getwd(); devices <- grDevices::dev.list()
   before <- serialize(args,NULL); rng <- if(exists('.Random.seed',.GlobalEnv)) get('.Random.seed',.GlobalEnv) else NULL
   output <- do.call(run_inference,c(list(spec=spec),args))
   stopifnot(inherits(output,'inference_result'),is.data.frame(result_data(output)),nrow(result_data(output))>0L,
-    identical(serialize(args,NULL),before),identical(result_metadata(output)$method_id,id))
+    identical(serialize(args,NULL),before),identical(result_metadata(output)$method_id,id),
+    identical(search(),attached),identical(getwd(),directory),identical(grDevices::dev.list(),devices))
   if (!linked) stopifnot(isTRUE(all.equal(output$payload$native,fixture$expected,tolerance=1e-12,check.environment=FALSE)))
   if (grepl('prediction_|cluster_|jonckheere_|chisq_goodness_of_fit_mc',id)) {
     current <- if(exists('.Random.seed',.GlobalEnv)) get('.Random.seed',.GlobalEnv) else NULL
@@ -46,3 +48,6 @@ for(id in c('prediction_model_linear','prediction_model_logistic')) {
 stopifnot(length(executed)>=50L)
 if(full) stopifnot(length(executed)==71L,!length(skipped))
 cat('PASS observed baseline regression:',length(executed),'capabilities; SKIP:',length(skipped),paste(skipped,collapse=', '),'\n')
+
+evidence<-Sys.getenv('INFER_SUITE_EVIDENCE')
+if(nzchar(evidence))utils::write.csv(data.frame(method_id=executed,executions=1L,result='PASS'),evidence,row.names=FALSE)

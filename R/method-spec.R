@@ -11,17 +11,18 @@ method_spec <- function(method_id, alternative = "two.sided", conf.level = 0.95,
   if (!is.list(options) || (length(options) && (is.null(names(options)) || any(!nzchar(names(options))) || anyDuplicated(names(options))))) .ic_abort("options must be a uniquely named list")
   allowed <- cat$option_names[[match(method_id, cat$method_id)]]
   if (length(setdiff(names(options), allowed))) .ic_abort(paste("unknown options:", paste(setdiff(names(options), allowed), collapse = ", ")))
+  .ic_validate_options(method_id, options)
   structure(list(method_id = method_id, variant_id = method_id, alternative = alternative,
     conf.level = conf.level, missing = missing, options = options, contract_version = "1.0.0"), class = "method_spec")
 }
 
 #' Execute a prespecified observed procedure
 #' @export
-run_inference <- function(spec, ...) {
+run_inference <- function(spec, ..., result_id = NULL) {
   if (!inherits(spec, "method_spec")) .ic_abort("spec must come from method_spec()")
   valid <- method_spec(spec$method_id, spec$alternative, spec$conf.level, spec$missing, spec$options)
   if (!identical(spec, valid)) .ic_abort("method specification was altered")
-  .ic_run_method(spec, ...)
+  .ic_run_method(spec, ..., result_id = result_id)
 }
 
 #' List executable and explicitly unsupported methods
@@ -51,11 +52,9 @@ method_catalogue <- function() {
   args
 }
 
-.ic_run_method <- function(spec, ...) {
+.ic_run_method <- function(spec, ..., result_id = NULL) {
   if (spec$method_id == "variance_chisq_one_sample") .ic_abort("This advisor-only method has no implemented observed adapter", "unsupported")
   dots <- list(...)
-  result_id <- dots$result_id
-  dots$result_id <- NULL
   if (!is.null(result_id) && !.ic_string(result_id)) .ic_abort("result_id must be one nonempty string")
   if (any(c("alternative", "conf.level") %in% names(dots))) .ic_abort("Set alternative and conf.level in method_spec(), not in run_inference()")
   if (any(names(dots) %in% names(spec$options))) .ic_abort("A method argument was supplied both in options and run_inference")
@@ -128,4 +127,29 @@ predict_inference <- function(result, newdata, interval = "none", conf.level = N
     stringsAsFactors = FALSE)
   new_inference_result(rows, list(method_id = paste0(id, ".predict_new"), source_result_id = result$metadata$result_id,
     interval = interval, source_status = out$status, assumptions = out$assumptions), payload = list(native = out))
+}
+
+.ic_validate_options <- function(method_id, options) {
+  flags <- c("exact", "location_shift", "independent_units", "common_slopes", "standardize", "standardise",
+    "complete_cases", "order_prespecified", "independent_binomial_groups", "independent_splits", "predeclared",
+    "continuous_measurements", "model_assumptions_justified", "independent_clusters", "random_intercept_justified",
+    "proportional_odds_justified", "scores_prespecified")
+  for (name in intersect(names(options), flags)) {
+    x <- options[[name]]
+    if (!is.logical(x) || length(x) != 1L || is.na(x)) .ic_abort(paste(name, "must be one nonmissing logical value"))
+  }
+  numeric_options <- c("mu0", "mu", "ratio0", "p0", "auc", "sigma", "cutoff", "prevalence", "n_total", "tolerance",
+    "max_subdivisions", "quantile_probability", "mc.level", "seed", "B", "k", "factors", "components", "n_excluded")
+  for (name in intersect(names(options), numeric_options)) {
+    x <- options[[name]]
+    if (is.null(x) && name %in% c("prevalence")) next
+    if (!is.numeric(x) || length(x) != 1L || !is.finite(x)) .ic_abort(paste(name, "must be one finite number"))
+    if (name %in% c("seed", "B", "k", "factors", "components", "n_excluded", "max_subdivisions", "n_total") && (x < 0 || x != floor(x))) .ic_abort(paste(name, "must be a nonnegative integer"))
+  }
+  if ("missing" %in% names(options) && (!.ic_string(options$missing) || !options$missing %in% c("error", "complete_cases", "pairwise"))) .ic_abort("unsupported method-specific missing policy")
+  if ("missing_outcomes" %in% names(options)) {
+    policies <- if (method_id == "gee_logistic_exchangeable") c("error", "available_case_MCAR") else c("error", "available_case_MAR")
+    if (!.ic_string(options$missing_outcomes) || !options$missing_outcomes %in% policies) .ic_abort("missing_outcomes must explicitly match the method's MCAR or MAR assumption")
+  }
+  invisible(options)
 }

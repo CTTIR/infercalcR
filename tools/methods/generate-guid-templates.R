@@ -8,7 +8,7 @@ for(file in files){
  lines<-readLines(file,warn=FALSE)
  if(grepl('^(classifier_|diagnostic_)',id)){
   # These templates already delegate calculations and construct public classifier specs.
-  writeLines(gsub('inferguidR::','infercalcR::',lines,fixed=TRUE),file.path(output,basename(file)))
+  writeLines(sub('[[:blank:]]+$','',gsub('inferguidR::','infercalcR::',lines,fixed=TRUE)),file.path(output,basename(file)))
   next
  }
  parsed<-parse(file,keep.source=TRUE);refs<-attr(parsed,'srcref');changes<-list()
@@ -42,6 +42,6 @@ for(file in files){
   after<-if(change$end<length(lines))lines[seq.int(change$end+1L,length(lines))] else character()
   lines<-c(before,change$replacement,after)
  }
- writeLines(lines,file.path(output,basename(file)))
+ writeLines(sub('[[:blank:]]+$','',lines),file.path(output,basename(file)))
 }
 cat('Wrote',length(files),'delegating templates to',output,'\n')

@@ -16,7 +16,7 @@
 \item{method_id}{Optional identity, which must agree with the stored test.}
 \item{n}{Known analysis sample counts, or explicit NA when unavailable. Never reconstructed from degrees of freedom.}
 \item{population}{Required description of the supplied analysis population.}
-\item{groups}{Two ordered labels for independent two-sample contrasts.}
+\item{groups}{Two ordered labels for independent two-sample location, odds-ratio or variance-ratio contrasts.}
 \item{event}{Explicit event definition for binary/proportion and odds-ratio tests.}
 \item{n_excluded}{Known exclusion count, otherwise NA.}
 \item{conf.level}{Requested confidence level for summaries of supplied models.}
@@ -27,7 +27,8 @@
 proportion, Fisher, correlation, variance and common omnibus tests. Stored
 estimates, intervals and p-values are preserved with method-specific estimands.
 Two group means become their difference; no odds ratio is invented for a general
-contingency table. Unknown htest methods are rejected.
+contingency table. Proportion tests across more than two groups retain an omnibus
+row without a fabricated scalar probability. Unknown htest methods are rejected.
 
 Linear models use classical model-based marginal t intervals. GLM conversion is
 restricted to binomial-logit, Poisson-log and Gaussian-identity models; it uses

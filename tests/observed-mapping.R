@@ -13,7 +13,8 @@ scalar<-c(t_mean_one_sample='mean_difference',t_means_paired='mean_difference',
 same<-function(x,y)stopifnot(isTRUE(all.equal(as.numeric(x),as.numeric(y),tolerance=1e-12)))
 checked<-character()
 for(id in names(fixtures)){
- if(grepl('[.]|^(boschloo_|classifier_|diagnostic_)',id))next
+ if(grepl('[.]',id))next
+ if(grepl('^(boschloo_|classifier_|diagnostic_)',id)&&!identical(Sys.getenv('INFER_SUITE_FULL'),'true'))next
  cat<-method_catalogue();pkg<-strsplit(cat$backend[match(id,cat$method_id)],',',fixed=TRUE)[[1L]]
  if(!all(vapply(pkg,requireNamespace,logical(1),quietly=TRUE))){
   if(identical(Sys.getenv('INFER_SUITE_FULL'),'true'))stop('Missing required backend for ',id)
@@ -23,7 +24,28 @@ for(id in names(fixtures)){
  level<-if(is.null(a$conf.level)).95 else a$conf.level;a[c('alternative','conf.level')]<-NULL
  r<-do.call(run_inference,c(list(spec=method_spec(id,alt,level),result_id=paste0('fixture:',id)),a));d<-result_data(r);n<-f$expected
  stopifnot(identical(result_metadata(r)$result_id,paste0('fixture:',id)),nrow(d)>0)
- if(id%in%names(scalar)){
+ if(grepl('^boschloo_',id)){
+  same(d$p.value[d$component=='omnibus'],n$p_value);same(d$p.upper[d$component=='omnibus'],n$p_upper)
+  same(d$estimate[d$component=='description'],n$event_probability_difference)
+  stopifnot(all(is.na(d$conf.low)),all(is.na(d$conf.high)),all(d$n==n$n_total))
+ }else if(grepl('^(classifier_|diagnostic_)',id)){
+  for(model in n$result$models)for(kind in c('metrics','summaries')){
+   tab<-as.data.frame(model[[kind]],stringsAsFactors=FALSE);if(!nrow(tab))next
+   for(i in seq_len(nrow(tab))){
+    row<-d[d$component==kind & d$variable_id==model$model_id & d$estimand==tab$metric_id[i],]
+    if('variant'%in%names(tab)&&!is.na(tab$variant[i]))row<-row[row$variant==tab$variant[i],]
+    stopifnot(nrow(row)>0);same(row$estimate,rep(tab$value[i],nrow(row)))
+   }
+   ints<-as.data.frame(model$intervals,stringsAsFactors=FALSE)
+   if(nrow(ints))for(j in seq_len(nrow(ints))){
+    row<-d[d$component=='metrics' & d$variable_id==model$model_id & d$estimand==ints$metric_id[j] & !is.na(d$interval.method) & d$interval.method==ints$method[j],]
+    if(!is.na(ints$variant[j]))row<-row[row$variant==ints$variant[j],]
+    stopifnot(nrow(row)==1L);same(row$conf.low,ints$lower[j]);same(row$conf.high,ints$upper[j]);same(row$conf.level,ints$level[j])
+   }
+  }
+  stopifnot(all(is.na(d$p.value)),is.null(r$payload$native$specification),is.null(r$payload$native$result))
+  if(id=='classifier_binormal_theory')stopifnot(all(is.na(d$n)))
+ }else if(id%in%names(scalar)){
   same(d$estimate[1],n[[scalar[[id]]]]);same(d$p.value[1],n$p_value)
   if(length(n$confidence_interval)==2)same(c(d$conf.low[1],d$conf.high[1]),n$confidence_interval)
   stopifnot(nzchar(d$estimand[1]))
@@ -71,4 +93,19 @@ for(id in names(fixtures)){
  checked<-c(checked,id)
 }
 stopifnot(length(checked)>=50L)
+if(identical(Sys.getenv('INFER_SUITE_FULL'),'true'))stopifnot(length(checked)==68L)
 cat('PASS common analytical view matrix:',length(checked),'primary methods\n')
+
+parallel<-fixtures[['efa_common_factor_ml.parallel_analysis']]
+r<-do.call(parallel_analysis,parallel$arguments);d<-result_data(r)
+same(d$estimate,parallel$expected$observed_eigenvalues);same(d$null.threshold,parallel$expected$null_thresholds)
+stopifnot(all(is.na(d$p.value)),all(is.na(d$conf.low)))
+for(id in c('prediction_model_linear','prediction_model_logistic')){
+ a<-fixtures[[id]]$arguments;a[c('alternative','conf.level')]<-NULL
+ fitted<-do.call(run_inference,c(list(spec=method_spec(id)),a))
+ fixture<-fixtures[[paste0(id,'.predict_new')]]
+ d<-result_data(do.call(predict_inference,c(list(result=fitted),fixture$arguments)))
+ same(d$estimate,fixture$expected$estimate);same(d$conf.low,fixture$expected$lower);same(d$conf.high,fixture$expected$upper)
+ stopifnot(all(is.na(d$p.value)))
+}
+cat('PASS common analytical helper views: 3 capabilities\n')

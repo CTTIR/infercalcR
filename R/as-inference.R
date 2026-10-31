@@ -4,7 +4,8 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
     groups = NULL, event = NULL, n_excluded = NA_real_, ...) {
   if (length(list(...))) .ic_abort("unknown htest conversion arguments")
   if (missing(population) || !.ic_string(population)) .ic_abort("Declare the analysis population when converting an htest object")
-  if (!is.numeric(n) || !length(n) || any(!is.na(n) & (!is.finite(n) | n < 0 | n != floor(n)))) .ic_abort("n must contain known sample counts or explicit NA")
+  if (!is.numeric(n) || !length(n) || any(is.nan(n)) || any(!is.na(n) & (!is.finite(n) | n < 0 | n != floor(n)))) .ic_abort("n must contain known sample counts or explicit NA")
+  if (!is.numeric(n_excluded) || length(n_excluded) != 1L || is.nan(n_excluded) || (!is.na(n_excluded) && (!is.finite(n_excluded) || n_excluded < 0 || n_excluded != floor(n_excluded)))) .ic_abort("n_excluded must be one known count or explicit NA")
   label <- x$method
   if (!.ic_string(label)) .ic_abort("htest method label is missing")
   is_t <- grepl("t-test", label, fixed = TRUE) && !grepl("Wilcoxon", label)
@@ -15,7 +16,8 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
   is_cor <- grepl("correlation|Kendall", label)
   is_var <- grepl("F test to compare two variances", label, fixed = TRUE)
   effectless_fisher <- is_fisher && !length(x$estimate)
-  is_omnibus <- effectless_fisher || grepl("Pearson's Chi-squared|McNemar|Kruskal-Wallis|Friedman|Fligner-Killeen|One-way analysis of means", label)
+  omnibus_prop <- is_prop && length(x$estimate) > 2L
+  is_omnibus <- effectless_fisher || omnibus_prop || grepl("Pearson's Chi-squared|McNemar|Kruskal-Wallis|Friedman|Fligner-Killeen|One-way analysis of means", label)
   if (!any(c(is_t, is_wilcox, is_binom, is_prop, is_fisher, is_cor, is_var, is_omnibus))) .ic_abort("No explicit htest mapping for this method", "unsupported")
   inferred <- if (is_t) if (grepl("Welch", label)) "t_means_two_independent_welch" else if (grepl("Paired", label)) "t_means_paired" else if (length(x$estimate) == 2L) "t_means_two_independent_student" else "t_mean_one_sample" else
     if (is_wilcox) if (grepl("rank sum", label)) "rank_sum_mann_whitney" else "signed_rank_wilcoxon_one_sample" else
@@ -32,18 +34,32 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
     } else { estimate <- .ic_scalar(x$estimate); estimand <- if (grepl("Paired", label)) "population mean paired difference" else "population mean" }
     interval <- if (grepl("Welch", label)) "Welch t" else "Student t"
   } else if (is_wilcox) {
+    if (grepl("rank sum", label)) {
+      if (!is.character(groups) || length(groups) != 2L || anyNA(groups) || any(!nzchar(groups)) || anyDuplicated(groups)) .ic_abort("Declare two ordered groups for the location contrast")
+      contrast <- paste(groups, collapse = " minus ")
+    }
     estimate <- .ic_scalar(x$estimate); estimand <- if (grepl("rank sum", label)) "location shift under common-shape shift model" else "location pseudomedian under symmetric shift model"
     interval <- "Wilcoxon inversion for location; not a general median difference"
+  } else if (omnibus_prop) {
+    if (!.ic_string(event)) .ic_abort("Declare the event definition for a proportions object")
+    estimand <- "equality of event probabilities across groups"
   } else if (is_binom || is_prop || (is_fisher && !effectless_fisher)) {
     if (!.ic_string(event)) .ic_abort("Declare the event definition for a proportion or odds-ratio object")
     if (length(x$estimate) == 2L) {
       if (!is.character(groups) || length(groups) != 2L || anyNA(groups) || any(!nzchar(groups)) || anyDuplicated(groups)) .ic_abort("Declare two ordered group labels for the proportion contrast")
       estimate <- unname(x$estimate[1L] - x$estimate[2L]); estimand <- "event probability difference"; contrast <- paste(groups, collapse = " minus ")
     } else { estimate <- .ic_scalar(x$estimate); estimand <- if (is_fisher && length(x$estimate)) "conditional event odds ratio" else "event probability" }
+    if (is_fisher) {
+      if (!is.character(groups) || length(groups) != 2L || anyNA(groups) || any(!nzchar(groups)) || anyDuplicated(groups)) .ic_abort("Declare two ordered groups for the odds ratio")
+      contrast <- paste(groups, collapse = " / ")
+    }
     scale <- if (is_fisher && length(x$estimate)) "ratio" else "probability"
     interval <- if (is_binom) "Clopper-Pearson" else if (is_fisher) "exact conditional odds ratio" else "stats::prop.test interval; correction retained in stored method"
   } else if (is_cor) { estimate <- .ic_scalar(x$estimate); estimand <- names(x$estimate)[1L]; interval <- if (grepl("Pearson", label)) "Fisher z" else "not_provided_by_method" }
-  else if (is_var) { estimate <- .ic_scalar(x$estimate); estimand <- "population variance ratio"; interval <- "exact F"; scale <- "ratio" }
+  else if (is_var) {
+    if (!is.character(groups) || length(groups) != 2L || anyNA(groups) || any(!nzchar(groups)) || anyDuplicated(groups)) .ic_abort("Declare two ordered groups for the variance ratio")
+    contrast <- paste(groups, collapse = " / ")
+    estimate <- .ic_scalar(x$estimate); estimand <- "population variance ratio"; interval <- "exact F"; scale <- "ratio" }
   ci <- x$conf.int
   has_ci <- is.numeric(ci) && length(ci) == 2L
   status <- if (is.numeric(x$p.value) && length(x$p.value) == 1L && is.finite(x$p.value)) "ok" else "undefined"

@@ -38,3 +38,13 @@ cat('PASS htest/lm/glm conversions, unknown sizes, estimands and interval polici
 fisher_rxc<-stats::fisher.test(matrix(c(3,1,4,1,5,2),nrow=2,byrow=TRUE))
 fv<-result_data(as_inference(fisher_rxc,population='synthetic RxC table',n=16))
 stopifnot(fv$component=='omnibus',is.na(fv$estimate),is.na(fv$conf.low),fv$p.value==fisher_rxc$p.value)
+
+fp<-stats::fisher.test(matrix(c(4,1,1,4),2))
+err(as_inference(fp,population='table',event='success'))
+fr<-result_data(as_inference(fp,population='table',event='success',groups=c('a','b')))
+stopifnot(fr$contrast=='a / b',fr$estimate==unname(fp$estimate))
+prop_many<-stats::prop.test(c(10,20,30),c(30,40,50))
+pr<-result_data(as_inference(prop_many,population='three groups',event='success'))
+stopifnot(pr$component=='omnibus',is.na(pr$estimate),is.na(pr$conf.low),pr$p.value==prop_many$p.value)
+err(as_inference(b,population='trials',event='success',n=NaN))
+err(as_inference(b,population='trials',event='success',n_excluded='unknown'))
