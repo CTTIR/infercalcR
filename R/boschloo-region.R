@@ -276,4 +276,3 @@ print.boschloo_fisher_comparison <- function(x, ...) {
   }
   invisible(x)
 }
-

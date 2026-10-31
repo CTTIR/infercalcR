@@ -111,4 +111,3 @@ print.ig_status <- function(x, ...) {
 }
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
-

@@ -33,3 +33,6 @@ s=s[:start]+wrapper+body+s[end:];p.write_text(s)
 p=root/'classif-result.R';s=p.read_text().replace('format.classification_result <- function(x, ...) {','format.classification_result <- function(x, ...) {\n  if (inherits(x, "inference_result")) return(utils::capture.output(print.inference_result(x)))').replace('print.classification_result <- function(x, ...) {','print.classification_result <- function(x, ...) {\n  if (inherits(x, "inference_result")) return(print.inference_result(x))');p.write_text(s)
 
 p=root/'classif-dictionary-data.R';s=p.read_text();p.write_text(''.join(c if ord(c)<128 else '\\u%04x'%ord(c) for c in s))
+
+for p in root.glob('*.R'):
+ s=p.read_text();p.write_text('\n'.join(line.rstrip() for line in s.splitlines()).rstrip()+'\n')

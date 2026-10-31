@@ -418,4 +418,3 @@
   stats::uniroot(h, c(a, b), f.lower = fa, f.upper = fb, tol = 1e-13 * max(1, abs(a), abs(b)),
                  maxiter = 1000L)$root
 }
-

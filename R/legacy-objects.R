@@ -200,4 +200,3 @@
 `[[<-.ig_frozen` <- function(x, i, ..., value) .ig_abort_frozen(x)
 
 `[<-.ig_frozen` <- function(x, i, ..., value) .ig_abort_frozen(x)
-

@@ -51,104 +51,103 @@
 \title{Explicit Shared Numerical and Compatibility Providers}
 \description{Preserved numerical procedures extracted from inferguidR, with explicit inputs, typed statuses and method settings. Calculation and display are separate.}
 \usage{
-boschloo_design_kernel(n1 = , n2 = , alpha = 0.05, variant = , control = boschloo_control())
+boschloo_design_kernel(n1, n2, alpha = 0.05, variant, control = boschloo_control())
 
-binomial_region_probability(indices = , n1 = , n2 = , p1 = , p2 = )
+binomial_region_probability(indices, n1, n2, p1, p2)
 
-binomial_table_space(n1 = , n2 = )
+binomial_table_space(n1, n2)
 
-boschloo_region_record(kernel = , control = boschloo_control())
+boschloo_region_record(kernel, control = boschloo_control())
 
-boschloo_kernel_status(kernel = )
+boschloo_kernel_status(kernel)
 
-boschloo_control_record(control = )
+boschloo_control_record(control)
 
-boschloo_control_from_record(record = )
+boschloo_control_from_record(record)
 
-boschloo_validate_control(control = )
+boschloo_validate_control(control)
 
-boschloo_validate_design(n1 = , n2 = )
+boschloo_validate_design(n1, n2)
 
 boschloo_variant_details(variant = NULL)
 
-boschloo_variant_record(info = )
+boschloo_variant_record(info)
 
 boschloo_engine_info()
 
-boschloo_control_call(control = )
+boschloo_control_call(control)
 
-fisher_ordering_probabilities(n1 = , n2 = , variant = , control = boschloo_control(), convention = "same")
+fisher_ordering_probabilities(n1, n2, variant, control = boschloo_control(), convention = "same")
 
-boschloo_plot_data_record(plot_id = , title = , data = , fixed = , scope = , reference = list(), 
-    notes = character(), status = ig_status("ok"))
+boschloo_plot_data_record(plot_id, title, data, fixed, scope, reference = list(), notes = character(), status = ig_status("ok"))
 
 classification_dictionary()
 
 classification_contract()
 
-classification_reason(code = , lang = "en")
+classification_reason(code, lang = "en")
 
 classification_metric_ids()
 
-classification_short_label(id = , lang = "en")
+classification_short_label(id, lang = "en")
 
-classification_check_thresholds(threshold_probability = )
+classification_check_thresholds(threshold_probability)
 
-classification_check_bins(calibration_bins = )
+classification_check_bins(calibration_bins)
 
-classification_check_partial(partial_auc = )
+classification_check_partial(partial_auc)
 
-legacy_canonical_json(x = )
+legacy_canonical_json(x)
 
-legacy_hash_value(x = )
+legacy_hash_value(x)
 
-legacy_sha256(text = )
+legacy_sha256(text)
 
-legacy_parse_json(text = )
+legacy_parse_json(text)
 
-legacy_format_double(x = )
+legacy_format_double(x)
 
-legacy_parse_decimal(text = )
+legacy_parse_decimal(text)
 
-legacy_double_values(x = )
+legacy_double_values(x)
 
-legacy_nonfinite_paths(x = , path = "")
+legacy_nonfinite_paths(x, path = "")
 
-legacy_r_literal(x = )
+legacy_r_literal(x)
 
-legacy_unclass_frozen(x = )
+legacy_unclass_frozen(x)
 
-legacy_check_spec(spec = , kind = )
+legacy_check_spec(spec, kind)
 
 legacy_json_limits()
 
-normal_probability(q = , mean = 0, sd = 1, lower_tail = TRUE, log_p = FALSE)
+normal_probability(q, mean = 0, sd = 1, lower_tail = TRUE, log_p = FALSE)
 
-normal_quantile(p = , mean = 0, sd = 1, lower_tail = TRUE, log_p = FALSE)
+normal_quantile(p, mean = 0, sd = 1, lower_tail = TRUE, log_p = FALSE)
 
-t_probability(q = , df = , ncp = 0, lower_tail = TRUE, log_p = FALSE)
+t_probability(q, df, ncp = 0, lower_tail = TRUE, log_p = FALSE)
 
-t_quantile(p = , df = , ncp = 0, lower_tail = TRUE, log_p = FALSE)
+t_quantile(p, df, ncp = 0, lower_tail = TRUE, log_p = FALSE)
 
-chisq_probability(q = , df = , ncp = 0, lower_tail = TRUE, log_p = FALSE)
+chisq_probability(q, df, ncp = 0, lower_tail = TRUE, log_p = FALSE)
 
-chisq_quantile(p = , df = , ncp = 0, lower_tail = TRUE, log_p = FALSE)
+chisq_quantile(p, df, ncp = 0, lower_tail = TRUE, log_p = FALSE)
 
-f_probability(q = , df1 = , df2 = , ncp = 0, lower_tail = TRUE, log_p = FALSE)
+f_probability(q, df1, df2, ncp = 0, lower_tail = TRUE, log_p = FALSE)
 
-f_quantile(p = , df1 = , df2 = , ncp = 0, lower_tail = TRUE, log_p = FALSE)
+f_quantile(p, df1, df2, ncp = 0, lower_tail = TRUE, log_p = FALSE)
 
-binomial_probability(q = , size = , prob = , lower_tail = TRUE, log_p = FALSE)
+binomial_probability(q, size, prob, lower_tail = TRUE, log_p = FALSE)
 
-log_probability_add(a = , b = )
+log_probability_add(a, b)
 
-log_probability_sum(x = )
+log_probability_sum(x)
 
-invert_log_cdf(logcdf = , p = , lower_tail = , log_p = , support = , start = )
+invert_log_cdf(logcdf, p, lower_tail, log_p, support, start)
 
-f_lower_log_bound(q = , df1 = , df2 = , ncp = )
+f_lower_log_bound(q, df1, df2, ncp)
 
-noncentral_t_density(x = , df = , ncp = )
+noncentral_t_density(x, df, ncp)
 }
 \arguments{
 \item{n1}{Number of independent binomial observations in group 1.}

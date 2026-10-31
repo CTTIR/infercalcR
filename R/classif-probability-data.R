@@ -22,4 +22,3 @@
   list(data=list(points=table,summaries=summaries),notes=notes,
     estimate_kind=m$count_kind,evaluation=x$evaluation)
 }
-

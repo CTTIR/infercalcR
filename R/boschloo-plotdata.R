@@ -183,4 +183,3 @@ boschloo_plotdata_nuisance <- function(x, grid_points = 401L, control = NULL) {
                                 attained_size_upper = reg$size$upper, argmax = reg$size$argmax),
                status = status)
 }
-
