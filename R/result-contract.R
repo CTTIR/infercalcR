@@ -114,6 +114,10 @@ adjust_inference <- function(x, method = "holm", family_id, rows = NULL) {
   validate_inference(x)
   if (!.ic_string(method) || !method %in% stats::p.adjust.methods || !.ic_string(family_id)) .ic_abort("declare an adjustment method and family_id")
   d <- x$data
+  recorded_family <- any(vapply(x$metadata$adjustment, function(a)
+    is.list(a) && identical(a$family_id, family_id), logical(1)))
+  if (family_id %in% d$family_id || recorded_family)
+    .ic_abort("family_id already identifies an adjusted family; use a distinct ID for a different complete family")
   if (is.null(rows)) rows <- d$row_id
   if (!is.character(rows) || !length(rows) || anyNA(rows) || anyDuplicated(rows) || any(!rows %in% d$row_id)) .ic_abort("rows must identify a nonempty unique complete family")
   i <- match(rows, d$row_id)

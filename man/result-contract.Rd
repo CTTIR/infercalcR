@@ -23,7 +23,7 @@ adjust_inference(x, method = "holm", family_id, rows = NULL)
 \item{x}{An existing result.}
 \item{...}{Arguments to a documented adapter or accessor method.}
 \item{method}{A method supported by \code{stats::p.adjust}.}
-\item{family_id}{An explicit identifier of the complete declared hypothesis family.}
+\item{family_id}{A unique identifier that has not already been used in this result. An explicit identifier of the complete declared hypothesis family.}
 \item{rows}{Unique row IDs comprising the complete family; all rows by default.}
 }
 \details{Rows distinguish estimate, statistic, degrees of freedom, confidence limits and their level/method/scale/scope, raw p.value, p.adjusted and p.reported, family metadata, null/alternative, sample and exclusion counts, status and reason. NA means unavailable; legitimate unbounded confidence limits remain infinite. A numerical p-value bound is a separate method-specific quantity and is never a sampling confidence interval.

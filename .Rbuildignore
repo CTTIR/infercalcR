@@ -3,3 +3,5 @@
 ^tools$
 ^\.github$
 ^\.gitattributes$
+^LICENSE\.md$
+^CONTRACT\.md$

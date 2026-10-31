@@ -11,6 +11,18 @@ y <- adjust_inference(x, "holm", family_id = "prespecified", rows = c("a", "b"))
 stopifnot(identical(x, copy), isTRUE(all.equal(result_data(y)$p.adjusted, c(.02, .04))),
   identical(result_data(y)$family_size, c(2L, 2L)), identical(result_data(y)$conf.low, d$conf.low))
 invalid(adjust_inference(y, "holm", family_id = "again"))
+family <- new_inference_result(data.frame(row_id=c("a","b","c"),p.value=c(.01,.02,.03)),
+  list(method_id="three-prespecified-tests"))
+first <- adjust_inference(family, family_id="primary", rows=c("a","b"))
+before <- serialize(first,NULL)
+invalid(adjust_inference(first, family_id="primary", rows="c"))
+stopifnot(identical(serialize(first,NULL),before))
+separate <- adjust_inference(first, family_id="secondary", rows="c")
+stopifnot(identical(separate$data$family_id,c("primary","primary","secondary")),
+  isTRUE(all.equal(separate$data$p.adjusted,c(.02,.02,.03))))
+# Filtering does not erase the complete-family identity retained in metadata.
+filtered <- first; filtered$data <- filtered$data[3L,,drop=FALSE]
+invalid(adjust_inference(filtered, family_id="primary", rows="c"))
 invalid(new_inference_result(data.frame(row_id = c("a", "a")), list(method_id = "test")))
 invalid(new_inference_result(data.frame(p.value = 2), list(method_id = "test")))
 invalid(new_inference_result(data.frame(n = -1), list(method_id = "test")))

@@ -45,17 +45,21 @@ binormal_model(auc, sigma = 1)
 
 binormal_rates(cutoff, auc, sigma = 1)
 
-boschloo_compare_fisher(n1, n2, alpha = 0.05, variant, p1 = NULL, p2 = NULL, fisher_convention = c("same", "minlike"), control = boschloo_control())
+boschloo_compare_fisher(n1, n2, alpha = 0.05, variant, p1 = NULL, p2 = NULL,
+  fisher_convention = c("same", "minlike"), control = boschloo_control())
 
-boschloo_control(tie_tolerance = 1e-07, grid_points = 1001L, nuisance_tol = 1e-09, polish_tol = 1e-12, max_levels = 60L, ambiguity_band = c(1e-12, 1e-06), cache = TRUE)
+boschloo_control(tie_tolerance = 1e-07, grid_points = 1001L, nuisance_tol = 1e-09,
+  polish_tol = 1e-12, max_levels = 60L, ambiguity_band = c(1e-12, 1e-06), cache = TRUE)
 
-boschloo_plotdata_lattice(n1, n2, alpha = 0.05, variant, p1 = NULL, p2 = NULL, observed = NULL, pvalues = TRUE, control = boschloo_control())
+boschloo_plotdata_lattice(n1, n2, alpha = 0.05, variant, p1 = NULL, p2 = NULL,
+  observed = NULL, pvalues = TRUE, control = boschloo_control())
 
 boschloo_plotdata_nuisance(x, grid_points = 401L, control = NULL)
 
 boschloo_region(n1, n2, alpha = 0.05, variant, control = boschloo_control())
 
-boschloo_test(x1, n1, x2, n2, variant, alpha = NULL, groups = c("group 1", "group 2"), event = "event", control = boschloo_control())
+boschloo_test(x1, n1, x2, n2, variant, alpha = NULL, groups = c("group 1", "group 2"),
+  event = "event", control = boschloo_control())
 
 boschloo_variants()
 
@@ -67,27 +71,48 @@ classification_auc(spec, partial_auc = NULL, level = NULL)
 
 classification_evaluated_spec(x)
 
-classification_metrics(x, count_kind = c("observed", "frequency_weighted", "expected"), lang = c("en", "de"))
+classification_metrics(x, count_kind = c("observed", "frequency_weighted", "expected"),
+  lang = c("en", "de"))
 
-classification_plot_data(x, panel = .ig_cls_panels, model_id = NULL, basis = c("observed", "scenario"), lang = c("en", "de"), ppv_levels = c(0.25, 0.5, 0.75), f1_levels = c(0.2, 0.4, 0.6, 0.8), ppv_target = NULL, metric_x = "fpr", metric_y = "tpr", realised_rules = NULL, bins = 40)
+classification_plot_data(x, panel = .ig_cls_panels, model_id = NULL,
+  basis = c("observed", "scenario"), lang = c("en", "de"), ppv_levels = c(0.25, 0.5,
+  0.75), f1_levels = c(0.2, 0.4, 0.6, 0.8), ppv_target = NULL, metric_x = "fpr",
+  metric_y = "tpr", realised_rules = NULL, bins = 40)
 
-classification_spec(data = NULL, truth = NULL, positive_label = NULL, scores = NULL, counts = NULL, theory = NULL, rule = NULL, cutoff = NULL, models = NULL, direction = NULL, comparator = NULL, score_scale = c("raw_score", "probability"), evaluation_split = NULL, negative_label = NULL, prevalence = NULL, prevalence_source = NULL, sampling = NULL, weights = NULL, weight_type = "frequency", cluster = NULL, id = NULL, missing = c("error", "exclude"), uncertainty = classification_uncertainty())
+classification_spec(data = NULL, truth = NULL, positive_label = NULL, scores = NULL,
+  counts = NULL, theory = NULL, rule = NULL, cutoff = NULL, models = NULL,
+  direction = NULL, comparator = NULL, score_scale = c("raw_score", "probability"),
+  evaluation_split = NULL, negative_label = NULL, prevalence = NULL,
+  prevalence_source = NULL, sampling = NULL, weights = NULL, weight_type = "frequency",
+  cluster = NULL, id = NULL, missing = c("error", "exclude"),
+  uncertainty = classification_uncertainty())
 
-classification_table(x, table = c("metrics", "intervals", "summaries", "operating_point", "curve", "selection", "bounds", "tied",      "scenario", "calibration", "net_benefit", "comparisons", "limitations"), model_id = NULL, lang = c("en", "de"))
+classification_table(x, table = c("metrics", "intervals", "summaries",
+  "operating_point", "curve", "selection", "bounds", "tied",      "scenario",
+  "calibration", "net_benefit", "comparisons", "limitations"), model_id = NULL,
+  lang = c("en", "de"))
 
-classification_uncertainty(level = 0.95, proportion_methods = c("wilson", "clopper_pearson"), auc_method = c("delong", "none"), bootstrap_replicates = 0, seed = NULL, bootstrap_strata = c("class", "none"), bootstrap_metrics = c("tpr", "fpr", "ppv", "npv", "youden_j", "f1", "mcc", "roc_auc", "average_precision"))
+classification_uncertainty(level = 0.95, proportion_methods = c("wilson",
+  "clopper_pearson"), auc_method = c("delong", "none"), bootstrap_replicates = 0,
+  seed = NULL, bootstrap_strata = c("class", "none"), bootstrap_metrics = c("tpr",
+  "fpr", "ppv", "npv", "youden_j", "f1", "mcc", "roc_auc", "average_precision"))
 
-classifier_model(model_id, name = model_id, version = NULL, score_meaning = NULL, population = NULL, unit = NULL, source_hash = NULL)
+classifier_model(model_id, name = model_id, version = NULL, score_meaning = NULL,
+  population = NULL, unit = NULL, source_hash = NULL)
 
 compare_classifiers(spec, level = NULL)
 
-cutoff_rule(cutoff = NULL, selection = NULL, selection_data = NULL, constraints = NULL, optimise = NULL, capacity = NULL, costs = NULL, tie_break = NULL, prevalence_basis = NULL)
+cutoff_rule(cutoff = NULL, selection = NULL, selection_data = NULL, constraints = NULL,
+  optimise = NULL, capacity = NULL, costs = NULL, tie_break = NULL,
+  prevalence_basis = NULL)
 
-cutoff_sweep(x, metrics = .ig_cls_default_sweep_metrics, model_id = NULL, grid = 401, basis = c("observed", "scenario"))
+cutoff_sweep(x, metrics = .ig_cls_default_sweep_metrics, model_id = NULL, grid = 401,
+  basis = c("observed", "scenario"))
 
 distribution_calculator(expression)
 
-evaluate_cutoff(spec, cutoff = NULL, model_id = NULL, partial_auc = NULL, threshold_probability = NULL, calibration_bins = 10, include_curves = TRUE)
+evaluate_cutoff(spec, cutoff = NULL, model_id = NULL, partial_auc = NULL,
+  threshold_probability = NULL, calibration_bins = 10, include_curves = TRUE)
 
 ig_status(code, reason = "", details = list())
 
@@ -107,11 +132,14 @@ predictive_values_at_prevalence(tpr, fpr, prevalence)
 
 prevalence_for_ppv_target(tpr, fpr, target)
 
-prevalence_scenario(x, prevalence, n_total = NULL, source = c("assumed", "external"), lang = c("en", "de"))
+prevalence_scenario(x, prevalence, n_total = NULL, source = c("assumed", "external"),
+  lang = c("en", "de"))
 
-select_cutoff(spec, objective = NULL, constraints = NULL, optimise = NULL, capacity = NULL, costs = NULL, tie_break = NULL, prevalence_basis = NULL, ...)
+select_cutoff(spec, objective = NULL, constraints = NULL, optimise = NULL,
+  capacity = NULL, costs = NULL, tie_break = NULL, prevalence_basis = NULL, ...)
 
-boschloo_inference(x1, n1, x2, n2, variant, alpha = NULL, groups = c("group 1", "group 2"), event = "event", control = boschloo_control())
+boschloo_inference(x1, n1, x2, n2, variant, alpha = NULL, groups = c("group 1",
+  "group 2"), event = "event", control = boschloo_control())
 }
 \arguments{
 \item{spec}{A classification specification returned by classification_spec().}

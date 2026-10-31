@@ -77,9 +77,11 @@ boschloo_engine_info()
 
 boschloo_control_call(control)
 
-fisher_ordering_probabilities(n1, n2, variant, control = boschloo_control(), convention = "same")
+fisher_ordering_probabilities(n1, n2, variant, control = boschloo_control(),
+  convention = "same")
 
-boschloo_plot_data_record(plot_id, title, data, fixed, scope, reference = list(), notes = character(), status = ig_status("ok"))
+boschloo_plot_data_record(plot_id, title, data, fixed, scope, reference = list(),
+  notes = character(), status = ig_status("ok"))
 
 classification_dictionary()
 
