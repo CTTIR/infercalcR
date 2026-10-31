@@ -29,7 +29,7 @@ new_inference_result <- function(data, metadata, kind = "inference", payload = l
     data[[nm]] <- rep(switch(typeof(prototype), character = NA_character_,
                             integer = NA_integer_, double = NA_real_), n)
   }
-  if (all(is.na(data$row_id))) data$row_id <- paste0(metadata$method_id, ":", seq_len(n))
+  if (all(is.na(data$row_id))) data$row_id <- if (n) paste0(metadata$method_id, ":", seq_len(n)) else character()
   if (all(is.na(data$status))) data$status <- rep("ok", n)
   if (all(is.na(data$p.reported))) data$p.reported <- data$p.value
   if (is.null(metadata$variant_id)) metadata$variant_id <- metadata$method_id

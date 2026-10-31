@@ -25,5 +25,7 @@ invalid(method_spec("descriptive_summary", conf.level = 1))
 z <- new_inference_result(data.frame(estimate = NA_real_, p.value = NA_real_,
   status = "undefined", reason = "no observations"), list(method_id = "fixture"))
 stopifnot(is.na(result_data(z)$p.reported), result_data(z)$status == "undefined")
+empty <- new_inference_result(data.frame(), list(method_id = "empty"))
+stopifnot(nrow(result_data(empty)) == 0L, identical(result_data(empty)$row_id, character()))
 tmp <- tempfile(); saveRDS(x, tmp); stopifnot(identical(readRDS(tmp), x)); unlink(tmp)
 cat("contract checks completed\n")
