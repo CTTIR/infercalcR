@@ -123,6 +123,37 @@
  baseline
 }
 
+.port_ordinal <- function(actual,baseline,id) {
+ a<-actual$coefficient_table;b<-baseline$coefficient_table
+ # Keep the original complete primitive/structure checks. The only candidate
+ # replacement is the known derived p field, after every guard succeeds.
+ ac<-actual;bc<-baseline
+ ac$coefficient_table$p_value<-NULL;bc$coefficient_table$p_value<-NULL
+ .port_equal(ac,bc,paste(id,'frozen values excluding derived Wald p'))
+ .port_equal(attributes(a$p_value),attributes(b$p_value),paste(id,'p attributes'))
+ z<-a$estimate/a$std_error;z0<-b$estimate/b$std_error
+ .port_equal(a$z,z,paste(id,'Wald statistic identity'))
+ .port_equal(b$z,z0,paste(id,'frozen Wald statistic identity'))
+ computed_p<-2*stats::pnorm(abs(z),lower.tail=FALSE)
+ # The same-runtime formula must be exact: the guard cannot legitimize an
+ # altered stored p-value merely because the change is small.
+ if(!identical(a$p_value,computed_p))stop(id,': ordinal stored p is not its native Wald formula',call.=FALSE)
+ baseline_p<-2*stats::pnorm(abs(z0),lower.tail=FALSE)
+ # Explicit floating-point allowance for the frozen cross-platform normal tail;
+ # this is not a universal certified error bound for mathematical libraries.
+ baseline_roundoff<-16*.Machine$double.eps*pmax(abs(b$p_value),abs(baseline_p))
+ if(any(abs(b$p_value-baseline_p)>baseline_roundoff))stop(id,': frozen ordinal p exceeds explicit normal-tail roundoff allowance',call.=FALSE)
+ stopifnot(all(is.finite(z)),all(is.finite(z0)),all(a$std_error>0),all(b$std_error>0))
+ # Mean-value theorem for p(z)=2*Phi(-abs(z)): |p(a)-p(b)| is bounded
+ # by the largest normal density on the intervening z interval, times |a-b|.
+ closest<-ifelse(sign(z)*sign(z0)<=0,0,pmin(abs(z),abs(z0)))
+ propagated<-2*stats::dnorm(closest)*abs(z-z0)
+ roundoff<-16*.Machine$double.eps*pmax(abs(a$p_value),abs(b$p_value))
+ error<-abs(a$p_value-b$p_value)
+ if(any(error>propagated+roundoff))stop(id,': ordinal p difference exceeds propagated z error and floating-point margin',call.=FALSE)
+ invisible(TRUE)
+}
+
 .port_rank <- function(n,args,id) {
  x<-if(id=='signed_rank_wilcoxon')args$data$x-args$data$y else args$x
  mu<-if(id=='signed_rank_wilcoxon')0 else args$mu
@@ -154,6 +185,12 @@
  }
  if(id=='efa_common_factor_ml')n<-.port_efa(n,baseline,id)
  if(id=='regression_multinomial').port_multinomial(n,args,id)
+ if(id=='regression_ordinal_proportional_odds'){
+  .port_ordinal(n,baseline,id)
+  table_attributes<-attributes(baseline$coefficient_table)
+  baseline$coefficient_table$p_value<-n$coefficient_table$p_value
+  attributes(baseline$coefficient_table)<-table_attributes
+ }
  if(id=='glmm_logistic_random_intercept')baseline<-.port_glmm(n,baseline,args,id)
  if(id%in%c('signed_rank_wilcoxon','signed_rank_wilcoxon_one_sample')){
   .port_rank(n,args,id)

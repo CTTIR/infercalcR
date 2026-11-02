@@ -27,3 +27,29 @@ reject(.port_native(n,f[[id]]$expected,id,f[[id]]$arguments))
 id<-'t_mean_one_sample';n<-f[[id]]$expected;n$p_value<-n$p_value+1e-9
 reject(.port_native(n,f[[id]]$expected,id,f[[id]]$arguments))
 cat('PASS coupled basis/tree equivalence and deliberate numerical-regression rejection\n')
+
+# The normal-tail derivative can amplify accepted z roundoff in a small p-value.
+# It cannot excuse an altered p or primitive drift above the existing tolerance.
+id<-'regression_ordinal_proportional_odds';ordinal<-f[[id]]$expected
+.port_native(ordinal,ordinal,id,f[[id]]$arguments)
+coherent_ordinal<-function(beta=ordinal$coefficient_table$estimate,se=ordinal$coefficient_table$std_error){
+ n<-ordinal;t<-n$coefficient_table;critical<-stats::qnorm((1-n$confidence_level)/2,lower.tail=FALSE)
+ t$estimate<-beta;t$std_error<-se;t$z<-beta/se;t$p_value<-2*stats::pnorm(abs(t$z),lower.tail=FALSE)
+ t$lower<-beta-critical*se;t$upper<-beta+critical*se;t$odds_ratio<-exp(beta)
+ t$ratio_lower<-exp(t$lower);t$ratio_upper<-exp(t$upper)
+ attributes(t)<-attributes(ordinal$coefficient_table);n$coefficient_table<-t;n
+}
+n<-coherent_ordinal(beta=ordinal$coefficient_table$estimate+5.06e-13*ordinal$coefficient_table$std_error)
+.port_native(n,ordinal,id,f[[id]]$arguments)
+for(delta in c(1e-10,1e-15)){
+ n<-ordinal;n$coefficient_table$p_value<-n$coefficient_table$p_value+delta
+ attributes(n$coefficient_table)<-attributes(ordinal$coefficient_table)
+ reject(.port_native(n,ordinal,id,f[[id]]$arguments))
+}
+n<-coherent_ordinal(beta=ordinal$coefficient_table$estimate*(1+2e-12))
+reject(.port_native(n,ordinal,id,f[[id]]$arguments))
+n<-coherent_ordinal(se=ordinal$coefficient_table$std_error*(1+2e-12))
+reject(.port_native(n,ordinal,id,f[[id]]$arguments))
+n<-ordinal;attr(n$coefficient_table,'unexpected')<-TRUE
+reject(.port_native(n,ordinal,id,f[[id]]$arguments))
+cat('PASS ordinal propagated Wald p roundoff and strict primitive rejection\n')
