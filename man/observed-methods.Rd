@@ -4,7 +4,12 @@
 \description{Execute a prespecified procedure through \code{method_spec()} and
 \code{run_inference()}. Each procedure retains its existing finite-sample,
 numerical, missingness and backend policies.}
-\details{
+\details{Wilcoxon intervals retain the native-reported confidence level. Older R
+versions can record a nominal or rounded level whose exact attainment differs;
+newer versions can return a fully unbounded conservative interval. The common
+interval-method label and metadata identify this convention. No level, endpoint,
+or captured native diagnostic is replaced.
+
 Arguments listed below are supplied by name to \code{run_inference()}; method
 controls may instead be declared in the named \code{options} list in
 \code{method_spec()}. Alternative and confidence level belong in the specification.

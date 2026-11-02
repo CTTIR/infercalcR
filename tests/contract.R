@@ -66,7 +66,13 @@ check_conservative<-function(value,reference,component){
   identical(native$confidence_interval,as.numeric(fit$conf.int)),
   identical(native$attained_confidence_level,attr(fit$conf.int,'conf.level')),
   identical(native$diagnostics,reference$diagnostics),
-  native$requested_confidence_level==.95,result_metadata(value)$settings$conf.level==.95)
+  native$requested_confidence_level==.95,result_metadata(value)$settings$conf.level==.95,
+  identical(result_metadata(value)$interval_level_source$r_version,R.version.string),
+  any(grepl('native-reported confidence level',result_metadata(value)$warnings)))
+ imported<-as_inference(fit,population='synthetic native confidence attribute',groups=c('x','y'))
+ stopifnot(identical(c(result_data(imported)$conf.low,result_data(imported)$conf.high),as.numeric(fit$conf.int)),
+  result_data(imported)$conf.level==attr(fit$conf.int,'conf.level'),
+  is.na(result_metadata(imported)$interval_level_source$r_version))
  invisible(value)
 }
 rank_x<-c(1,4,6);rank_y<-c(2,3,5,7)
@@ -75,17 +81,33 @@ for(alternative in c('two.sided','less','greater')){
  result<-run_inference(method_spec('rank_sum_mann_whitney',alternative=alternative,conf.level=.95),
   x=rank_x,y=rank_y,location_shift=TRUE)
  check_conservative(result,reference,'location_shift')
- if(alternative=='two.sided')stopifnot(result$payload$native$attained_confidence_level==1,
-  identical(result$payload$native$confidence_interval,c(-Inf,Inf)))
- # These three observations also yield conservative 100% signed-rank intervals.
+ # Old R reports nominal/rounded levels for these exact intervals; newer R can
+ # return the fully unbounded conservative interval. Check the actual backend
+ # and the finite-sample endpoint possibilities without replacing its numbers.
+ ci<-result$payload$native$confidence_interval
+ finite_bounds<-range(outer(rank_x,rank_y,'-'))
+ stopifnot(ci[1L]%in%c(-Inf,finite_bounds[1L]),ci[2L]%in%c(Inf,finite_bounds[2L]))
+ if(all(is.infinite(ci)))stopifnot(result$payload$native$attained_confidence_level==1)
+ else {
+  tails<-sum(is.finite(ci)); exact_coverage<-1-tails/choose(length(rank_x)+length(rank_y),length(rank_x))
+  stopifnot(abs(exact_coverage-if(alternative=='two.sided')33/35 else 34/35)<1e-15)
+ }
+ stopifnot(grepl('native-reported confidence level',result_data(result)$interval.method[2L]))
+ # Native signed-rank limits also vary across R versions; exact endpoint coverage is known.
  reference<-reference_wilcox(rank_x,mu=0,alternative=alternative)
  one<-run_inference(method_spec('signed_rank_wilcoxon_one_sample',alternative=alternative),x=rank_x,mu=0)
  paired<-run_inference(method_spec('signed_rank_wilcoxon',alternative=alternative),
   data=data.frame(id=letters[1:3],x=rank_x+10,y=rep(10,3)))
  for(value in list(one,paired)){
   check_conservative(value,reference,'contrast')
-  stopifnot(value$payload$native$attained_confidence_level==1,
-   identical(value$payload$native$confidence_interval,c(-Inf,Inf)))
+  ci<-value$payload$native$confidence_interval
+  stopifnot(ci[1L]%in%c(-Inf,min(rank_x)),ci[2L]%in%c(Inf,max(rank_x)))
+  if(all(is.infinite(ci)))stopifnot(value$payload$native$attained_confidence_level==1)
+  else {
+   exact_coverage<-1-sum(is.finite(ci))/2^length(rank_x)
+   stopifnot(exact_coverage==if(alternative=='two.sided').75 else .875)
+  }
+  stopifnot(grepl('native-reported confidence level',result_data(value)$interval.method))
  }
 }
 cat('PASS conservative attained confidence level 1, exact rank intervals/diagnostics and strict requested-level validation\n')

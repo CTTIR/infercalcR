@@ -71,7 +71,10 @@ for(exact in c(TRUE,FALSE))for(alternative in c('two.sided','greater')){
    stopifnot(row$estimate==unname(native$estimate),row$statistic==unname(native$statistic),
     row$p.value==native$p.value,row$null.value==unname(native$null.value),row$n==length(wx),
     identical(c(row$conf.low,row$conf.high),as.numeric(native$conf.int)),
-    row$conf.level==attr(native$conf.int,'conf.level'),row$alternative==native$alternative)
+    row$conf.level==attr(native$conf.int,'conf.level'),row$alternative==native$alternative,
+    grepl("native-reported confidence level",row$interval.method),
+    identical(result_metadata(value)$warnings,result_metadata(value)$interval_level_convention),
+    is.na(result_metadata(value)$interval_level_source$r_version))
   }
   stopifnot(identical(original,serialize(native,NULL)))
   err(as_inference(native,method_id='rank_sum_mann_whitney',population='incompatible design'))

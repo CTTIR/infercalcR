@@ -81,6 +81,10 @@ method_catalogue <- function() {
       any(args$missing_outcomes %in% c("available_case_MAR", "available_case_MCAR")) || identical(args$missing, "pairwise")
     if (!isTRUE(explicit)) .ic_abort("missing='omit' requires a supported explicit method policy (complete_cases, MAR, MCAR or pairwise); it never selects one")
   }
+  # R 4.1 may materialize shared deferred factor levels during these models'
+  # factor operations. Isolate the representation change without changing inference.
+  if (spec$method_id %in% c("regression_multinomial", "regression_ordinal_proportional_odds"))
+    args <- unserialize(serialize(args, NULL))
   warnings <- character()
   native <- withCallingHandlers(do.call(fun, args), warning = function(w) {
     warnings <<- c(warnings, conditionMessage(w))

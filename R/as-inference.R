@@ -81,6 +81,8 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
     estimate <- .ic_scalar(x$estimate); estimand <- "population variance ratio"; interval <- "exact F"; scale <- "ratio" }
   ci <- x$conf.int
   has_ci <- is.numeric(ci) && length(ci) == 2L
+  interval_level_note <- if (is_wilcox && has_ci) "native-reported confidence level; exact attainment may differ by R version" else NULL
+  if (!is.null(interval_level_note)) interval <- paste(interval, interval_level_note, sep = "; ")
   status <- if (is.numeric(x$p.value) && length(x$p.value) == 1L && is.finite(x$p.value)) "ok" else "undefined"
   d <- data.frame(row_id = paste0(inferred, ":1"), component = if (is_omnibus) "omnibus" else "contrast",
     estimand = .ic_text(estimand), contrast = contrast, estimate = estimate,
@@ -93,6 +95,8 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
   new_inference_result(d, list(method_id = inferred, imported = TRUE, source_method = label,
     population = population, group_sizes = n, groups = groups, event = event,
     design = signed_rank_design, design_source = signed_rank_design_source,
+    interval_level_convention = interval_level_note, warnings = interval_level_note,
+    interval_level_source = if (is.null(interval_level_note)) NULL else list(source = "supplied htest confidence attribute", r_version = NA_character_),
     unknown_metadata = "Sample/exclusion counts and populations are never reconstructed from degrees of freedom.",
     validation = "conversion of supplied finalized htest"), payload = list(native = x))
 }
@@ -106,6 +110,9 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
         !paste(fam, link) %in% c("binomial logit", "poisson log", "gaussian identity")) .ic_abort("Only binomial-logit, Poisson-log and Gaussian-identity glm conversion is implemented", "unsupported")
     if (!isTRUE(x$converged) || isTRUE(x$boundary)) .ic_abort("The supplied glm did not converge to an interior fit", "numerical_failure")
   }
+  # Older R may materialize shared ALTREP names while summarizing a fitted model.
+  # Isolate that internal representation change as well as any mutable family environments.
+  x <- unserialize(serialize(x, NULL))
   sm <- summary(x)
   table <- sm$coefficients
   df <- stats::df.residual(x)

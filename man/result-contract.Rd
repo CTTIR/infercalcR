@@ -30,10 +30,14 @@ adjust_inference(x, method = "holm", family_id, rows = NULL)
 
 A finalized \code{conf.level} is NA when unavailable or a finite attained/reported
 level in \code{(0, 1]}. Conservative discrete intervals can attain level 1,
-including intervals with infinite endpoints. The native level, endpoints and
+including intervals with infinite endpoints. The native-reported level, endpoints and
 diagnostics are preserved. Requested confidence levels in \code{method_spec()}
 remain strictly between zero and one; the requested level must not replace a
-different attained level.
+different native-reported level. For Wilcoxon intervals, older R versions may
+report nominal or rounded confidence attributes; the legacy payload field
+\code{attained_confidence_level} preserves that attribute verbatim. Common
+interval labels identify the convention, and imported objects have unknown
+originating R provenance.
 
 Adjustment rejects missing raw p-values and already adjusted families. It is performed once on the declared complete family before display filtering. It does not adjust confidence intervals. Results retain computation status separately from validation evidence. Result IDs are stable labels, not cryptographic hashes. RDS round trips are suitable only for trusted objects.}
 \value{Constructors and adapters return an S3 inference_result; result_data returns a data.frame, result_metadata a list. Validation returns the object invisibly.}

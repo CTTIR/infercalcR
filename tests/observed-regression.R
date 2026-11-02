@@ -1,9 +1,12 @@
 library(infercalcR)
+helper_candidates<-c('support/observed-portability.R','tests/support/observed-portability.R',system.file('tests','support','observed-portability.R',package='infercalcR'))
+source(helper_candidates[file.exists(helper_candidates)][1L])
 fixtures <- readRDS(system.file('methods','synthetic-baseline.rds',package='infercalcR'))
 full <- identical(Sys.getenv('INFER_SUITE_FULL'), 'true')
 executed <- character(); skipped <- character(); results <- list()
 for (id in names(fixtures)) {
   if (grepl('[.]predict_new$|[.]parallel_analysis$', id)) next
+  cat("CHECK native",id,"\n")
   fixture <- fixtures[[id]]
   linked <- grepl('^(boschloo_|classifier_|diagnostic_)', id)
   if (linked && !full) { skipped <- c(skipped,id); next }
@@ -25,7 +28,7 @@ for (id in names(fixtures)) {
   stopifnot(inherits(output,'inference_result'),is.data.frame(result_data(output)),nrow(result_data(output))>0L,
     identical(serialize(args,NULL),before),identical(result_metadata(output)$method_id,id),
     identical(search(),attached),identical(getwd(),directory),identical(grDevices::dev.list(),devices))
-  if (!linked) stopifnot(isTRUE(all.equal(output$payload$native,fixture$expected,tolerance=1e-12,check.environment=FALSE)))
+  if (!linked) .port_native(output$payload$native,fixture$expected,id,args)
   if (grepl('prediction_|cluster_|jonckheere_|chisq_goodness_of_fit_mc',id)) {
     current <- if(exists('.Random.seed',.GlobalEnv)) get('.Random.seed',.GlobalEnv) else NULL
     stopifnot(identical(rng,current))

@@ -1,4 +1,4 @@
-# Views are checked against the original synthetic outputs, independently of payload parity.
+# Verify exact flattening of current-runtime native results; frozen numerical regression is checked separately.
 library(infercalcR)
 fixtures<-readRDS(system.file('methods','synthetic-baseline.rds',package='infercalcR'))
 scalar<-c(t_mean_one_sample='mean_difference',t_means_paired='mean_difference',
@@ -10,7 +10,7 @@ scalar<-c(t_mean_one_sample='mean_difference',t_means_paired='mean_difference',
  brunner_munzel='estimate',mcnemar_exact_conditional='conditional_positive_probability',mcnemar_midp='conditional_positive_probability',
  variance_f_test_two='variance_ratio',correlation_pearson='estimate',correlation_spearman='estimate',correlation_kendall='estimate',
  regression_linear_simple='estimate',glmm_logistic_random_intercept='odds_ratio',gee_logistic_exchangeable='odds_ratio')
-same<-function(x,y)stopifnot(isTRUE(all.equal(as.numeric(x),as.numeric(y),tolerance=1e-12)))
+same<-function(x,y){comparison<-all.equal(as.numeric(x),as.numeric(y),tolerance=1e-12);if(!isTRUE(comparison))stop(id,': ',deparse(substitute(x)),': ',paste(comparison,collapse='; '))}
 checked<-character()
 for(id in names(fixtures)){
  if(grepl('[.]',id))next
@@ -22,7 +22,7 @@ for(id in names(fixtures)){
  }
  f<-fixtures[[id]];a<-f$arguments;alt<-if(is.null(a$alternative))'two.sided' else a$alternative
  level<-if(is.null(a$conf.level)).95 else a$conf.level;a[c('alternative','conf.level')]<-NULL
- r<-do.call(run_inference,c(list(spec=method_spec(id,alt,level),result_id=paste0('fixture:',id)),a));d<-result_data(r);n<-f$expected
+ r<-do.call(run_inference,c(list(spec=method_spec(id,alt,level),result_id=paste0('fixture:',id)),a));d<-result_data(r);n<-if(grepl("^(classifier_|diagnostic_)",id))f$expected else r$payload$native
  stopifnot(identical(result_metadata(r)$result_id,paste0('fixture:',id)),nrow(d)>0)
  if(grepl('^boschloo_',id)){
   same(d$p.value[d$component=='omnibus'],n$p_value);same(d$p.upper[d$component=='omnibus'],n$p_upper)
@@ -99,14 +99,14 @@ cat('PASS common analytical view matrix:',length(checked),'primary methods\n')
 
 parallel<-fixtures[['efa_common_factor_ml.parallel_analysis']]
 r<-do.call(parallel_analysis,parallel$arguments);d<-result_data(r)
-same(d$estimate,parallel$expected$observed_eigenvalues);same(d$null.threshold,parallel$expected$null_thresholds)
+same(d$estimate,r$payload$native$observed_eigenvalues);same(d$null.threshold,r$payload$native$null_thresholds)
 stopifnot(all(is.na(d$p.value)),all(is.na(d$conf.low)))
 for(id in c('prediction_model_linear','prediction_model_logistic')){
  a<-fixtures[[id]]$arguments;a[c('alternative','conf.level')]<-NULL
  fitted<-do.call(run_inference,c(list(spec=method_spec(id)),a))
  fixture<-fixtures[[paste0(id,'.predict_new')]]
- d<-result_data(do.call(predict_inference,c(list(result=fitted),fixture$arguments)))
- same(d$estimate,fixture$expected$estimate);same(d$conf.low,fixture$expected$lower);same(d$conf.high,fixture$expected$upper)
+ r<-do.call(predict_inference,c(list(result=fitted),fixture$arguments));d<-result_data(r)
+ same(d$estimate,r$payload$native$estimate);same(d$conf.low,r$payload$native$lower);same(d$conf.high,r$payload$native$upper)
  stopifnot(all(is.na(d$p.value)))
 }
 cat('PASS common analytical helper views: 3 capabilities\n')

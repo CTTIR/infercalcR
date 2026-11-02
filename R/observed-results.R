@@ -65,11 +65,19 @@
     validate_inference(out)
     return(out)
   }
+  interval_level_note <- if (id %in% c("rank_sum_mann_whitney", "signed_rank_wilcoxon", "signed_rank_wilcoxon_one_sample") &&
+      length(native$confidence_interval) == 2L) "native-reported confidence level; exact attainment may differ by R version" else NULL
+  if (!is.null(interval_level_note)) {
+    metadata$interval_level_convention <- interval_level_note
+    metadata$interval_level_source <- list(source = "executing stats::wilcox.test confidence attribute", r_version = R.version.string)
+    metadata$warnings <- unique(c(metadata$warnings, interval_level_note))
+  }
   rows <- list()
   add <- function(component, estimand, estimate = NA_real_, p = NA_real_, statistic = NA_real_, df = NA_real_,
       ci = NULL, interval_method = NA_character_, scale = "identity", scope = "pointwise",
       contrast = NA_character_, null = NA_real_, row_alternative = alternative, status = state, extra = list()) {
     has_ci <- is.numeric(ci) && length(ci) == 2L
+    if (has_ci && !is.null(interval_level_note)) interval_method <- paste(interval_method, interval_level_note, sep = "; ")
     row <- data.frame(row_id = paste0(id, ":", length(rows) + 1L), component = component,
       estimand = estimand, contrast = contrast, estimate = .ic_scalar(estimate),
       statistic = .ic_scalar(statistic), df = .ic_scalar(df),

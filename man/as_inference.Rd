@@ -23,7 +23,13 @@
 \item{interval}{Fitted-glm conversion explicitly supports \code{"wald"}. The named logistic procedure provides profile-likelihood slope intervals separately.}
 \item{...}{Reserved; unknown arguments are rejected.}
 }
-\details{Recognized htest objects include standard t, Wilcoxon, binomial,
+\details{Wilcoxon intervals retain the native-reported confidence level. Older R
+versions can record a nominal or rounded level whose exact attainment differs;
+newer versions can return a fully unbounded conservative interval. The common
+interval-method label and metadata identify this convention. No level, endpoint,
+or captured native diagnostic is replaced.
+
+Recognized htest objects include standard t, Wilcoxon, binomial,
 proportion, Fisher, correlation, variance and common omnibus tests. Stored
 estimates, intervals and p-values are preserved with method-specific estimands.
 Two group means become their difference; no odds ratio is invented for a general
@@ -47,6 +53,7 @@ invoke generic profile dispatch or switch covariance backends. Binomial slopes
 may also be shown as odds ratios and Poisson slopes as rate ratios; intercepts
 are not ratios. Exponentiation overflow is a numerical failure, distinct from a
 legitimate unbounded sampling interval. Aliased coefficients remain unavailable.}
+
 \value{A common finalized \code{inference_result}. The supplied source object is unchanged.}
 \examples{
 fit <- stats::t.test(c(1, 3, 4, 8), c(2, 4, 5, 6, 9))
