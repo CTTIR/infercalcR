@@ -1,13 +1,16 @@
 # Diagnostic only: record all differences; acceptance remains in the installed tests.
-library(infercalcR)
 args<-commandArgs(TRUE);output<-if(length(args))args[1L] else tempfile('portability-')
+expected_library<-if(length(args)>1L)normalizePath(args[2L],mustWork=TRUE) else NULL
+if(!is.null(expected_library)).libPaths(c(expected_library,.libPaths()))
+library(infercalcR)
+if(!is.null(expected_library))stopifnot(identical(normalizePath(find.package('infercalcR')),normalizePath(file.path(expected_library,'infercalcR'))))
 dir.create(output,recursive=TRUE,showWarnings=FALSE)
-writeLines(capture.output(sessionInfo()),file.path(output,'session.txt'))
+writeLines(capture.output(sessionInfo()),file.path(output,'session-start.txt'))
 fixtures<-readRDS(system.file('methods','synthetic-baseline.rds',package='infercalcR'))
-actual<-list();deltas<-list()
-compare<-function(a,b,path){
- if(is.list(a)&&is.list(b)&&identical(names(a),names(b))&&length(a)==length(b)){
-  compare(attributes(a),attributes(b),paste(path,'attributes'))
+actual<-list();results<-list();deltas<-list()
+compare<-function(a,b,path,descend=TRUE){
+ if(descend&&is.list(a)&&is.list(b)&&identical(names(a),names(b))&&length(a)==length(b)){
+  compare(attributes(a),attributes(b),paste(path,'attributes'),FALSE)
   for(i in seq_along(a))compare(a[[i]],b[[i]],paste0(path,'$',if(is.null(names(a)))i else names(a)[i]))
  }else{
   comparison<-all.equal(a,b,tolerance=1e-12,check.environment=FALSE)
@@ -29,6 +32,21 @@ for(id in names(fixtures)){
  value<-tryCatch(do.call(run_inference,c(list(spec=method_spec(id,alt,level)),a)),error=identity)
  cat('INPUT',id,'BYTES',identical(input_before,serialize(a,NULL)),'VALUES',isTRUE(all.equal(a,input_copy)),'\n')
  if(inherits(value,'error')){cat('ERROR',id,conditionMessage(value),'\n');next}
+ results[[id]]<-value
+ actual[[id]]<-value$payload$native
+ compare(actual[[id]],f$expected,id)
+}
+for(id in names(fixtures)[grepl('[.]',names(fixtures))]){
+ f<-fixtures[[id]];cat('METHOD',id,'\n')
+ value<-tryCatch({
+  if(grepl('[.]parallel_analysis$',id))do.call(parallel_analysis,f$arguments)
+  else if(grepl('[.]predict_new$',id)){
+   parent<-sub('[.]predict_new$','',id)
+   if(is.null(results[[parent]]))stop('Prediction prerequisite unavailable')
+   do.call(predict_inference,c(list(result=results[[parent]]),f$arguments))
+  }else stop('Unknown diagnostic helper')
+ },error=identity)
+ if(inherits(value,'error')){cat('ERROR',id,conditionMessage(value),'\n');next}
  actual[[id]]<-value$payload$native
  compare(actual[[id]],f$expected,id)
 }
@@ -43,3 +61,5 @@ for(nm in names(g))if(!identical(serialize(before[[nm]],NULL),serialize(g[[nm]],
 for(nm in names(g$family))if(!identical(serialize(before$family[[nm]],NULL),serialize(g$family[[nm]],NULL)))cat('GLM_CHANGED_FAMILY_FIELD',nm,'\n')
 cat('GLM_DATA_IDENTICAL',identical(before$model,g$model),'COEFFICIENTS_IDENTICAL',identical(before$coefficients,g$coefficients),'\n')
 saveRDS(list(before=before,after=g,result=converted),file.path(output,'glm-conversion.rds'))
+
+writeLines(capture.output(sessionInfo()),file.path(output,'session.txt'))

@@ -47,3 +47,23 @@ jobs:
         with:
           args: 'c("--no-manual", "--as-cran")'
           error-on: '"warning"'
+      - name: Record checked-package portability diagnostics
+        if: always()
+        shell: Rscript {0}
+        run: |
+          checked <- normalizePath("check/infercalcR.Rcheck", mustWork = TRUE)
+          installed <- file.path(checked, "infercalcR")
+          stopifnot(file.exists(file.path(installed, "R", "infercalcR.rdb")))
+          description <- read.dcf(file.path(installed, "DESCRIPTION"))
+          stopifnot(description[1L, "Package"] == "infercalcR", "Built" %in% colnames(description))
+          status <- system2(file.path(R.home("bin"), "Rscript"),
+            c("--vanilla", shQuote("tools/methods/diagnose-portability.R"),
+              shQuote("portability-diagnostic"), shQuote(checked)))
+          stopifnot(status == 0L)
+      - name: Retain native portability evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: portability-${{ runner.os }}-${{ runner.arch }}-${{ strategy.job-index }}
+          path: portability-diagnostic/
+          if-no-files-found: warn
