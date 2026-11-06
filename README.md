@@ -1,4 +1,4 @@
-# infercalcR
+# infercalcR <picture class="cttir-readme-logo"><source class="cttir-logo-dark-source" media="(prefers-color-scheme: dark)" srcset="man/figures/logo-dark.png" /><img src="man/figures/logo.png" align="right" alt="infercalcR logo" width="120" height="139" /></picture>
 
 Explicit observed statistical procedures, diagnostic calculations and finalized
 results in R. `infercalcR` supplies the computational core of the inference suite;

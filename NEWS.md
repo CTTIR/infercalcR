@@ -1,5 +1,7 @@
 # infercalcR 0.0.0.9000
 
+* Add a CTTIR v5 hex logo in the statistical inference colour shared with
+  the other inference packages; `tools/branding/render.R` draws it in R.
 * Introduce common finalized result/accessor contracts, explicit method
   specifications, descriptive summaries and declared-family p-value adjustment.
 * Extract Boschloo, classifier, distribution and calculator engines from
