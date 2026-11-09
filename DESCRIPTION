@@ -2,11 +2,22 @@ Package: infercalcR
 Type: Package
 Title: Statistical Inference and Diagnostic Calculations
 Version: 0.0.0.9000
-Authors@R: person("Raban", "Heller", , "raban.heller@charite.de",
+Authors@R: person("Raban", "Heller", , "raban.heller@uni-ulm.de",
     role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0001-8006-9742"))
-Description: Provides explicit statistical procedures, descriptive summaries, diagnostic calculations and a common result contract. Standard R methods and scoped optional backends preserve method identity and numerical provenance.
+Description: Provides explicit statistical procedures, descriptive
+    summaries, diagnostic calculations and a common result contract. Each
+    procedure is chosen through an explicit method specification rather
+    than by data-driven pretests, and returns finalized estimates,
+    intervals and p-values together with metadata that records the method
+    identity and numerical provenance. Includes Boschloo's unconditional
+    test for two-by-two tables (Boschloo, 1970,
+    <doi:10.1111/j.1467-9574.1970.tb00104.x>), diagnostic accuracy and classifier
+    metrics, and distribution calculators. Standard R methods are used
+    where available; optional backends such as 'lme4', 'nlme' and
+    'geepack' are used only when installed.
 License: MIT + file LICENSE
 Encoding: UTF-8
+Language: en-US
 Depends: R (>= 4.1.0)
 Imports: stats, utils
 Suggests: digest, jsonlite, cluster, nlme, MASS, nnet, lme4, geepack, testthat (>= 3.0.0), withr
