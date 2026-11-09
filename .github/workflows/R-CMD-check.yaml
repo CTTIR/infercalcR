@@ -19,6 +19,8 @@ jobs:
       matrix:
         include:
           - {os: ubuntu-latest, r: release, lane: full}
+          - {os: ubuntu-latest, r: devel, lane: full, http-user-agent: release}
+          - {os: ubuntu-latest, r: oldrel-1, lane: full}
           - {os: windows-latest, r: release, lane: full}
           - {os: macos-latest, r: release, lane: full}
           - {os: ubuntu-latest, r: '4.1', lane: minimal}
@@ -37,6 +39,7 @@ jobs:
       - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05
         with:
           r-version: ${{ matrix.r }}
+          http-user-agent: ${{ matrix.http-user-agent }}
           use-public-rspm: true
       - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05
         with:
