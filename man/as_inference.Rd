@@ -48,7 +48,7 @@ For a paired result, supplied \code{n} counts analyzed pairs, not twice the pair
 
 Linear models use classical model-based marginal t intervals. GLM conversion is
 restricted to binomial-logit, Poisson-log and Gaussian-identity models; it uses
-model-based covariance and explicitly labelled Wald or t intervals. It does not
+model-based covariance and explicitly labeled Wald or t intervals. It does not
 invoke generic profile dispatch or switch covariance backends. Binomial slopes
 may also be shown as odds ratios and Poisson slopes as rate ratios; intercepts
 are not ratios. Exponentiation overflow is a numerical failure, distinct from a
