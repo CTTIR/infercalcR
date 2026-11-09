@@ -39,3 +39,25 @@ least five expected replicates per tail. They concern risk estimation, not a
 binary outcome, validation performance, or Monte Carlo precision. No model is
 refitted by \code{predict_inference()}.}
 \value{A common result with finalized rows, metadata and full native helper output in \code{payload$native}.}
+\examples{
+# Parallel analysis of four measurements, three sharing one common factor
+set.seed(1)
+n <- 60
+f <- rnorm(n)
+dat <- data.frame(id = seq_len(n),
+  v1 = f + rnorm(n, sd = 0.5), v2 = f + rnorm(n, sd = 0.5),
+  v3 = f + rnorm(n, sd = 0.5), v4 = rnorm(n))
+pa <- parallel_analysis(dat, c("v1", "v2", "v3", "v4"),
+  independent_units = TRUE, continuous_measurements = TRUE, B = 100L)
+result_data(pa)[, c("estimand", "estimate", "status")]
+
+# Predictions with intervals from a finalized linear development result
+x1 <- rep(-4:3, 5)
+dev <- data.frame(id = seq_along(x1), x1 = x1, x2 = rep(c(0, 1), each = 20),
+  y = 1 + 2 * x1 + rep(c(-1, 0, 1, 0.5, -0.5), 8))
+fit <- run_inference(method_spec("prediction_model_linear"), data = dev,
+  predictors = c("x1", "x2"), independent_units = TRUE, B = 200L)
+pred <- predict_inference(fit, data.frame(x1 = c(0, 2), x2 = c(0, 1)),
+  interval = "prediction")
+result_data(pred)[, c("estimate", "conf.low", "conf.high", "status")]
+}
