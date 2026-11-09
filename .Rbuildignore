@@ -5,3 +5,7 @@
 ^\.gitattributes$
 ^LICENSE\.md$
 ^CONTRACT\.md$
+^cran-comments\.md$
+^.*\.tar\.gz$
+^.*\.Rcheck$
+^\.DS_Store$

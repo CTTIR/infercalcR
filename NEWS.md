@@ -1,6 +1,13 @@
-# infercalcR 0.0.0.9000
+# infercalcR 0.1.0
 
-* Add a CTTIR v5 hex logo in the statistical inference colour shared with
+* First CRAN submission.
+* The maintainer address is now raban.heller@uni-ulm.de.
+* DESCRIPTION gains a fuller Description with a reference for Boschloo's
+  test, and declares `Language: en-US`; `inst/WORDLIST` records the
+  technical terms used in the documentation.
+* `parallel_analysis()` and `predict_inference()` gain runnable examples.
+* The GitHub Actions check matrix adds R-devel and R oldrel-1 on Linux.
+* Add a CTTIR v5 hex logo in the statistical inference color shared with
   the other inference packages; `tools/branding/render.R` draws it in R.
 * Introduce common finalized result/accessor contracts, explicit method
   specifications, descriptive summaries and declared-family p-value adjustment.

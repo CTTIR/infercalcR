@@ -79,8 +79,8 @@ reviewed commit with your usual GitHub R installer. From a local checkout:
 
 ```sh
 R CMD build infercalcR
-R CMD INSTALL infercalcR_0.0.0.9000.tar.gz
-R CMD check --no-manual infercalcR_0.0.0.9000.tar.gz
+R CMD INSTALL infercalcR_0.1.0.tar.gz
+R CMD check --no-manual infercalcR_0.1.0.tar.gz
 ```
 
 Install this provider before either consumer. The source archive includes
