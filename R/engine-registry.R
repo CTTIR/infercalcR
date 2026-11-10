@@ -10,7 +10,9 @@
 # Each entry: package, functions (in that package), min_version, source (why
 # this is the original) and adapter (same formals as the base function,
 # returning the base function's native fields).
-.ic_engine_info <- list()
+.ic_engine_info <- list(
+  cochran_q = list(package = "DescTools", functions = "CochranQTest", min_version = "0.99.60",
+    source = "DescrTab2 2.1.16 sig_test(): Cochran's Q test", adapter = .ref_cochran_q))
 
 # Methods whose test is computed by a stats function or fitted by stats or an
 # optional model backend. That computation is the original, so they have one

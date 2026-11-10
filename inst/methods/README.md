@@ -17,6 +17,12 @@ The following numerical-only legacy assertions moved into tests/observed-legacy-
 
 They exercise the installed calc namespace's canonical helpers. Teaching-script wrappers no longer need to retain these numerical implementations. All other legacy tests remain in the guidance package until the coordinator maps their executed equivalents.
 
+## Engine benchmarks
+
+Methods with a reference engine (`method_catalogue()$engines == "base+reference"`) are benchmarked against the validated original package. `engine-benchmarks.rds` holds one record per method and case: the input, its source (the original function's help-page example or this directory's synthetic baseline), the original package, version and call, the compared native fields and their values, and the original's own output. `tools/engines/capture-benchmarks.R` writes the records during development by running the reference engine; it refuses to change a stored record unless explicitly told to replace that method's records. `tests/engine-benchmarks.R` compares the base engine with every record at a relative difference of at most 1e-8. When the original is installed it also compares the original's current output with the stored values; the full lane (`INFER_SUITE_FULL=true`) requires the originals.
+
+`engine-deviations.csv` lists every comparison that cannot meet that rule, with its kind (`monte_carlo`, `convention` or `original_defect`), the rule used instead, an explanation and the owner's approval. A deviation without an approval fails the benchmark test.
+
 ## Cross-runtime verification
 
 The original R 4.6.1 synthetic fixture is never regenerated to make another platform pass. Common-row mapping compares against the current finalized native payload at tolerance 1e-12; frozen numerical regression is a separate test with method/field diagnostics.
