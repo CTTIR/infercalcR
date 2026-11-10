@@ -92,6 +92,48 @@ NAMESPACE and Rd help; installation needs no documentation generator. Set
 may explicitly skip optional integration lanes and cannot substitute for full
 validation.
 
+## Choosing an engine
+
+Thirteen methods compute their test with infercalcR's own base-R code. Each of
+them can instead be computed by the validated original: the function DescrTab2
+uses for that test or, for tests DescrTab2 does not offer, the established
+package.
+
+```r
+d <- data.frame(id = 1:6, a = c(0, 1, 0, 1, 1, 0), b = c(1, 1, 0, 0, 1, 1),
+  c = c(1, 0, 0, 1, 0, 1))
+spec <- infercalcR::method_spec("cochran_q", engine = "reference")
+r <- infercalcR::run_inference(spec, data = d)   # computed by DescTools
+infercalcR::result_metadata(r)$engine            # engine, package, version, call
+```
+
+`engine = "base"` is the default, so results never depend on which packages
+are installed. The originals are optional. When one is missing or older than
+the version the benchmarks were captured with, `engine = "reference"` stops
+with an error; it never falls back to the base engine. Methods computed by R's
+stats package or an optional model backend have a single engine, which either
+setting runs.
+
+| Method | Original |
+|---|---|
+| `boschloo_one_sided`, `boschloo_two_sided_central`, `boschloo_two_sided_minlike` | `Exact::exact.test` (exact2x2's Boschloo test, which DescrTab2 uses, drops tied tables) |
+| `unconditional_exact_z_pooled` | `Exact::exact.test` |
+| `cochran_q` | `DescTools::CochranQTest` |
+| `cochran_armitage_trend` | `DescTools::CochranArmitageTest` |
+| `jonckheere_terpstra` | `DescTools::JonckheereTerpstraTest`, permutation route |
+| `stuart_maxwell_marginal_homogeneity` | `DescTools::StuartMaxwellTest` |
+| `variance_brown_forsythe` | `DescTools::LeveneTest` with `center = median` |
+| `mcnemar_exact_conditional`, `mcnemar_midp` | `exact2x2::exact2x2` with `paired = TRUE` |
+| `brunner_munzel` | `brunnermunzel::brunnermunzel.test` |
+| `anova_repeated_one_way_gg` | `stats::anova.mlm` with `test = "Spherical"` |
+
+Both engines are benchmarked on the originals' help-page examples and agree
+within a relative difference of 1e-8. The one exception is the Monte Carlo
+p-value of the Jonckheere-Terpstra test, which is compared under an approved
+rule in `inst/methods/engine-deviations.csv`. `inst/methods/provenance.csv`
+records, for every method, its source, its original and the publication its
+base implementation follows; `?observed-methods` lists those publications.
+
 ## Evidence and provenance
 
 New tests compare matched stats calls, historical synthetic fixtures, independent
@@ -143,7 +185,9 @@ packages.
 infercalcR is written in R [5] and computes with R's stats package. Specialist
 procedures use the optional backends cluster [6], nlme [7, 8], MASS and nnet
 [9], lme4 [10] and geepack [11]; digest [12] and jsonlite [13] create canonical
-identities. Boschloo's test follows Boschloo (1970) [14]. Use
+identities. Boschloo's test follows Boschloo (1970) [14]. The reference
+engines call the optional originals DescTools [15], exact2x2 [16], Exact [17]
+and brunnermunzel [18]. Use
 `citation("infercalcR")` for this package and `citation()` or
 `citation("<package>")` for R and the packages you used.
 
@@ -163,3 +207,7 @@ identities. Boschloo's test follows Boschloo (1970) [14]. Use
 12. Eddelbuettel D. *digest: Create Compact Hash Digests of R Objects*. R package. <https://doi.org/10.32614/CRAN.package.digest>.
 13. Ooms J (2014). The jsonlite package: A practical and consistent mapping between JSON data and R objects. arXiv:1403.2805. <https://arxiv.org/abs/1403.2805>.
 14. Boschloo RD (1970). Raised conditional level of significance for the 2 x 2-table when testing the equality of two probabilities. *Statistica Neerlandica*, 24(1), 1-9. <https://doi.org/10.1111/j.1467-9574.1970.tb00104.x>.
+15. Signorell A. *DescTools: Tools for Descriptive Statistics*. R package. <https://doi.org/10.32614/CRAN.package.DescTools>.
+16. Fay MP (2010). Two-sided exact tests and matching confidence intervals for discrete data. *The R Journal*, 2(1), 53-58. <https://doi.org/10.32614/RJ-2010-008>.
+17. Calhoun P. *Exact: Unconditional Exact Test*. R package. <https://doi.org/10.32614/CRAN.package.Exact>.
+18. Ara T. *brunnermunzel: (Permuted) Brunner-Munzel Test*. R package. <https://doi.org/10.32614/CRAN.package.brunnermunzel>.

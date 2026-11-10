@@ -47,7 +47,8 @@ payload.
 This tutorial follows that workflow on a small synthetic data set: describe the
 data, specify a method, compute it and read the result. It then converts results
 produced by base R and adjusts a declared family of p-values. The code runs
-offline and needs only the packages that ship with R.
+offline and, apart from one optional chunk, needs only the packages that ship
+with R.
 
 ## Synthetic data
 
@@ -222,6 +223,24 @@ rank_spec <- method_spec("rank_sum_mann_whitney", options = list(exact = FALSE))
 rank_sum <- run_inference(rank_spec, x = x_complete, y = y_complete,
                           result_id = "sbp-rank-sum")
 result_data(rank_sum)[, c("estimand", "estimate", "p.value", "n", "status")]
+```
+
+## Choose the engine
+
+Thirteen methods, the Brunner-Munzel test among them, have two engines.
+`engine = "base"`, the default, uses infercalcR's own implementation;
+`engine = "reference"` computes the same procedure with the validated original
+package, here brunnermunzel. The original is optional: this chunk runs only when
+it is installed. Without it, the reference engine stops with an error instead
+of using the base engine.
+
+```{r engines, eval = requireNamespace("brunnermunzel", quietly = TRUE)}
+bm_base <- run_inference(method_spec("brunner_munzel"), x = x_complete, y = y_complete)
+bm_reference <- run_inference(method_spec("brunner_munzel", engine = "reference"),
+                              x = x_complete, y = y_complete)
+rbind(base = result_data(bm_base)[1, c("estimate", "p.value")],
+      reference = result_data(bm_reference)[1, c("estimate", "p.value")])
+result_metadata(bm_reference)$engine
 ```
 
 ## Convert results computed elsewhere
