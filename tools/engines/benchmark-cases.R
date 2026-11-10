@@ -105,6 +105,9 @@ benchmark_cases <- list(
     src <- "DescTools 0.99.60 ?StuartMaxwellTest example"
     list(bench_case("help-hyp", paste(src, "hyp (3 x 3)"),
         list(counts = square_table(c(20, 3, 0, 10, 30, 5, 5, 15, 40), 3)), f),
+      bench_case("help-hyp-diagonal-only-A", paste(src, "hyp with the off-diagonal counts of category A removed (degenerate case)"),
+        list(counts = local({ m <- square_table(c(20, 3, 0, 10, 30, 5, 5, 15, 40), 3); m["A", -1] <- 0; m[-1, "A"] <- 0; m })),
+        "status"),
       bench_case("help-mc", paste(src, "mc (4 x 4)"), list(counts = square_table(c(732, 1524, 1575, 1577, 1602,
         837, 1554, 1437, 1672, 1600, 841, 1363, 1385, 1484, 1524, 791), 4)), f),
       baseline_case("stuart_maxwell_marginal_homogeneity", f))

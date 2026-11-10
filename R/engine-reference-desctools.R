@@ -107,6 +107,12 @@
   .obs_stuart_maxwell_marginal_homogeneity_check_table(counts, alternative, conf.level)
   .obs_stuart_maxwell_marginal_homogeneity_check_excluded(n_excluded)
   n <- sum(counts)
+  # The original silently removes categories without off-diagonal counts, which
+  # changes the degrees of freedom; the base contract allows no automatic
+  # category removal or pooling.
+  if (any(diag(counts) == rowSums(counts) & diag(counts) == colSums(counts)))
+    return(list(status = "unavailable", p_value = NULL,
+      reason = "A category has no off-diagonal counts; no automatic category removal, pooling or generalized inverse."))
   test <- tryCatch(DescTools::StuartMaxwellTest(counts), error = function(e) NULL)
   if (is.null(test) || !is.finite(test$statistic))
     return(list(status = "unavailable", p_value = NULL,
