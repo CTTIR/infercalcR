@@ -66,6 +66,16 @@ if (requireNamespace("DescTools", quietly = TRUE)) {
   }
 }
 
+# DescTools doubles the smaller permutation tail without capping it, so heavily
+# tied outcomes give a two-sided p above 1; the reference engine reports 1.
+if (requireNamespace("DescTools", quietly = TRUE)) {
+  tied <- list(data = data.frame(id = 1:12, group = rep(c("a", "b", "c"), each = 4), y = rep(c(1, 2), 6)),
+    group_order = c("a", "b", "c"), order_prespecified = TRUE, independent_units = TRUE, seed = 1L, B = 999L)
+  jt_p <- function(engine) result_data(do.call(run_inference,
+    c(list(method_spec("jonckheere_terpstra", engine = engine)), tied)))$p.value[[1L]]
+  stopifnot(identical(jt_p("base"), 1), identical(jt_p("reference"), 1))
+}
+
 catalogue <- method_catalogue()
 stopifnot(all(c("engines", "reference") %in% names(catalogue)),
   all(catalogue$engines %in% c("base", "single", "base+reference", "none")),

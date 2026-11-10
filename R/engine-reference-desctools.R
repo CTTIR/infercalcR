@@ -95,7 +95,9 @@
     nperm = B)), warning = function(w) {
       if (grepl("Specify nperm for permutation p-value", conditionMessage(w), fixed = TRUE)) invokeRestart("muffleWarning")
     })
-  p <- test$p.value
+  # DescTools doubles the smaller tail before capping, so heavily tied outcomes
+  # can give a two-sided p above 1; a p-value is capped at 1.
+  p <- min(1, test$p.value)
   c(common, list(status = "ok", statistic = unname(test$statistic), p_value = p, reject = p < 1 - conf.level,
     inference_note = "Greater means increasing outcomes along group_order; less means decreasing. DescTools permutation p-value from B permutations; two-sided doubles the smaller tail.",
     reference_output = unclass(test)))
