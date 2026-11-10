@@ -46,9 +46,11 @@ jobs:
           dependencies: ${{ matrix.lane == 'full' && '"all"' || '"hard"' }}
           extra-packages: any::rcmdcheck
           needs: check
+      # The minimal lane has no knitr/rmarkdown, so it neither builds nor checks vignettes.
       - uses: r-lib/actions/check-r-package@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05
         with:
-          args: 'c("--no-manual", "--as-cran")'
+          args: ${{ matrix.lane == 'full' && 'c("--no-manual", "--as-cran")' || 'c("--no-manual", "--as-cran", "--ignore-vignettes")' }}
+          build_args: ${{ matrix.lane == 'full' && '"--no-manual"' || 'c("--no-manual", "--no-build-vignettes")' }}
           error-on: '"warning"'
       - name: Record checked-package portability diagnostics
         if: always()

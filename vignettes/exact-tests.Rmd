@@ -1,0 +1,259 @@
+---
+title: "Exact tests for two-by-two tables"
+author: "Raban Heller"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Exact tests for two-by-two tables}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+resource_files:
+  - figures/logo.svg
+  - figures/logo-dark.svg
+---
+
+<!-- cttir-vignette-logo: start -->
+<style>
+.cttir-vignette-logo { float: right; width: 120px; max-width: 30%; margin: 0 0 1rem 1.5rem; }
+.cttir-vignette-logo img { width: 100%; height: auto; border: 0; background: transparent; box-shadow: none; }
+.cttir-vignette-logo .cttir-vignette-logo-light { display: block; }
+.cttir-vignette-logo .cttir-vignette-logo-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  .cttir-vignette-logo .cttir-vignette-logo-light { display: none; }
+  .cttir-vignette-logo .cttir-vignette-logo-dark { display: block; }
+}
+[data-bs-theme="light"] .cttir-vignette-logo .cttir-vignette-logo-light { display: block; }
+[data-bs-theme="light"] .cttir-vignette-logo .cttir-vignette-logo-dark { display: none; }
+[data-bs-theme="dark"] .cttir-vignette-logo .cttir-vignette-logo-light { display: none; }
+[data-bs-theme="dark"] .cttir-vignette-logo .cttir-vignette-logo-dark { display: block; }
+</style>
+<div class="cttir-vignette-logo">
+  <img class="cttir-vignette-logo-light" src="figures/logo.svg" alt="infercalcR logo" width="120" height="139" />
+  <img class="cttir-vignette-logo-dark" src="figures/logo-dark.svg" alt="infercalcR logo" width="120" height="139" />
+</div>
+<!-- cttir-vignette-logo: end -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(infercalcR)
+```
+
+Two independent groups of fixed size, each with a binary outcome, give a
+two-by-two table. Fisher's exact test conditions on both margins of that table.
+Boschloo's unconditional test (Boschloo, 1970) uses Fisher's p-value only to
+order the possible tables. Its p-value is the largest probability, over all
+values of the common event probability under the null hypothesis, of a table at
+least as extreme as the observed one. With the same sidedness convention,
+Boschloo's p-value never exceeds Fisher's.
+
+This tutorial computes Boschloo's test with infercalcR, compares it with
+Fisher's test and looks at the rejection region of a design. The calculations
+use only base R. One section uses the optional package digest and is evaluated
+only when it is installed.
+
+```{r optional-packages}
+has_digest <- requireNamespace("digest", quietly = TRUE)
+```
+
+## The observed table
+
+In this synthetic example, 2 of 12 patients respond in the control group and
+8 of 12 in the treatment group. Rows are groups; the first column counts the
+events.
+
+```{r table}
+responses <- rbind(control = c(response = 2, no_response = 10),
+                   treatment = c(response = 8, no_response = 4))
+responses
+```
+
+## Choose a variant before looking at the data
+
+The two-sided alternative can be defined in two ways, and there are two
+one-sided alternatives. `boschloo_variants()` lists the variants and how each
+orders the tables.
+
+```{r variants}
+variants <- boschloo_variants()
+variants[, c("variant", "alternative", "label")]
+```
+
+The `minlike` variant orders tables by the two-sided Fisher p-value. The
+`central` variant doubles the smaller of the two one-sided p-values. Group 1 is
+the first group passed to the function, so `less` means that the event
+probability in group 1 is lower than in group 2.
+
+## Compute the test
+
+`boschloo_inference()` takes the event counts and group sizes and returns a
+result in the common contract described in the
+[getting-started tutorial](getting-started.html).
+
+```{r boschloo}
+boschloo <- boschloo_inference(x1 = 2, n1 = 12, x2 = 8, n2 = 12,
+                               variant = "minlike", alpha = 0.05,
+                               groups = c("control", "treatment"),
+                               event = "response")
+print(result_data(boschloo)[, c("estimand", "contrast", "estimate", "p.value",
+                                "p.upper", "decision", "status")],
+      row.names = FALSE)
+```
+
+The estimate is the observed difference in event proportions, control minus
+treatment. The p-value is a supremum over the nuisance parameter and is found
+numerically. `p.value` is the largest value attained by the search and
+`p.upper` is a guaranteed upper bound for the supremum. The decision at the
+stated `alpha` uses the upper bound. The bound describes numerical precision
+only; it is not a confidence interval. The metadata state the assumptions.
+
+```{r boschloo-metadata}
+meta <- result_metadata(boschloo)
+meta$assumptions
+meta$numerical_bounds
+boschloo$payload$native$fisher_p_value
+```
+
+The last value is Fisher's two-sided p-value for the same table, kept for
+comparison. Boschloo's p-value is smaller here.
+
+## The same test through a method specification
+
+The Boschloo variants are also available through `method_spec()` and
+`run_inference()`, which take the table directly.
+
+```{r specification}
+minlike_spec <- method_spec("boschloo_two_sided_minlike")
+via_spec <- run_inference(minlike_spec, table = responses)
+print(result_data(via_spec)[, c("estimand", "estimate", "p.value")],
+      row.names = FALSE)
+stopifnot(isTRUE(all.equal(result_data(via_spec)$p.value[1],
+                           result_data(boschloo)$p.value)))
+```
+
+This result has one row for the test and one for the observed difference in
+proportions. One-sided tests use `boschloo_one_sided` with the alternative
+declared in the specification.
+
+```{r one-sided}
+less_spec <- method_spec("boschloo_one_sided", alternative = "less")
+less <- run_inference(less_spec, table = responses)
+result_data(less)[1, c("estimand", "p.value", "alternative")]
+```
+
+## Sidedness matters
+
+The variants answer different questions. For this table the two two-sided
+variants happen to agree, while the one-sided p-values depend strongly on the
+direction. Choose the variant in the analysis plan.
+
+```{r all-variants}
+p_values <- vapply(c("minlike", "central", "less", "greater"), function(v) {
+  result_data(boschloo_inference(2, 12, 8, 12, variant = v))$p.value
+}, numeric(1))
+round(p_values, 5)
+```
+
+## Compare with other exact tests
+
+Fisher's exact test is available through the same interface and agrees with
+`stats::fisher.test()`.
+
+```{r fisher}
+fisher <- run_inference(method_spec("fisher_exact_2x2"), table = responses)
+print(result_data(fisher)[, c("estimand", "estimate", "conf.low", "conf.high",
+                              "p.value")],
+      row.names = FALSE)
+stopifnot(isTRUE(all.equal(result_data(fisher)$p.value,
+                           stats::fisher.test(responses)$p.value)))
+```
+
+Another unconditional exact test orders the tables by the pooled Z statistic
+instead of Fisher's p-value. It requires an explicit statement that the two
+groups are independent binomial samples.
+
+```{r z-pooled}
+z_pooled <- run_inference(method_spec("unconditional_exact_z_pooled"),
+                          table = responses,
+                          independent_binomial_groups = TRUE)
+print(result_data(z_pooled)[, c("estimand", "estimate", "p.value")],
+      row.names = FALSE)
+```
+
+## Operating characteristics of a design
+
+For a planned design with 12 units per group, `boschloo_compare_fisher()`
+compares the rejection regions of the two tests at the same nominal level. The
+attained size is the largest probability of rejecting the null hypothesis over
+all common event probabilities. Power is computed at event probabilities that
+the analyst supplies.
+
+```{r compare-fisher}
+comparison <- boschloo_compare_fisher(n1 = 12, n2 = 12, alpha = 0.05,
+                                      variant = "minlike", p1 = 0.2, p2 = 0.6)
+comparison
+```
+
+For this design, every table rejected by Fisher's test is also rejected by
+Boschloo's test. The additional tables bring the attained size closer to the
+nominal 5 % and increase the power.
+
+`boschloo_plotdata_lattice()` returns one row per possible table of the design,
+with its Boschloo p-value and whether it is in the rejection region. The
+observed table can be marked.
+
+```{r lattice, fig.width = 5, fig.height = 5, fig.alt = "Grid of all 169 possible tables for 12 units per group. Filled squares mark tables in the Boschloo rejection region at the 5 % level; the observed table with 2 and 8 events is circled."}
+lattice <- boschloo_plotdata_lattice(12, 12, alpha = 0.05, variant = "minlike",
+                                     observed = c(x1 = 2, x2 = 8))
+tables <- lattice$data
+lattice$reference[c("attained_size", "n_rejected")]
+plot(tables$x1, tables$x2, pch = ifelse(tables$in_region, 15, 0),
+     xlab = "Events in group 1 (control)", ylab = "Events in group 2 (treatment)",
+     main = "Rejection region, n = 12 per group", asp = 1)
+points(tables$x1[tables$observed], tables$x2[tables$observed], cex = 2.5, lwd = 2)
+```
+
+## A complete test record
+
+`boschloo_test()` returns the full record of the calculation, including the
+numerical settings and a fingerprint of the specification. The fingerprint uses
+digest.
+
+```{r test-record, eval = has_digest}
+record <- boschloo_test(2, 12, 8, 12, variant = "minlike", alpha = 0.05,
+                        groups = c("control", "treatment"), event = "response")
+record
+```
+
+The p-value is the maximum of the null probability of the tail set over the
+common event probability. `boschloo_plotdata_nuisance()` evaluates that curve.
+
+```{r nuisance, eval = has_digest, fig.width = 5, fig.height = 3.5, fig.alt = "Null probability of the tail set as a function of the common event probability. The curve peaks near 0.5 at the Boschloo p-value, shown as a dashed line."}
+nuisance <- boschloo_plotdata_nuisance(record, grid_points = 201)
+plot(nuisance$data$pi, nuisance$data$probability, type = "l",
+     xlab = "Common event probability", ylab = "Null probability of tail set")
+abline(h = record$p_value, lty = 2)
+```
+
+The record converts to the common contract with `as_inference()`.
+
+```{r record-common, eval = has_digest}
+common <- as_inference(record)
+stopifnot(isTRUE(all.equal(result_data(common)$p.value,
+                           result_data(boschloo)$p.value)))
+```
+
+The numerical tolerances of the search are set with `boschloo_control()` and
+stored with every result.
+
+```{r control}
+boschloo_control()
+```
+
+## Reference
+
+Boschloo, R. D. (1970). Raised conditional level of significance for the
+2 x 2-table when testing the equality of two probabilities. *Statistica
+Neerlandica*, 24(1), 1-9. <https://doi.org/10.1111/j.1467-9574.1970.tb00104.x>
+
+```{r session-information}
+sessionInfo()
+```

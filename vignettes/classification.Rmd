@@ -1,0 +1,282 @@
+---
+title: "Diagnostic accuracy and classifier metrics"
+author: "Raban Heller"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Diagnostic accuracy and classifier metrics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+resource_files:
+  - figures/logo.svg
+  - figures/logo-dark.svg
+---
+
+<!-- cttir-vignette-logo: start -->
+<style>
+.cttir-vignette-logo { float: right; width: 120px; max-width: 30%; margin: 0 0 1rem 1.5rem; }
+.cttir-vignette-logo img { width: 100%; height: auto; border: 0; background: transparent; box-shadow: none; }
+.cttir-vignette-logo .cttir-vignette-logo-light { display: block; }
+.cttir-vignette-logo .cttir-vignette-logo-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  .cttir-vignette-logo .cttir-vignette-logo-light { display: none; }
+  .cttir-vignette-logo .cttir-vignette-logo-dark { display: block; }
+}
+[data-bs-theme="light"] .cttir-vignette-logo .cttir-vignette-logo-light { display: block; }
+[data-bs-theme="light"] .cttir-vignette-logo .cttir-vignette-logo-dark { display: none; }
+[data-bs-theme="dark"] .cttir-vignette-logo .cttir-vignette-logo-light { display: none; }
+[data-bs-theme="dark"] .cttir-vignette-logo .cttir-vignette-logo-dark { display: block; }
+</style>
+<div class="cttir-vignette-logo">
+  <img class="cttir-vignette-logo-light" src="figures/logo.svg" alt="infercalcR logo" width="120" height="139" />
+  <img class="cttir-vignette-logo-dark" src="figures/logo-dark.svg" alt="infercalcR logo" width="120" height="139" />
+</div>
+<!-- cttir-vignette-logo: end -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(infercalcR)
+```
+
+A binary classifier, such as a diagnostic test or a risk score with a cutoff,
+sorts units into alerts and non-alerts. Compared with the true class, this gives
+four counts: true positives (TP), false negatives (FN), false positives (FP) and
+true negatives (TN). infercalcR calculates the usual accuracy metrics from these
+counts, keeps track of their denominators and reports an explicit status when a
+metric is undefined. With scored observations it also evaluates cutoffs, ROC
+summaries and cutoff selection.
+
+All data in this tutorial are synthetic. Calculations from counts need only base
+R. Specifications built from scored observations record a canonical fingerprint
+of their inputs and therefore use the optional packages digest and jsonlite; the
+chunks that need them are evaluated only when both are installed.
+
+```{r optional-packages}
+has_fingerprints <- requireNamespace("digest", quietly = TRUE) &&
+  requireNamespace("jsonlite", quietly = TRUE)
+has_fingerprints
+```
+
+## Metrics from four counts
+
+```{r counts}
+counts <- c(tp = 40, fn = 10, fp = 20, tn = 130)
+metrics <- classification_metrics(counts)
+metrics[metrics$metric_id %in% c("prevalence", "tpr", "tnr", "ppv", "npv",
+                                 "lr_pos", "lr_neg", "youden_j"),
+        c("metric_id", "value", "status", "denominator", "denominator_value")]
+```
+
+Sensitivity (`tpr`) divides TP by all events and specificity (`tnr`) divides TN
+by all non-events. The positive predictive value (`ppv`) divides TP by all
+alerts, and the negative predictive value (`npv`) divides TN by all non-alerts.
+The likelihood ratios combine sensitivity and specificity, and Youden's J is
+their sum minus one. The `denominator` column states which counts each
+proportion uses.
+
+When a denominator is zero, the metric is not set to zero or one. Its value is
+`NA`, its status is `"undefined"` and the reason is given.
+
+```{r undefined}
+no_alerts <- classification_metrics(c(tp = 0, fn = 5, fp = 0, tn = 95))
+no_alerts[no_alerts$metric_id %in% c("tpr", "ppv", "npv", "lr_pos"),
+          c("metric_id", "value", "status", "reason")]
+```
+
+`metric_dictionary()` documents every metric, including its formula and whether
+it depends on prevalence.
+
+```{r dictionary}
+dictionary <- metric_dictionary()
+dictionary[dictionary$id %in% c("tpr", "ppv", "lr_pos"),
+           c("id", "name", "formula", "prevalence_dependent")]
+```
+
+## Prevalence and predictive values
+
+Sensitivity and specificity describe the test within each class. Predictive
+values also depend on how common events are. If sensitivity and specificity
+carry over unchanged to another setting, Bayes' theorem gives the predictive
+values at an assumed prevalence. These are scenario values, not new
+observations.
+
+```{r prevalence}
+tpr <- 40 / 50
+fpr <- 20 / 150
+predictive_values_at_prevalence(tpr, fpr, prevalence = c(0.01, 0.05, 0.25))
+prevalence_for_ppv_target(tpr, fpr, target = 0.5)
+```
+
+At a prevalence of 1 %, only about 6 % of alerts are events, although the test
+is the same. A prevalence of about 14 % is needed for half of the alerts to be
+events.
+
+## Intervals for a fixed-cutoff table
+
+The `diagnostic_2x2_fixed_cutoff` method works through the common interface
+described in the [getting-started tutorial](getting-started.html). It requires
+the sampling design and the origin of the cutoff to be declared, and reports
+Clopper-Pearson intervals that are conditional on the fixed rule.
+
+```{r diagnostic-table, eval = has_fingerprints}
+dx_spec <- method_spec("diagnostic_2x2_fixed_cutoff", conf.level = 0.95)
+dx <- run_inference(dx_spec, tp = 40, fn = 10, fp = 20, tn = 130,
+                    sampling = "cross_sectional",
+                    cutoff_origin = "predeclared_rule",
+                    evaluation_split = "held_out_test")
+dx_rows <- result_data(dx)
+print(dx_rows[dx_rows$estimand %in% c("tpr", "tnr", "ppv", "npv"),
+              c("estimand", "estimate", "conf.low", "conf.high",
+                "interval.method", "status")],
+      row.names = FALSE)
+```
+
+Four counts identify a single operating point. They cannot reproduce a ROC
+curve, an AUC or a sweep over cutoffs; those need the scores.
+
+## Scored observations
+
+The next example simulates a continuous marker. Events have a mean marker value
+1.2 standard deviations above non-events, and about 30 % of units are events.
+Two independent samples are drawn: one to tune a cutoff and one to evaluate it.
+
+```{r simulate}
+simulate_marker <- function(n, first_id) {
+  event <- rbinom(n, size = 1, prob = 0.3)
+  data.frame(id = first_id + seq_len(n) - 1L,
+             event = event,
+             marker = round(rnorm(n, mean = 1.2 * event, sd = 1), 2))
+}
+set.seed(2026)
+tuning <- simulate_marker(200, first_id = 1L)
+evaluation <- simulate_marker(200, first_id = 1001L)
+c(tuning = mean(tuning$event), evaluation = mean(evaluation$event))
+```
+
+A specification names the truth column, the positive class, the score column,
+the score direction and the comparison at the cutoff. None of these are
+guessed. It also records where the data come from relative to the cutoff and
+how the units were sampled. Here the cutoff 0.5 is fixed in advance.
+
+```{r specification, eval = has_fingerprints}
+marker_spec <- function(data, split) {
+  classification_spec(
+    data = data, truth = "event", positive_label = 1, negative_label = 0,
+    scores = "marker", id = "id", cutoff = 0.5,
+    direction = "higher_is_positive", comparator = ">=",
+    evaluation_split = split, sampling = "cross_sectional"
+  )
+}
+tuning_spec <- marker_spec(tuning, split = "same_data")
+fixed <- evaluate_cutoff(tuning_spec)
+fixed
+```
+
+The printed result lists the counts, the main metrics, the ROC AUC and the
+limitations that apply to this evaluation. `classification_table()` returns the
+metrics and their intervals as data frames.
+
+```{r tables, eval = has_fingerprints}
+intervals <- classification_table(fixed, "intervals")
+intervals[intervals$metric_id %in% c("tpr", "fpr"),
+          c("metric_id", "method", "level", "lower", "upper")]
+classification_auc(tuning_spec)[, c("metric_id", "value", "ci_lower",
+                                    "ci_upper", "setting")]
+```
+
+`cutoff_sweep()` evaluates every distinct decision set of the observed scores,
+from alerting no unit to alerting all units. Its rates trace the empirical ROC
+curve.
+
+```{r sweep, eval = has_fingerprints, fig.width = 4.5, fig.height = 4.5, fig.alt = "Empirical ROC curve of the simulated marker on the tuning sample, with the point for the prespecified cutoff 0.5 marked."}
+sweep <- cutoff_sweep(tuning_spec)
+nrow(sweep)
+head(sweep[, c("cutoff", "alerts", "tp", "fp", "tpr", "fpr")])
+plot(sweep$fpr, sweep$tpr, type = "l", xlim = c(0, 1), ylim = c(0, 1),
+     xlab = "False positive rate", ylab = "True positive rate",
+     main = "Tuning sample")
+abline(0, 1, lty = 3)
+point <- fixed$models[[1]]$metrics
+points(point$value[point$metric_id == "fpr"],
+       point$value[point$metric_id == "tpr"], pch = 19)
+```
+
+## Select a cutoff, then evaluate it on new data
+
+`select_cutoff()` searches all distinct decision sets for the cutoff that
+optimizes a declared objective. Here the objective is Youden's J.
+
+```{r select, eval = has_fingerprints}
+selected <- select_cutoff(tuning_spec, "max_youden")
+selected$models[[1]]$operating_point$cutoff
+classification_table(selected, "selection")[, c("procedure", "objective_value",
+                                                "n_candidates", "n_tied",
+                                                "tie_break")]
+```
+
+A cutoff chosen on the same data that are used to describe it gives in-sample
+values. To evaluate it, pass the tuning result as the cutoff for a
+specification of the independent sample.
+
+```{r held-out, eval = has_fingerprints}
+evaluation_spec <- marker_spec(evaluation, split = "held_out_test")
+held_out <- evaluate_cutoff(evaluation_spec, cutoff = selected)
+held_out$evaluation$label
+compare <- function(result, ids = c("tpr", "fpr", "youden_j")) {
+  m <- result$models[[1]]$metrics
+  setNames(m$value[match(ids, m$metric_id)], ids)
+}
+rbind(in_sample = compare(selected), held_out = compare(held_out))
+```
+
+Because the data were simulated, the true operating characteristics are known.
+`binormal_rates()` computes them for a binormal model with a given AUC, with the
+cutoff on the scale of the non-event distribution. With a mean difference of 1.2
+standard deviations and equal variances, the AUC is `pnorm(1.2 / sqrt(2))` and
+Youden's J is largest at the midpoint 0.6.
+
+```{r theory}
+true_auc <- pnorm(1.2 / sqrt(2))
+truth <- binormal_rates(cutoff = c(0.5, 0.6), auc = true_auc)
+truth$youden_j <- truth$tpr - truth$fpr
+truth
+```
+
+In this simulated split, the in-sample Youden's J of the selected cutoff is
+higher than the true value of about 0.45 and the held-out value is lower. One
+split illustrates the variability of these estimates; it does not quantify the
+optimism of in-sample selection.
+
+## Common result contract
+
+`as_inference()` converts a classification result to the common result
+contract. The returned object keeps aggregate values and intervals but not the
+individual observations or identifiers.
+
+```{r common, eval = has_fingerprints}
+common <- as_inference(held_out)
+rows <- result_data(common)
+print(rows[rows$estimand %in% c("tpr", "fpr", "ppv", "roc_auc"),
+           c("estimand", "estimate", "conf.low", "conf.high",
+             "interval.method")],
+      row.names = FALSE)
+result_metadata(common)$evaluation$evaluation_split
+```
+
+## Notes on interpretation
+
+- The positive class, score direction and comparator are declarations. The
+  package does not infer them from the data.
+- The `sampling` and `evaluation_split` arguments document the design; they do
+  not verify it. Independent tuning and evaluation samples must be ensured by
+  the study design.
+- Proportion intervals are conditional on the cutoff. They do not account for
+  the selection of that cutoff or for clustered observations.
+- In a case-control sample, the share of events is fixed by design, so
+  predictive values from those counts do not estimate the population values.
+
+The [exact tests tutorial](exact-tests.html) covers comparisons of two
+independent proportions.
+
+```{r session-information}
+sessionInfo()
+```
