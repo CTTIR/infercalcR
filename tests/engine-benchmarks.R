@@ -47,15 +47,23 @@ for (record in records) {
   live <- !is.null(entry) && requireNamespace(entry$package, quietly = TRUE) &&
     utils::packageVersion(entry$package) >= entry$min_version
   if (live) {
-    # Rows describe the same estimands whichever engine computed them.
-    if (!identical(result_data(run_engine(record, "base"))$estimand, result_data(run_engine(record, "reference"))$estimand))
-      stop("estimand labels differ between engines: ", label)
-    reference <- native_values(record, "reference")
-    same <- vapply(record$fields, function(field) agree(reference[[field]], record$values[[field]]), NA)
-    if (!all(same)) {
-      note <- paste0("live reference differs from stored ", record$package, " ", record$version, ": ", label, " ",
-        paste(record$fields[!same], collapse = ", "))
+    # A changed original is reported, and fails only the full lane.
+    live_run <- tryCatch(run_engine(record, "reference"), error = function(e) e)
+    if (inherits(live_run, "error")) {
+      note <- paste0("live reference failed with ", entry$package, " ", utils::packageVersion(entry$package), ": ",
+        label, ": ", conditionMessage(live_run))
       if (full) stop(note) else cat("NOTE", note, "\n")
+    } else {
+      # Rows describe the same estimands whichever engine computed them.
+      if (!identical(result_data(run_engine(record, "base"))$estimand, result_data(live_run)$estimand))
+        stop("estimand labels differ between engines: ", label)
+      reference <- live_run$payload$native[record$fields]
+      same <- vapply(record$fields, function(field) agree(reference[[field]], record$values[[field]]), NA)
+      if (!all(same)) {
+        note <- paste0("live reference differs from stored ", record$package, " ", record$version, ": ", label, " ",
+          paste(record$fields[!same], collapse = ", "))
+        if (full) stop(note) else cat("NOTE", note, "\n")
+      }
     }
   } else {
     if (full) stop("full lane requires the original for ", label)
