@@ -76,6 +76,30 @@ if (requireNamespace("DescTools", quietly = TRUE)) {
   stopifnot(identical(jt_p("base"), 1), identical(jt_p("reference"), 1))
 }
 
+# Reference engines enforce the base engines' scope limits, and stop quickly.
+bounded <- function(expr) {
+  setTimeLimit(elapsed = 30, transient = TRUE)
+  on.exit(setTimeLimit(elapsed = Inf))
+  tryCatch(expr, error = function(e) e)
+}
+if (requireNamespace("DescTools", quietly = TRUE)) {
+  large_b <- inputs("jonckheere_terpstra")
+  large_b$B <- 1000000L
+  jt_error <- function(engine) bounded(do.call(run_inference,
+    c(list(method_spec("jonckheere_terpstra", engine = engine)), large_b)))
+  base_error <- jt_error("base")
+  reference_error <- jt_error("reference")
+  stopifnot(inherits(base_error, "error"), identical(conditionMessage(reference_error), conditionMessage(base_error)))
+}
+if (requireNamespace("Exact", quietly = TRUE)) {
+  large_design <- matrix(1000, 2, 2, dimnames = list(c("group_x", "group_y"), c("event", "non_event")))
+  boschloo_error <- function(engine) bounded(run_inference(method_spec("boschloo_two_sided_minlike", engine = engine),
+    table = large_design))
+  base_error <- boschloo_error("base")
+  reference_error <- boschloo_error("reference")
+  stopifnot(inherits(base_error, "error"), identical(class(reference_error), class(base_error)))
+}
+
 catalogue <- method_catalogue()
 stopifnot(all(c("engines", "reference") %in% names(catalogue)),
   all(catalogue$engines %in% c("base", "single", "base+reference", "none")),

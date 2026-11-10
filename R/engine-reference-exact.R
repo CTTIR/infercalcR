@@ -14,6 +14,8 @@
 
 .ref_boschloo <- function(table, alternative, conf.level, variant) {
   .obs_boschloo_check_table(table)
+  # The base engine's limit on the number of enumerated tables applies to both engines.
+  .bl_check_design(sum(table[1, ]), sum(table[2, ]))
   if (variant == "central") {
     # The base definition, min(1, 2 * min(p_less, p_greater)) with each side
     # maximised separately, from two one-sided calls of the original. Exact's

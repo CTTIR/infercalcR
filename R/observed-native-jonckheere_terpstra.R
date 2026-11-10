@@ -33,6 +33,8 @@
     g <- match(as.character(data$group[keep]), group_order)
     counts <- tabulate(g, nbins = length(group_order))
     stopifnot(all(counts > 0L))
+    if (B * (sum(counts)^2 - sum(counts^2))/2 > 1e+07) 
+        stop("Teaching limit: B times the number of cross-group pairs must not exceed ten million.")
     list(y = y, g = g, counts = counts, keep = keep, n_total = n_total)
 }
 
@@ -47,8 +49,6 @@
     n_total <- prepared$n_total
     pairs <- which(outer(g, g, "<"), arr.ind = TRUE)
     pair_count <- nrow(pairs)
-    if (B * pair_count > 1e+07) 
-        stop("Teaching limit: B times the number of cross-group pairs must not exceed ten million.")
     score <- function(v) sum(2 * (v[pairs[, 2]] > v[pairs[, 1]]) + (v[pairs[, 2]] == v[pairs[, 1]]))
     observed <- score(y)
     degenerate <- length(unique(y)) == 1L
