@@ -73,7 +73,63 @@ exact_src <- "Exact 3.3 ?exact.test example (7/15 versus 12/15)"
 # supremum within an absolute tolerance; benchmarks use its finest setting.
 z_pooled_args <- function() list(table = exact_help_table(), independent_binomial_groups = TRUE, tolerance = 1e-10)
 
+# DescTools StuartMaxwellTest help examples (as.table(matrix(..., nrow = k))).
+square_table <- function(values, k) {
+  m <- matrix(values, nrow = k)
+  dimnames(m) <- list(LETTERS[seq_len(k)], LETTERS[seq_len(k)])
+  m
+}
+# DescTools LeveneTest help example: Ramsay and Jung-Parekh measurements.
+levene_help <- function() {
+  ramsay <- c(111, 107, 100, 99, 102, 106, 109, 108, 104, 99, 101, 96, 97, 102, 107, 113, 116, 113, 110, 98)
+  jung_parekh <- c(107, 108, 106, 98, 105, 103, 110, 105, 104, 100, 96, 108, 103, 104, 114, 114, 113, 108, 106, 99)
+  list(x = c(ramsay, jung_parekh), group = rep(c("ramsay", "jung.parekh"), c(length(ramsay), length(jung_parekh))))
+}
+# brunnermunzel help example Y versus N (Brunner and Munzel 2000 pain scores);
+# the example with nine values per group is below the base engine's minimum of 10.
+bm_help <- function() list(x = c(1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1), y = c(3, 3, 4, 3, 1, 2, 3, 1, 1, 5, 4))
+# stats ?SSD example: reaction times of 10 subjects under six conditions,
+# analysed in ?anova.mlm as one within-subject factor.
+reacttime_help <- function() {
+  rt <- matrix(c(420, 420, 480, 480, 600, 780, 420, 480, 480, 360, 480, 600, 480, 480, 540, 660, 780, 780,
+    420, 540, 540, 480, 780, 900, 540, 660, 540, 480, 660, 720, 360, 420, 360, 360, 480, 540,
+    480, 480, 600, 540, 720, 840, 480, 600, 660, 540, 720, 900, 540, 600, 540, 480, 720, 780,
+    480, 420, 540, 540, 660, 780), ncol = 6, byrow = TRUE,
+    dimnames = list(NULL, c("deg0NA", "deg4NA", "deg8NA", "deg0NP", "deg4NP", "deg8NP")))
+  list(data = data.frame(id = seq_len(nrow(rt)), rt), occasion_columns = colnames(rt), independent_subjects = TRUE)
+}
+
 benchmark_cases <- list(
+  stuart_maxwell_marginal_homogeneity = function() {
+    f <- c("status", "statistic", "df", "p_value")
+    src <- "DescTools 0.99.60 ?StuartMaxwellTest example"
+    list(bench_case("help-hyp", paste(src, "hyp (3 x 3)"),
+        list(counts = square_table(c(20, 3, 0, 10, 30, 5, 5, 15, 40), 3)), f),
+      bench_case("help-mc", paste(src, "mc (4 x 4)"), list(counts = square_table(c(732, 1524, 1575, 1577, 1602,
+        837, 1554, 1437, 1672, 1600, 841, 1363, 1385, 1484, 1524, 791), 4)), f),
+      baseline_case("stuart_maxwell_marginal_homogeneity", f))
+  },
+  variance_brown_forsythe = function() {
+    f <- c("status", "statistic", "df", "p_value")
+    list(bench_case("help-ramsay", "DescTools 0.99.60 ?LeveneTest example (Ramsay and Jung-Parekh)", levene_help(), f),
+      baseline_case("variance_brown_forsythe", f))
+  },
+  brunner_munzel = function() {
+    one <- c("status", "statistic", "df", "p_value", "estimate")
+    src <- "brunnermunzel 2.0 ?brunnermunzel.test example Y versus N"
+    c(list(bench_case("help-two.sided", src, bm_help(), c(one, "confidence_interval"))),
+      lapply(c("greater", "less"), function(alt) bench_case(paste0("help-", alt), src, bm_help(), one,
+        alternative = alt)),
+      list(bench_case("help-separated", paste(src, "with N shifted above max(Y) (degenerate case)"),
+          within(bm_help(), y <- y + max(x)), "status"),
+        baseline_case("brunner_munzel", c(one, "confidence_interval"))))
+  },
+  anova_repeated_one_way_gg = function() {
+    f <- c("status", "statistic", "p_value")
+    list(bench_case("help-reacttime", "stats ?SSD / ?anova.mlm example (reacttime, six conditions)",
+        reacttime_help(), f),
+      baseline_case("anova_repeated_one_way_gg", f))
+  },
   boschloo_one_sided = function() c(
     lapply(c("greater", "less"), function(alt) bench_case(paste0("help-", alt), exact_src,
       list(table = exact_help_table()), c("status", "p_value"), alternative = alt)),

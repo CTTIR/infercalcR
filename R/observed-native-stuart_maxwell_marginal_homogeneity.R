@@ -11,13 +11,17 @@
             1)
 }
 
+.obs_stuart_maxwell_marginal_homogeneity_check_excluded <- function(n_excluded) {
+    stopifnot(is.numeric(n_excluded), length(n_excluded) == 1L, is.finite(n_excluded), n_excluded >= 
+        0, n_excluded == floor(n_excluded))
+}
+
 .obs_stuart_maxwell_marginal_homogeneity_analyse <- function(counts, alternative = "two.sided", conf.level = 0.95, 
     n_excluded = 0L) {
     .obs_stuart_maxwell_marginal_homogeneity_check_table(counts, alternative, conf.level)
     k <- nrow(counts)
     n <- sum(counts)
-    stopifnot(is.numeric(n_excluded), length(n_excluded) == 1L, is.finite(n_excluded), n_excluded >= 
-        0, n_excluded == floor(n_excluded))
+    .obs_stuart_maxwell_marginal_homogeneity_check_excluded(n_excluded)
     difference <- rowSums(counts) - colSums(counts)
     covariance <- -(counts + t(counts))
     diag(covariance) <- rowSums(counts) + colSums(counts) - 2 * diag(counts)

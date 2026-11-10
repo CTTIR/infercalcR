@@ -34,7 +34,17 @@
   boschloo_two_sided_minlike = list(package = "Exact", functions = "exact.test", min_version = "3.3",
     source = "Decision D12: Exact, tsmethod = \"square\"", adapter = .ref_boschloo_two_sided_minlike),
   unconditional_exact_z_pooled = list(package = "Exact", functions = "exact.test", min_version = "3.3",
-    source = "established package: Exact, method = \"z-pooled\"", adapter = .ref_unconditional_exact_z_pooled))
+    source = "established package: Exact, method = \"z-pooled\"", adapter = .ref_unconditional_exact_z_pooled),
+  stuart_maxwell_marginal_homogeneity = list(package = "DescTools", functions = "StuartMaxwellTest",
+    min_version = "0.99.60", source = "established package: DescTools", adapter = .ref_stuart_maxwell_marginal_homogeneity),
+  variance_brown_forsythe = list(package = "DescTools", functions = "LeveneTest", min_version = "0.99.60",
+    source = "established package: DescTools, center = median", adapter = .ref_variance_brown_forsythe),
+  brunner_munzel = list(package = "brunnermunzel", functions = "brunnermunzel.test", min_version = "2.0",
+    source = "established package: brunnermunzel (t approximation); interval compared for two-sided tests only",
+    adapter = .ref_brunner_munzel),
+  anova_repeated_one_way_gg = list(package = "stats", functions = "anova", min_version = "4.1.0",
+    source = "R's stats::anova.mlm(test = \"Spherical\"); epsilon is not returned, so F and the GG p-value are compared",
+    adapter = .ref_anova_repeated_one_way_gg))
 
 # Methods whose test is computed by a stats function or fitted by stats or an
 # optional model backend. That computation is the original, so they have one

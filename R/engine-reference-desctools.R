@@ -101,3 +101,41 @@
     inference_note = "Greater means increasing outcomes along group_order; less means decreasing. DescTools permutation p-value from B permutations; two-sided doubles the smaller tail.",
     reference_output = unclass(test)))
 }
+
+.ref_stuart_maxwell_marginal_homogeneity <- function(counts, alternative = "two.sided", conf.level = 0.95,
+    n_excluded = 0L) {
+  .obs_stuart_maxwell_marginal_homogeneity_check_table(counts, alternative, conf.level)
+  .obs_stuart_maxwell_marginal_homogeneity_check_excluded(n_excluded)
+  n <- sum(counts)
+  test <- tryCatch(DescTools::StuartMaxwellTest(counts), error = function(e) NULL)
+  if (is.null(test) || !is.finite(test$statistic))
+    return(list(status = "unavailable", p_value = NULL,
+      reason = "Singular or numerically unresolved marginal covariance in the original; no automatic category pooling or generalized inverse."))
+  p <- test$p.value
+  list(method = "stuart_maxwell_marginal_homogeneity", status = "ok", n_pairs = n, n_excluded = n_excluded,
+    categories = rownames(counts), null = "Equal marginal category distributions at the two occasions",
+    observed = counts, row_proportions = rowSums(counts) / n, column_proportions = colSums(counts) / n,
+    statistic = unname(test$statistic), df = unname(test$parameter), p_value = p, confidence_interval = NULL,
+    interval_status = "not_computed", requested_confidence_level = conf.level, alpha = 1 - conf.level,
+    reject = p < 1 - conf.level,
+    assumptions = "Independent matched participants; identical category meaning/order; chi-squared large-sample approximation. Symmetry and marginal homogeneity are different hypotheses; no automatic substitution.",
+    reference_output = unclass(test))
+}
+
+.ref_variance_brown_forsythe <- function(x, group, alternative = "two.sided", conf.level = 0.95) {
+  .obs_variance_brown_forsythe_check_settings(alternative, conf.level, TRUE)
+  g <- .obs_variance_brown_forsythe_check_groups(x, group)
+  test <- DescTools::LeveneTest(x, g, center = stats::median)
+  statistic <- test[["F value"]][[1L]]
+  p <- test[["Pr(>F)"]][[1L]]
+  if (!is.finite(statistic) || !is.finite(p))
+    return(list(status = "not_applicable", p_value = NULL,
+      reason = "The absolute deviations have no resolved within-group variation.", confidence_interval = NULL,
+      interval_status = "not_computed"))
+  list(method = "Brown-Forsythe (median-centred Levene)", status = "ok", group_sizes = table(g),
+    group_medians = tapply(x, g, stats::median), statistic = statistic,
+    df = as.numeric(test[["Df"]][1:2]), p_value = p, confidence_interval = NULL, interval_status = "not_computed",
+    requested_confidence_level = conf.level, alpha = 1 - conf.level, reject = p < 1 - conf.level,
+    assumptions = "Independent units and groups; approximate F reference for median-centred absolute deviations. Different distribution shapes affect the interpretation as a pure spread comparison.",
+    reference_output = unclass(test))
+}

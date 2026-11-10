@@ -2,8 +2,8 @@
 # Source: inferguidR e91938f77eaa991b69989b121bfd32c124c95db0, tpl.anova_repeated_one_way_gg.v1.R
 # Example execution and plotting are deliberately outside this module.
 
-.obs_anova_repeated_one_way_gg_analyse <- function(data, occasion_columns, independent_subjects = FALSE, 
-    alternative = "two.sided", conf.level = 0.95, complete_cases = FALSE) {
+.obs_anova_repeated_one_way_gg_prepare <- function(data, occasion_columns, independent_subjects, 
+    alternative, conf.level, complete_cases) {
     stopifnot(identical(alternative, "two.sided"), is.numeric(conf.level), length(conf.level) == 1L, 
         is.finite(conf.level), conf.level > 0, conf.level < 1, isTRUE(independent_subjects), is.data.frame(data), 
         !anyDuplicated(names(data)), is.character(occasion_columns), length(occasion_columns) >= 3L, 
@@ -23,6 +23,17 @@
     n <- nrow(y)
     k <- ncol(y)
     stopifnot(n >= 3L)
+    list(y = y, n_total = n_total, n = n, k = k)
+}
+
+.obs_anova_repeated_one_way_gg_analyse <- function(data, occasion_columns, independent_subjects = FALSE, 
+    alternative = "two.sided", conf.level = 0.95, complete_cases = FALSE) {
+    prepared <- .obs_anova_repeated_one_way_gg_prepare(data, occasion_columns, independent_subjects, 
+        alternative, conf.level, complete_cases)
+    y <- prepared$y
+    n_total <- prepared$n_total
+    n <- prepared$n
+    k <- prepared$k
     unavailable <- function(reason) list(status = "not_applicable", reason = reason, p_value = NULL, 
         confidence_interval = NULL, interval_status = "not_computed", n_total = n_total, n_used = n, 
         n_excluded = n_total - n)
