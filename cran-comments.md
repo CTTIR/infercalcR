@@ -17,9 +17,6 @@ This is a new submission: infercalcR 0.1.0.
 0 errors | 0 warnings | 1 note
 
 * New submission.
-* While the GitHub repository is private, the same note lists the
-  repository URLs in DESCRIPTION as invalid (404). The repository has to
-  be made public before submission.
 
 ## Notes
 

@@ -74,8 +74,8 @@ lanes. Installing another package never silently switches the model, covariance
 method or interval. Existing testthat regression coverage is a development
 integration lane; new tests are ordinary R scripts.
 
-The development repository is private. With authenticated access, install a
-reviewed commit with your usual GitHub R installer. From a local checkout:
+Install the development version from GitHub, for example with
+`remotes::install_github("CTTIR/infercalcR")`, or from a local checkout:
 
 ```sh
 R CMD build infercalcR
