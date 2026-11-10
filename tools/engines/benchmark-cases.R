@@ -25,7 +25,66 @@ cochran_q_help_data <- function() {
   data.frame(id = sprintf("subject_%02d", seq_len(nrow(x))), x, row.names = NULL)
 }
 
+bench_case <- function(case_id, source, args, fields, alternative = "two.sided", conf.level = 0.95)
+  list(case_id = case_id, source = source, spec = list(alternative = alternative, conf.level = conf.level,
+    options = list()), args = args, fields = fields)
+
+# DescTools CochranArmitageTest help examples. "dose": PharmaSUG 2007 SP05 p. 4,
+# responders per dose 0..3 out of 10. "lungtumor": tumours per dose 0..2.
+trend_args <- function(events, totals, labels) {
+  names(events) <- names(totals) <- labels
+  list(events = events, totals = totals, scores = stats::setNames(seq_along(labels) - 1, labels),
+    scores_prespecified = TRUE)
+}
+
+# DescTools JonckheereTerpstraTest help examples, as data frames with an
+# explicit group order. Example 1 draws its outcome with set.seed(1234).
+jt_args <- function(y, group, group_order, seed = 1234L, B = 1999L)
+  list(data = data.frame(id = sprintf("unit_%02d", seq_along(y)), group = as.character(group), y = y),
+    group_order = group_order, order_prespecified = TRUE, independent_units = TRUE, seed = seed, B = B)
+jt_help_example <- function(tied = FALSE) {
+  set.seed(1234)
+  g <- ordered(rep(1:5, rep(10, 5)))
+  x <- stats::rnorm(50) + 0.3 * as.numeric(g)
+  if (tied) x[1:2] <- mean(x[1:2])
+  jt_args(x, g, as.character(1:5))
+}
+
 benchmark_cases <- list(
+  cochran_armitage_trend = function() {
+    ca_fields <- c("status", "signed_statistic", "statistic", "p_value")
+    dose <- "DescTools 0.99.60 ?CochranArmitageTest example 1 (PharmaSUG 2007 SP05 dose data)"
+    dose_args <- trend_args(c(0, 1, 0, 3), rep(10, 4), paste0("dose_", 0:3))
+    no_events <- dose_args
+    no_events$events[] <- 0
+    c(lapply(c("two.sided", "greater", "less"), function(alt)
+        bench_case(paste0("help-dose-", alt), dose, dose_args, ca_fields, alternative = alt)),
+      list(bench_case("help-lungtumor", "DescTools 0.99.60 ?CochranArmitageTest example 2 (lungtumor data)",
+          trend_args(c(2, 7, 15), c(40, 50, 48), paste0("dose_", 0:2)), ca_fields),
+        bench_case("help-dose-no-responders", paste(dose, "with responders removed (degenerate case)"),
+          no_events, "status"),
+        baseline_case("cochran_armitage_trend", ca_fields)))
+  },
+  jonckheere_terpstra = function() {
+    jt_fields <- c("status", "statistic", "p_value")
+    src <- "DescTools 0.99.60 ?JonckheereTerpstraTest example"
+    coffee <- list(c_4 = c(447, 396, 383, 410), c_2 = c(438, 521, 468, 391, 504, 472),
+      c_0 = c(513, 543, 506, 489, 407))
+    breaking <- data.frame(speed = c(20, 25, 25, 25, 25, 30, 30, 30, 35, 35),
+      distance = c(48, 33, 59, 48, 56, 60, 101, 67, 85, 107))
+    list(bench_case("help-normal", paste(src, "1 (set.seed(1234))"), jt_help_example(), jt_fields),
+      bench_case("help-normal-greater", paste(src, "1 (set.seed(1234))"), jt_help_example(), jt_fields,
+        alternative = "greater"),
+      bench_case("help-normal-less", paste(src, "1 (set.seed(1234))"), jt_help_example(), jt_fields,
+        alternative = "less"),
+      bench_case("help-tied", paste(src, "1 with tied data"), jt_help_example(tied = TRUE), jt_fields),
+      bench_case("help-coffee", paste(src, "coffee (Duller p. 222)"),
+        jt_args(unlist(coffee, use.names = FALSE), rep(names(coffee), lengths(coffee)), names(coffee)), jt_fields),
+      bench_case("help-breaking-greater", paste(src, "breaking distance, alternative increasing"),
+        jt_args(breaking$distance, breaking$speed, as.character(c(20, 25, 30, 35))), jt_fields,
+        alternative = "greater"),
+      baseline_case("jonckheere_terpstra", jt_fields))
+  },
   cochran_q = function() {
     q_fields <- c("status", "statistic", "df", "p_value")
     help <- cochran_q_help_data()

@@ -46,6 +46,17 @@ absent <- list(cochran_q = list(package = "infercalcRnotapackage", functions = "
 stopifnot(has_class(infercalcR:::.ic_engine_check("cochran_q", "reference", registry = absent),
   "infercalcR_missing_backend"))
 
+# The DescTools trend test uses equally spaced scores; other scores are not silently replaced.
+if (requireNamespace("DescTools", quietly = TRUE)) {
+  trend <- inputs("cochran_armitage_trend")
+  trend$scores[] <- c(0, 1, 3)
+  stopifnot(has_class(do.call(run_inference, c(list(method_spec("cochran_armitage_trend", engine = "reference")), trend)),
+    "infercalcR_unsupported"))
+  trend$scores[] <- c(10, 20, 30)
+  stopifnot(identical(result_metadata(do.call(run_inference, c(list(method_spec("cochran_armitage_trend",
+    engine = "reference")), trend)))$engine$engine, "reference"))
+}
+
 catalogue <- method_catalogue()
 stopifnot(all(c("engines", "reference") %in% names(catalogue)),
   all(catalogue$engines %in% c("base", "single", "base+reference", "none")),

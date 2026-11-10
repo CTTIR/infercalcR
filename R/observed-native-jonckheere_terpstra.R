@@ -7,8 +7,8 @@
     sum(2 * (y[pairs[, 2]] > y[pairs[, 1]]) + (y[pairs[, 2]] == y[pairs[, 1]]))
 }
 
-.obs_jonckheere_terpstra_analyse <- function(data, group_order, order_prespecified, independent_units, 
-    seed, alternative = "two.sided", B = 1999L, conf.level = 0.95, mc.level = 0.99, complete_cases = FALSE) {
+.obs_jonckheere_terpstra_prepare <- function(data, group_order, order_prespecified, independent_units, 
+    seed, alternative, B, conf.level, mc.level, complete_cases) {
     stopifnot(is.data.frame(data), all(c("id", "group", "y") %in% names(data)), nrow(data) > 0L, nrow(data) <= 
         200L, is.atomic(data$id), is.null(dim(data$id)), !anyNA(data$id), !anyDuplicated(data$id), all(nzchar(as.character(data$id))), 
         is.character(group_order), length(group_order) >= 2L, length(group_order) <= 10L, !anyNA(group_order), 
@@ -33,6 +33,18 @@
     g <- match(as.character(data$group[keep]), group_order)
     counts <- tabulate(g, nbins = length(group_order))
     stopifnot(all(counts > 0L))
+    list(y = y, g = g, counts = counts, keep = keep, n_total = n_total)
+}
+
+.obs_jonckheere_terpstra_analyse <- function(data, group_order, order_prespecified, independent_units, 
+    seed, alternative = "two.sided", B = 1999L, conf.level = 0.95, mc.level = 0.99, complete_cases = FALSE) {
+    prepared <- .obs_jonckheere_terpstra_prepare(data, group_order, order_prespecified, independent_units, 
+        seed, alternative, B, conf.level, mc.level, complete_cases)
+    y <- prepared$y
+    g <- prepared$g
+    counts <- prepared$counts
+    keep <- prepared$keep
+    n_total <- prepared$n_total
     pairs <- which(outer(g, g, "<"), arr.ind = TRUE)
     pair_count <- nrow(pairs)
     if (B * pair_count > 1e+07) 

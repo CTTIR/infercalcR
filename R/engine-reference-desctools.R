@@ -25,3 +25,79 @@
     assumptions = "Independent participants; matched occasions; complete blocks. Complete-case inference requires justified MCAR. Chi-squared asymptotic omnibus test; no automatic pairwise testing or method substitution.",
     reference_output = unclass(test)))
 }
+
+# Run code with a fixed seed under the base engines' RNG kinds, restoring the
+# caller's RNG state afterwards.
+.ref_with_seed <- function(seed, code) {
+  old_kind <- RNGkind()
+  had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  if (had_seed) old_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  on.exit({
+    do.call(RNGkind, as.list(old_kind))
+    if (had_seed) assign(".Random.seed", old_seed, envir = .GlobalEnv) else
+      if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) rm(".Random.seed", envir = .GlobalEnv)
+  }, add = TRUE)
+  RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+  set.seed(as.integer(seed))
+  code
+}
+
+.ref_cochran_armitage_trend <- function(events, totals, scores, scores_prespecified = FALSE,
+    alternative = "two.sided", conf.level = 0.95) {
+  n <- .obs_cochran_armitage_trend_check(events, totals, scores, scores_prespecified, alternative, conf.level)
+  spacing <- diff(scores)
+  # The trend statistic is unchanged by affine score changes; the original uses equally spaced scores.
+  if (any(abs(spacing - spacing[[1L]]) > sqrt(.Machine$double.eps) * max(abs(scores), 1)))
+    .ic_abort(paste("DescTools::CochranArmitageTest uses equally spaced scores only;",
+      "use engine = \"base\" for other prespecified scores"), "unsupported")
+  method <- "Cochran-Armitage asymptotic trend test"
+  probability <- sum(events) / n
+  if (probability == 0 || probability == 1)
+    return(list(method = method, status = "unavailable", reason = "No event variation: the binomial score variance is zero.",
+      p_value = NULL, confidence_interval = NULL))
+  # Events in the first row give Z the base engine's sign: positive for increasing event probability.
+  test <- DescTools::CochranArmitageTest(rbind(events, totals - events))
+  z <- unname(test$statistic)
+  # DescTools' "one.sided" p is the tail in the observed direction. A prespecified
+  # direction therefore uses the normal tail of the original's Z.
+  p <- switch(alternative, two.sided = test$p.value, greater = stats::pnorm(z, lower.tail = FALSE),
+    less = stats::pnorm(z))
+  list(method = method, status = "ok", events = events, totals = totals, scores = scores, scores_prespecified = TRUE,
+    event_proportions = events / totals, pooled_event_probability = probability, signed_statistic = z,
+    statistic = z^2, df = 1L, p_value = p, alternative = alternative,
+    direction = "greater means increasing event probability across increasing prespecified scores",
+    confidence_interval = NULL, interval_status = "not_computed", requested_confidence_level = conf.level,
+    expected_events = totals * probability, expected_non_events = totals * (1 - probability),
+    alpha = 1 - conf.level, reject = p < 1 - conf.level,
+    assumptions = "Independent binomial units with fixed group sizes and prespecified ordered scores. Asymptotic normal/chi-squared reference; sparse counts can make it inaccurate. No exact, continuity-corrected or automatic fallback. Scores are not fitted from outcomes. This is a trend score test, not an estimated common risk difference or logistic slope interval.",
+    reference_output = unclass(test))
+}
+
+.ref_jonckheere_terpstra <- function(data, group_order, order_prespecified, independent_units, seed,
+    alternative = "two.sided", B = 1999L, conf.level = 0.95, mc.level = 0.99, complete_cases = FALSE) {
+  prepared <- .obs_jonckheere_terpstra_prepare(data, group_order, order_prespecified, independent_units,
+    seed, alternative, B, conf.level, mc.level, complete_cases)
+  y <- prepared$y
+  common <- list(method = "Jonckheere-Terpstra ordered-group permutation test (DescTools)", group_order = group_order,
+    group_sizes = stats::setNames(prepared$counts, group_order), order_prespecified = TRUE,
+    n_total = prepared$n_total, n_used = length(y), n_excluded = sum(!prepared$keep), independent_units = TRUE,
+    alternative = alternative, seed = seed, requested_replicates = B, confidence_interval = NULL,
+    interval_status = "not_computed", alpha = 1 - conf.level,
+    assumptions = "Independent units and exchangeability under identical group distributions; group order and direction prespecified. Complete-case inference requires justified missingness. Concordance is descriptive and pair-weighted; this is not a mean, median, or causal-effect test.")
+  if (length(unique(y)) == 1L) return(c(common, list(status = "no_rank_variation", p_value = 1, reject = FALSE)))
+  groups <- factor(group_order[prepared$g], levels = group_order, ordered = TRUE)
+  # Always the permutation route, as in DescrTab2 (nperm = 1000): the exact
+  # route of DescTools 0.99.60 returns negative p-values.
+  # DescTools 0.99.60 warns "p-value based on normal approximation" for tied or
+  # large samples even when nperm is given and the p-value is a permutation
+  # p-value; that one warning would be false here and is muffled.
+  test <- withCallingHandlers(.ref_with_seed(seed, DescTools::JonckheereTerpstraTest(y, groups,
+    alternative = switch(alternative, two.sided = "two.sided", greater = "increasing", less = "decreasing"),
+    nperm = B)), warning = function(w) {
+      if (grepl("Specify nperm for permutation p-value", conditionMessage(w), fixed = TRUE)) invokeRestart("muffleWarning")
+    })
+  p <- test$p.value
+  c(common, list(status = "ok", statistic = unname(test$statistic), p_value = p, reject = p < 1 - conf.level,
+    inference_note = "Greater means increasing outcomes along group_order; less means decreasing. DescTools permutation p-value from B permutations; two-sided doubles the smaller tail.",
+    reference_output = unclass(test)))
+}

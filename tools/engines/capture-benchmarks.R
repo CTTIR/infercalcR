@@ -25,14 +25,14 @@ key <- function(r) paste(r$method_id, r$case_id)
 same_values <- function(a, b) isTRUE(all.equal(a, b, tolerance = 0))
 
 for (method_id in methods) {
-  for (case in benchmark_cases[[method_id]]()) {
-    spec <- do.call(method_spec, c(list(method_id), case$spec, list(engine = "reference")))
-    result <- do.call(run_inference, c(list(spec), case$args))
+  for (item in benchmark_cases[[method_id]]()) {
+    spec <- do.call(method_spec, c(list(method_id), item$spec, list(engine = "reference")))
+    result <- do.call(run_inference, c(list(spec), item$args))
     engine <- result_metadata(result)$engine
     native <- result$payload$native
-    record <- list(method_id = method_id, case_id = case$case_id, source = case$source, spec = case$spec,
-      args = case$args, package = engine$package, version = engine$version, call = engine$call,
-      fields = case$fields, values = native[case$fields], raw = native$reference_output,
+    record <- list(method_id = method_id, case_id = item$case_id, source = item$source, spec = item$spec,
+      args = item$args, package = engine$package, version = engine$version, call = engine$call,
+      fields = item$fields, values = native[item$fields], raw = native$reference_output,
       captured_on = format(Sys.Date()), r_version = R.version.string)
     old <- Filter(function(r) identical(key(r), key(record)), records)
     if (length(old) && !same_values(old[[1L]]$values, record$values) && !method_id %in% replace)
