@@ -5,12 +5,14 @@ This is a new submission: infercalcR 0.1.0.
 ## Test environments
 
 * Local: macOS 27 on Apple silicon, R 4.6.1 (aarch64-apple-darwin),
-  `R CMD check --as-cran --no-manual` on the built tarball with `NOT_CRAN`
-  unset. The PDF manual was built locally with TinyTeX (TeX Live 2026) via
-  `R CMD Rd2pdf` without errors; the check run itself used `--no-manual`.
-* GitHub Actions (r-lib/actions v2, `--as-cran`): macos-latest (R release),
-  windows-latest (R release), ubuntu-latest (R devel, R release,
-  R oldrel-1), plus ubuntu-latest R 4.1 with hard dependencies only.
+  `R CMD check --as-cran` on the built tarball with `NOT_CRAN` unset,
+  including the PDF manual (TinyTeX, TeX Live 2026) and the three
+  vignettes.
+* GitHub Actions (r-lib/actions v2, `--as-cran --no-manual`): macos-latest
+  (R release), windows-latest (R release), ubuntu-latest (R devel,
+  R release, R oldrel-1), plus ubuntu-latest R 4.1 with hard dependencies
+  only. Without 'knitr' and 'rmarkdown', that last lane does not build or
+  check the vignettes.
 
 ## R CMD check results
 
@@ -27,3 +29,5 @@ This is a new submission: infercalcR 0.1.0.
   tests skip them.
 * Tests are ordinary R scripts plus a retained 'testthat' regression lane;
   together they run in about one minute.
+* The vignettes use synthetic data only. Chunks that need 'digest' or
+  'jsonlite' are evaluated only when those packages are installed.
