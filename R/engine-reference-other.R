@@ -36,6 +36,11 @@
   common <- list(n_total = prepared$n_total, n_used = prepared$n, n_excluded = prepared$n_total - prepared$n,
     occasions = occasion_columns, alpha = 1 - conf.level, confidence_interval = NULL,
     interval_status = "not_computed", requested_confidence_level = conf.level)
+  # The base engine's guards decide whether a test is defined; without them
+  # anova.mlm turns rounding noise of degenerate data into a confident F test.
+  parts <- .obs_anova_repeated_one_way_gg_decompose(y, prepared$n, prepared$k)
+  if (!is.null(parts$reason))
+    return(c(common, list(status = "not_applicable", reason = parts$reason, p_value = NULL)))
   table <- tryCatch(stats::anova(stats::lm(y ~ 1), X = ~1, test = "Spherical"), error = function(e) NULL)
   statistic <- if (is.null(table)) NA_real_ else table[["F"]][[1L]]
   p <- if (is.null(table)) NA_real_ else table[["G-G Pr"]][[1L]]

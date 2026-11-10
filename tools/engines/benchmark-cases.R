@@ -129,8 +129,17 @@ benchmark_cases <- list(
   },
   anova_repeated_one_way_gg = function() {
     f <- c("status", "statistic", "p_value")
+    constant <- reacttime_help()
+    constant$data[constant$occasion_columns] <- constant$data$deg0NA
+    additive <- reacttime_help()
+    additive$data[additive$occasion_columns] <- lapply(seq_along(additive$occasion_columns) - 1,
+      function(j) additive$data$deg0NA + 60 * j)
     list(bench_case("help-reacttime", "stats ?SSD / ?anova.mlm example (reacttime, six conditions)",
         reacttime_help(), f),
+      bench_case("help-reacttime-constant", "reacttime with every condition set to deg0NA (degenerate case)",
+        constant, "status"),
+      bench_case("help-reacttime-additive", "reacttime with condition j set to deg0NA + 60 j (degenerate case)",
+        additive, "status"),
       baseline_case("anova_repeated_one_way_gg", f))
   },
   boschloo_one_sided = function() c(
