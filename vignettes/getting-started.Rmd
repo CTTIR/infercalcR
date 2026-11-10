@@ -325,6 +325,9 @@ metrics and cutoffs; the [exact tests tutorial](exact-tests.html) covers
 Boschloo's test for two-by-two tables. `?result-contract` describes the result
 columns in full.
 
+```{r acknowledgments, child = "children/_acknowledgments.Rmd"}
+```
+
 ```{r session-information}
 sessionInfo()
 ```
