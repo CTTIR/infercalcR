@@ -45,18 +45,17 @@
 .ref_cochran_armitage_trend <- function(events, totals, scores, scores_prespecified = FALSE,
     alternative = "two.sided", conf.level = 0.95) {
   n <- .obs_cochran_armitage_trend_check(events, totals, scores, scores_prespecified, alternative, conf.level)
-  spacing <- diff(scores)
-  # The trend statistic is unchanged by affine score changes; the original uses equally spaced scores.
-  if (any(abs(spacing - spacing[[1L]]) > sqrt(.Machine$double.eps) * max(abs(scores), 1)))
-    .ic_abort(paste("DescTools::CochranArmitageTest uses equally spaced scores only;",
-      "use engine = \"base\" for other prespecified scores"), "unsupported")
   method <- "Cochran-Armitage asymptotic trend test"
   probability <- sum(events) / n
   if (probability == 0 || probability == 1)
     return(list(method = method, status = "unavailable", reason = "No event variation: the binomial score variance is zero.",
       p_value = NULL, confidence_interval = NULL))
-  # Events in the first row give Z the base engine's sign: positive for increasing event probability.
-  test <- DescTools::CochranArmitageTest(rbind(events, totals - events))
+  # The original reads its scores from the column names of the table, so the
+  # prespecified scores are passed there, never the group names. Events in the
+  # first row give Z the base engine's sign: positive for increasing event probability.
+  table <- matrix(c(events, totals - events), nrow = 2L, byrow = TRUE,
+    dimnames = list(c("event", "non_event"), format(unname(scores), digits = 17L, trim = TRUE)))
+  test <- DescTools::CochranArmitageTest(table)
   z <- unname(test$statistic)
   # DescTools' "one.sided" p is the tail in the observed direction. A prespecified
   # direction therefore uses the normal tail of the original's Z.

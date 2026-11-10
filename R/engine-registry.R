@@ -14,7 +14,7 @@
   cochran_q = list(package = "DescTools", functions = "CochranQTest", min_version = "0.99.60",
     source = "DescrTab2 2.1.16 sig_test(): Cochran's Q test", adapter = .ref_cochran_q),
   cochran_armitage_trend = list(package = "DescTools", functions = "CochranArmitageTest", min_version = "0.99.60",
-    source = "DescrTab2 2.1.16 sig_test(): Cochran-Armitage's test; one-sided p from the original's Z",
+    source = "DescrTab2 2.1.16 sig_test(): Cochran-Armitage's test; prespecified scores passed as the table's column names; one-sided p from the original's Z",
     adapter = .ref_cochran_armitage_trend),
   jonckheere_terpstra = list(package = "DescTools", functions = "JonckheereTerpstraTest", min_version = "0.99.60",
     source = "DescrTab2 2.1.16 sig_test(): Jonckheere-Terpstra's test (permutation route, nperm = B)",
