@@ -65,7 +65,30 @@ mcnemar_cases <- function(method_id, fields) {
       baseline_case(method_id, fields)))
 }
 
+# Exact exact.test help example: 7 of 15 versus 12 of 15 events, groups in rows.
+exact_help_table <- function()
+  matrix(c(7, 8, 12, 3), 2, 2, byrow = TRUE, dimnames = list(c("group_x", "group_y"), c("event", "non_event")))
+exact_src <- "Exact 3.3 ?exact.test example (7/15 versus 12/15)"
+# The base z-pooled engine reports a certified upper bound on the nuisance
+# supremum within an absolute tolerance; benchmarks use its finest setting.
+z_pooled_args <- function() list(table = exact_help_table(), independent_binomial_groups = TRUE, tolerance = 1e-10)
+
 benchmark_cases <- list(
+  boschloo_one_sided = function() c(
+    lapply(c("greater", "less"), function(alt) bench_case(paste0("help-", alt), exact_src,
+      list(table = exact_help_table()), c("status", "p_value"), alternative = alt)),
+    list(baseline_case("boschloo_one_sided", c("status", "p_value")))),
+  boschloo_two_sided_central = function() list(
+    bench_case("help", exact_src, list(table = exact_help_table()), c("status", "p_value")),
+    baseline_case("boschloo_two_sided_central", c("status", "p_value"))),
+  boschloo_two_sided_minlike = function() list(
+    bench_case("help", exact_src, list(table = exact_help_table()), c("status", "p_value")),
+    baseline_case("boschloo_two_sided_minlike", c("status", "p_value"))),
+  unconditional_exact_z_pooled = function() c(
+    lapply(c("two.sided", "greater", "less"), function(alt) bench_case(paste0("help-", alt),
+      paste(exact_src, "with base tolerance 1e-10"), z_pooled_args(), c("status", "statistic", "p_value"),
+      alternative = alt)),
+    list(baseline_case("unconditional_exact_z_pooled", c("status", "statistic", "p_value")))),
   mcnemar_exact_conditional = function()
     mcnemar_cases("mcnemar_exact_conditional", c("status", "p_value", "confidence_interval")),
   mcnemar_midp = function() mcnemar_cases("mcnemar_midp", c("status", "p_value")),

@@ -24,7 +24,17 @@
     adapter = .ref_mcnemar_exact_conditional),
   mcnemar_midp = list(package = "exact2x2", functions = "exact2x2", min_version = "1.7.0",
     source = "established package: exact2x2 paired = TRUE, midp = TRUE; interval not compared (base reports Clopper-Pearson)",
-    adapter = .ref_mcnemar_midp))
+    adapter = .ref_mcnemar_midp),
+  boschloo_one_sided = list(package = "Exact", functions = "exact.test", min_version = "3.3",
+    source = "Decision D12: Exact, not exact2x2::boschloo as in DescrTab2 (drops tied tables)",
+    adapter = .ref_boschloo_one_sided),
+  boschloo_two_sided_central = list(package = "Exact", functions = "exact.test", min_version = "3.3",
+    source = "Decision D12: Exact; central p = min(1, 2 * min) of two one-sided Exact calls",
+    adapter = .ref_boschloo_two_sided_central),
+  boschloo_two_sided_minlike = list(package = "Exact", functions = "exact.test", min_version = "3.3",
+    source = "Decision D12: Exact, tsmethod = \"square\"", adapter = .ref_boschloo_two_sided_minlike),
+  unconditional_exact_z_pooled = list(package = "Exact", functions = "exact.test", min_version = "3.3",
+    source = "established package: Exact, method = \"z-pooled\"", adapter = .ref_unconditional_exact_z_pooled))
 
 # Methods whose test is computed by a stats function or fitted by stats or an
 # optional model backend. That computation is the original, so they have one
