@@ -50,7 +50,25 @@ jt_help_example <- function(tied = FALSE) {
   jt_args(x, g, as.character(1:5))
 }
 
+# exact2x2 mcnemarExactDP help example: airway hyperresponsiveness before (x)
+# and after (y) stem cell transplantation, Bentur et al. (2009), also Table II
+# of Fagerland, Lydersen and Laake. AHR is coded 1.
+ahr_counts <- function() c(n00 = 12, n01 = 7, n10 = 1, n11 = 1)
+mcnemar_cases <- function(method_id, fields) {
+  src <- "exact2x2 1.7.0 ?mcnemarExactDP example (Bentur et al. 2009 AHR pairs)"
+  no_discordant <- ahr_counts()
+  no_discordant[c("n01", "n10")] <- 0
+  c(lapply(c("two.sided", "greater", "less"), function(alt)
+      bench_case(paste0("help-ahr-", alt), src, list(counts = ahr_counts()), fields, alternative = alt)),
+    list(bench_case("help-ahr-no-discordant", paste(src, "with discordant pairs removed (degenerate case)"),
+        list(counts = no_discordant), "status"),
+      baseline_case(method_id, fields)))
+}
+
 benchmark_cases <- list(
+  mcnemar_exact_conditional = function()
+    mcnemar_cases("mcnemar_exact_conditional", c("status", "p_value", "confidence_interval")),
+  mcnemar_midp = function() mcnemar_cases("mcnemar_midp", c("status", "p_value")),
   cochran_armitage_trend = function() {
     ca_fields <- c("status", "signed_statistic", "statistic", "p_value")
     dose <- "DescTools 0.99.60 ?CochranArmitageTest example 1 (PharmaSUG 2007 SP05 dose data)"

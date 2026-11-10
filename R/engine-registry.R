@@ -18,7 +18,13 @@
     adapter = .ref_cochran_armitage_trend),
   jonckheere_terpstra = list(package = "DescTools", functions = "JonckheereTerpstraTest", min_version = "0.99.60",
     source = "DescrTab2 2.1.16 sig_test(): Jonckheere-Terpstra's test (permutation route, nperm = B)",
-    adapter = .ref_jonckheere_terpstra))
+    adapter = .ref_jonckheere_terpstra),
+  mcnemar_exact_conditional = list(package = "exact2x2", functions = "exact2x2", min_version = "1.7.0",
+    source = "DescrTab2 2.1.16 sig_test(): Exact McNemar's test (exact2x2, paired = TRUE, tsmethod = \"central\")",
+    adapter = .ref_mcnemar_exact_conditional),
+  mcnemar_midp = list(package = "exact2x2", functions = "exact2x2", min_version = "1.7.0",
+    source = "established package: exact2x2 paired = TRUE, midp = TRUE; interval not compared (base reports Clopper-Pearson)",
+    adapter = .ref_mcnemar_midp))
 
 # Methods whose test is computed by a stats function or fitted by stats or an
 # optional model backend. That computation is the original, so they have one
