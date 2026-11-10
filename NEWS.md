@@ -1,5 +1,9 @@
 # infercalcR 0.1.0
 
+* The README and every vignette now acknowledge and cite DescrTab2
+  (Institute of Medical Biometry, Heidelberg University), which deeply
+  inspired the suite, the Methodenberatung pages of the University of
+  Zurich and G*Power; the README also cites R and the packages used.
 * First CRAN submission.
 * Add three vignettes: getting started, diagnostic accuracy and classifier
   metrics, and exact tests for two-by-two tables. A pkgdown documentation

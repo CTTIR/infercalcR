@@ -277,6 +277,9 @@ result_metadata(common)$evaluation$evaluation_split
 The [exact tests tutorial](exact-tests.html) covers comparisons of two
 independent proportions.
 
+```{r acknowledgments, child = "children/_acknowledgments.Rmd"}
+```
+
 ```{r session-information}
 sessionInfo()
 ```

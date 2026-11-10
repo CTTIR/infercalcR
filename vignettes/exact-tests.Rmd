@@ -254,6 +254,9 @@ Boschloo, R. D. (1970). Raised conditional level of significance for the
 2 x 2-table when testing the equality of two probabilities. *Statistica
 Neerlandica*, 24(1), 1-9. <https://doi.org/10.1111/j.1467-9574.1970.tb00104.x>
 
+```{r acknowledgments, child = "children/_acknowledgments.Rmd"}
+```
+
 ```{r session-information}
 sessionInfo()
 ```
