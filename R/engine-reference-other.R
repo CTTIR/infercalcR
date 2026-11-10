@@ -47,7 +47,7 @@
   if (!is.finite(statistic) || !is.finite(p))
     return(c(common, list(status = "not_applicable", reason = "The original returned no finite Greenhouse-Geisser test.",
       p_value = NULL)))
-  c(common, list(status = "ok", method = "One-way repeated-measures ANOVA; Greenhouse-Geisser correction (stats::anova.mlm)",
+  c(common, list(status = "ok", method = "One-way repeated-measures ANOVA; routine Greenhouse-Geisser correction",
     statistic = statistic, p_value = p,
     uncorrected_df = c(numerator = table[["num Df"]][[1L]], denominator = table[["den Df"]][[1L]]),
     epsilon_note = "stats::anova.mlm reports the Greenhouse-Geisser epsilon only in its printed heading; corrected degrees of freedom are not returned.",

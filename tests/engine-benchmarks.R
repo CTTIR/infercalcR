@@ -21,12 +21,13 @@ agree <- function(a, b) {
   all(mapply(function(a, b) if (is.na(b)) is.na(a) else if (b == 0) isTRUE(a == 0) else
     isTRUE(abs(a - b) / abs(b) <= 1e-8), a, b))
 }
-native_values <- function(record, engine) {
+run_engine <- function(record, engine) {
   spec <- do.call(method_spec, c(list(record$method_id), record$spec, list(engine = engine)))
   result <- do.call(run_inference, c(list(spec), record$args))
   stopifnot(identical(result_metadata(result)$engine$engine, engine))
-  result$payload$native[record$fields]
+  result
 }
+native_values <- function(record, engine) run_engine(record, engine)$payload$native[record$fields]
 
 for (record in records) {
   label <- paste(record$method_id, record$case_id)
@@ -46,6 +47,9 @@ for (record in records) {
   live <- !is.null(entry) && requireNamespace(entry$package, quietly = TRUE) &&
     utils::packageVersion(entry$package) >= entry$min_version
   if (live) {
+    # Rows describe the same estimands whichever engine computed them.
+    if (!identical(result_data(run_engine(record, "base"))$estimand, result_data(run_engine(record, "reference"))$estimand))
+      stop("estimand labels differ between engines: ", label)
     reference <- native_values(record, "reference")
     same <- vapply(record$fields, function(field) agree(reference[[field]], record$values[[field]]), NA)
     if (!all(same)) {

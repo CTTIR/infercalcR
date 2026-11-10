@@ -28,7 +28,7 @@
     p <- fit$p
     output <- fit$output
   }
-  list(status = "ok", method = paste(.bl_variant_info[[variant]]$label, "(Exact)"), table = table,
+  list(status = "ok", method = .bl_variant_info[[variant]]$label, table = table,
     n_total = sum(table), event_probability_difference = table[1, 1] / sum(table[1, ]) - table[2, 1] / sum(table[2, ]),
     null_difference = 0, p_value = p, alternative = alternative, confidence_interval = NULL,
     confidence_level = conf.level, interval_status = "not_computed",
@@ -59,7 +59,7 @@
   # Two-sided ordering by the squared statistic, as in the base engine.
   fit <- .ref_exact_p(table, "z-pooled", alternative, if (alternative == "two.sided") "square")
   p <- fit$p
-  list(status = "ok", method = "Unconditional exact pooled-Z test (Exact)", table = table, n_total = sum(table),
+  list(status = "ok", method = "Unconditional exact pooled-Z test", table = table, n_total = sum(table),
     alternative = alternative, null_difference = 0, statistic = unname(fit$output$statistic),
     event_probability_difference = table[1, 1] / sum(table[1, ]) - table[2, 1] / sum(table[2, ]),
     p_value = p, alpha = 1 - conf.level, confidence_interval = NULL, confidence_level = conf.level,

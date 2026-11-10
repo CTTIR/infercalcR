@@ -77,7 +77,7 @@
   prepared <- .obs_jonckheere_terpstra_prepare(data, group_order, order_prespecified, independent_units,
     seed, alternative, B, conf.level, mc.level, complete_cases)
   y <- prepared$y
-  common <- list(method = "Jonckheere-Terpstra ordered-group permutation test (DescTools)", group_order = group_order,
+  common <- list(method = "Jonckheere-Terpstra ordered-group Monte Carlo permutation test", group_order = group_order,
     group_sizes = stats::setNames(prepared$counts, group_order), order_prespecified = TRUE,
     n_total = prepared$n_total, n_used = length(y), n_excluded = sum(!prepared$keep), independent_units = TRUE,
     alternative = alternative, seed = seed, requested_replicates = B, confidence_interval = NULL,
