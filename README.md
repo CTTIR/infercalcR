@@ -110,9 +110,11 @@ infercalcR::result_metadata(r)$engine            # engine, package, version, cal
 `engine = "base"` is the default, so results never depend on which packages
 are installed. The originals are optional. When one is missing or older than
 the version the benchmarks were captured with, `engine = "reference"` stops
-with an error; it never falls back to the base engine. Methods computed by R's
-stats package or an optional model backend have a single engine, which either
-setting runs.
+with an error; it never falls back to the base engine. Methods whose test is
+computed by R's stats package, or whose model is fitted by stats or an optional
+model backend, have a single engine, which either setting runs.
+`inst/methods/provenance.csv` notes where infercalcR computes tests or summaries
+from such a fitted model itself.
 
 | Method | Original |
 |---|---|

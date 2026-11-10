@@ -17,6 +17,17 @@ stopifnot(nrow(dual) == 13L,
 # pending: own base code outside the 13 dual-engine methods, audited with its reference engine later.
 stopifnot(all(provenance$gpl_check %in% c("clear", "rewrite", "not_applicable", "pending")),
   all(dual$gpl_check %in% c("clear", "rewrite")))
+# A single-engine method recorded as computed entirely by the original must not
+# compute tests itself: none of its own functions calls a distribution function.
+ns <- asNamespace("infercalcR")
+own_tests <- function(id) {
+  functions <- grep(paste0("^\\.obs_", id, "_"), ls(ns, all.names = TRUE), value = TRUE)
+  any(vapply(functions, function(f) any(grepl("stats::(pt|pf|pnorm|pchisq|qt|qnorm|qchisq)\\(",
+    deparse(get(f, envir = ns)))), NA))
+}
+wrapped <- provenance$method_id[provenance$engines == "single" & provenance$gpl_check == "not_applicable"]
+computing <- wrapped[vapply(wrapped, own_tests, NA)]
+if (length(computing)) stop("recorded as computed by the original but computes tests itself: ", paste(computing, collapse = ", "))
 if (any(provenance$gpl_check == "rewrite"))
   stop("base implementations awaiting a rewrite from the literature: ",
     paste(provenance$method_id[provenance$gpl_check == "rewrite"], collapse = ", "))
