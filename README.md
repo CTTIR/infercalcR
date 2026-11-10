@@ -9,6 +9,9 @@ This is development software. Use the checked revision recorded with an analysis
 A successful calculation is not universal scientific validation. The package is
 not a CRAN release.
 
+Documentation, including tutorials and the function reference, is available at
+<https://cttir.github.io/infercalcR/>.
+
 ## Start
 
 ```r
@@ -31,7 +34,7 @@ remain distinct.
 
 `method_catalogue()` lists current procedure identities, available adapters and
 optional backends. `?observed-methods` and
-[the input-signature inventory](inst/methods/implemented.csv) describe each
+[the input-signature inventory](https://github.com/CTTIR/infercalcR/blob/main/inst/methods/implemented.csv) describe each
 method's accepted data/design arguments. The 68 executable analysis templates
 and their three callable numerical helpers were extracted with their original
 scope, assumptions and limits. The advisor-only one-sample variance method is

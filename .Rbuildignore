@@ -9,3 +9,6 @@
 ^.*\.tar\.gz$
 ^.*\.Rcheck$
 ^\.DS_Store$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

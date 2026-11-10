@@ -22,7 +22,8 @@ Depends: R (>= 4.1.0)
 Imports: stats, utils
 Suggests: digest, jsonlite, cluster, nlme, MASS, nnet, lme4, geepack, knitr,
     rmarkdown, testthat (>= 3.0.0), withr
-URL: https://github.com/CTTIR/infercalcR
+URL: https://github.com/CTTIR/infercalcR, https://cttir.github.io/infercalcR/
 BugReports: https://github.com/CTTIR/infercalcR/issues
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Config/Needs/website: CTTIR/themakR

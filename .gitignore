@@ -3,6 +3,7 @@
 .RData
 *.Rcheck/
 *.tar.gz
+/docs/
 /inst/doc/
 /vignettes/*.html
 /vignettes/*.R

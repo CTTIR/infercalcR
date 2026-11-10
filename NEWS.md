@@ -1,6 +1,9 @@
 # infercalcR 0.1.0
 
 * First CRAN submission.
+* Add three vignettes: getting started, diagnostic accuracy and classifier
+  metrics, and exact tests for two-by-two tables. A pkgdown documentation
+  site is published at <https://cttir.github.io/infercalcR/>.
 * The maintainer address is now raban.heller@uni-ulm.de.
 * DESCRIPTION gains a fuller Description with a reference for Boschloo's
   test, and declares `Language: en-US`; `inst/WORDLIST` records the

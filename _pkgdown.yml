@@ -1,0 +1,60 @@
+url: https://cttir.github.io/infercalcR/
+template:
+  includes:
+    in_header: |
+      <meta name="theme-color" content="#1565c0">
+      <script defer data-domain="cttir.github.io/infercalcr" src="https://analytics.hellebo.de/js/script.file-downloads.outbound-links.js"></script>
+  package: themakR
+  math-rendering: mathml
+  bslib:
+    base_font: system-ui
+    heading_font: system-ui
+    code_font: monospace
+destination: docs
+development:
+  mode: auto
+home:
+  sidebar:
+    structure:
+    - links
+    - license
+    - citation
+    - authors
+  title: infercalcR
+  description: Explicit statistical procedures, diagnostic calculations and a
+    common finalized result contract with recorded method settings and provenance.
+articles:
+- title: Learn infercalcR
+  navbar: null
+  contents:
+  - getting-started
+  - classification
+  - exact-tests
+reference:
+- title: Specify and run methods
+  desc: Prespecified method identities, descriptive summaries and the inventory
+    of observed procedures.
+  contents:
+  - method_spec
+  - observed-methods
+  - describe_data
+- title: Result contract
+  desc: Construct, validate, access, convert and adjust finalized results.
+  contents:
+  - result-contract
+  - as_inference.htest
+- title: Diagnostic accuracy, exact tests and calculators
+  desc: Classifier metrics and cutoffs, Boschloo's test and distribution
+    calculators with typed statuses.
+  contents:
+  - legacy-computation
+- title: Exploration and prediction helpers
+  contents:
+  - parallel_analysis
+- title: Numerical and compatibility providers
+  desc: Shared probability kernels, Boschloo design kernels and canonical
+    identity helpers for validated package consumers.
+  contents:
+  - kernel-providers
+
+llm-docs: false
