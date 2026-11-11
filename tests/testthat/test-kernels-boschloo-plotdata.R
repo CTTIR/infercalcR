@@ -1,5 +1,6 @@
 # Numerical regression blocks retained from the historical guidance suite.
 test_that("the generic set supremum reproduces region and Fisher sizes", {
+  skip_if_not_installed("digest")
   reg <- boschloo_region(9, 13, 0.05, "central")
   member <- logical(10 * 14)
   member[reg$rejected$x1 + 1 + reg$rejected$x2 * 10] <- TRUE

@@ -1,6 +1,7 @@
 # Numerical regression blocks retained from the historical guidance suite.
 p_of <- function(x1, n1, x2, n2, v, ...) boschloo_test(x1, n1, x2, n2, variant = v, ...)$p_value
 test_that("tied tables enter the tail together (relative tie tolerance)", {
+  skip_if_not_installed("digest")
   # n = (5, 7): (1, 6) and (2, 7) have the same lower Fisher p-value 1/22;
   # dropping (2, 7), as a floating-point equality test does, gives 0.0174.
   r <- boschloo_test(1, 5, 6, 7, variant = "less")
@@ -39,6 +40,7 @@ test_that("p-values are monotone along the nested tail sets", {
   expect_identical(cen, pmin(1, 2 * pmin(lo, up)))
 })
 test_that("ambiguous ties above n1 + n2 = 56 are refused exactly where they could change a result", {
+  skip_if_not_installed("digest")
   # Band (1e-12, 1e-4]: gaps in it are ambiguous. Alternative A separates all
   # of them (tie tolerance 1e-12), alternative B merges all of them (tie
   # tolerance 1e-4). A result that is not flagged must be the same under A,

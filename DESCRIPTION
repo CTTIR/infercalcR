@@ -2,7 +2,7 @@ Package: infercalcR
 Type: Package
 Title: Statistical Inference and Diagnostic Calculations
 Version: 0.1.0
-Authors@R: person("Raban", "Heller", , "raban.heller@uni-ulm.de",
+Authors@R: person("R.", "Heller", , "raban.heller@uni-ulm.de",
     role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0001-8006-9742"))
 Description: Provides explicit statistical procedures, descriptive
     summaries, diagnostic calculations and a common result contract. Each
