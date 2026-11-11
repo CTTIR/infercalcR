@@ -2,8 +2,8 @@
 # Source: inferguidR e91938f77eaa991b69989b121bfd32c124c95db0, tpl.cochran_armitage_trend.v1.R
 # Example execution and plotting are deliberately outside this module.
 
-.obs_cochran_armitage_trend_analyse <- function(events, totals, scores, scores_prespecified = FALSE, 
-    alternative = "two.sided", conf.level = 0.95) {
+.obs_cochran_armitage_trend_check <- function(events, totals, scores, scores_prespecified, alternative, 
+    conf.level) {
     stopifnot(isTRUE(scores_prespecified), is.numeric(events), is.numeric(totals), is.numeric(scores), 
         length(events) >= 3L, length(events) == length(totals), length(events) == length(scores), all(is.finite(events)), 
         all(is.finite(totals)), all(is.finite(scores)), all(totals > 0), all(totals == floor(totals)), 
@@ -14,6 +14,12 @@
         length(conf.level) == 1L, is.finite(conf.level), conf.level > 0, conf.level < 1)
     n <- sum(totals)
     stopifnot(n <= .Machine$integer.max)
+    invisible(n)
+}
+
+.obs_cochran_armitage_trend_analyse <- function(events, totals, scores, scores_prespecified = FALSE, 
+    alternative = "two.sided", conf.level = 0.95) {
+    n <- .obs_cochran_armitage_trend_check(events, totals, scores, scores_prespecified, alternative, conf.level)
     probability <- sum(events)/n
     if (probability == 0 || probability == 1) 
         return(list(method = "Cochran-Armitage asymptotic trend test", status = "unavailable", reason = "No event variation: the binomial score variance is zero.", 

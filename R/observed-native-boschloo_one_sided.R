@@ -2,6 +2,11 @@
 # Source: inferguidR e91938f77eaa991b69989b121bfd32c124c95db0, tpl.boschloo_one_sided.v1.R
 # Example execution and plotting are deliberately outside this module.
 
+.obs_boschloo_check_table <- function(table) {
+    stopifnot(is.matrix(table), is.numeric(table), identical(dim(table), c(2L, 2L)), all(is.finite(table)), 
+        all(table >= 0), all(table == floor(table)), all(rowSums(table) > 0))
+}
+
 .obs_boschloo_one_sided_check_settings <- function(alternative, conf.level) {
     stopifnot(is.character(alternative), length(alternative) == 1L, alternative %in% c("greater", "less"), 
         is.numeric(conf.level), length(conf.level) == 1L, is.finite(conf.level), conf.level > 0, conf.level < 
@@ -10,8 +15,7 @@
 
 .obs_boschloo_one_sided_analyse <- function(table, alternative = "greater", conf.level = 0.95) {
     .obs_boschloo_one_sided_check_settings(alternative, conf.level)
-    stopifnot(is.matrix(table), is.numeric(table), identical(dim(table), c(2L, 2L)), all(is.finite(table)), 
-        all(table >= 0), all(table == floor(table)), all(rowSums(table) > 0))
+    .obs_boschloo_check_table(table)
     variant <- alternative
     fit <- boschloo_inference(table[1, 1], sum(table[1, ]), table[2, 1], sum(table[2, ]), variant = variant, 
         alpha = 1 - conf.level, groups = c("group_x", "group_y"), event = "event")$payload$native

@@ -2,8 +2,8 @@
 # Source: inferguidR e91938f77eaa991b69989b121bfd32c124c95db0, tpl.anova_repeated_one_way_gg.v1.R
 # Example execution and plotting are deliberately outside this module.
 
-.obs_anova_repeated_one_way_gg_analyse <- function(data, occasion_columns, independent_subjects = FALSE, 
-    alternative = "two.sided", conf.level = 0.95, complete_cases = FALSE) {
+.obs_anova_repeated_one_way_gg_prepare <- function(data, occasion_columns, independent_subjects, 
+    alternative, conf.level, complete_cases) {
     stopifnot(identical(alternative, "two.sided"), is.numeric(conf.level), length(conf.level) == 1L, 
         is.finite(conf.level), conf.level > 0, conf.level < 1, isTRUE(independent_subjects), is.data.frame(data), 
         !anyDuplicated(names(data)), is.character(occasion_columns), length(occasion_columns) >= 3L, 
@@ -23,33 +23,58 @@
     n <- nrow(y)
     k <- ncol(y)
     stopifnot(n >= 3L)
-    unavailable <- function(reason) list(status = "not_applicable", reason = reason, p_value = NULL, 
-        confidence_interval = NULL, interval_status = "not_computed", n_total = n_total, n_used = n, 
-        n_excluded = n_total - n)
+    list(y = y, n_total = n_total, n = n, k = k)
+}
+
+.obs_anova_repeated_one_way_gg_decompose <- function(y, n, k) {
+    magnitude <- max(abs(y))
     y <- sweep(y, 1L, y[, 1L], "-")
     if (any(!is.finite(y))) 
-        return(unavailable("Within-subject differences exceed the numerical range."))
+        return(list(reason = "Within-subject differences exceed the numerical range."))
     scale <- max(abs(y))
     if (scale == 0) 
-        return(unavailable("All within-subject differences are zero."))
+        return(list(reason = "All within-subject differences are zero."))
     y <- y/scale
     y <- y - rowMeans(y)
     occasion_mean <- colMeans(y)
     residual <- sweep(y, 2L, occasion_mean, "-")
     sse <- sum(residual^2)
     ss <- n * sum(occasion_mean^2)
-    if (!is.finite(sse) || sse <= 0) 
-        return(unavailable("Within-subject residual variance is zero or unresolved."))
+    # Residuals within a few rounding units of the inputs are not resolved: an
+    # exact additive pattern otherwise leaves platform-dependent rounding residue.
+    resolution <- 64 * .Machine$double.eps * magnitude/scale
+    if (!is.finite(sse) || sse <= 0 || max(abs(residual)) <= resolution) 
+        return(list(reason = "Within-subject residual variance is zero or unresolved."))
     V <- crossprod(residual)
     vscale <- max(abs(V))
     if (!is.finite(vscale) || vscale <= 0) 
-        return(unavailable("The contrast covariance is unresolved."))
+        return(list(reason = "The contrast covariance is unresolved."))
     V <- V/vscale
     epsilon <- sum(diag(V))^2/((k - 1L) * sum(V^2))
     bound <- 1/(k - 1L)
     if (!is.finite(epsilon) || epsilon < bound - 1e-12 || epsilon > 1 + 1e-12) 
-        return(unavailable("The Greenhouse-Geisser correction is outside its numerical bounds."))
+        return(list(reason = "The Greenhouse-Geisser correction is outside its numerical bounds."))
     epsilon <- min(1, max(bound, epsilon))
+    list(reason = NULL, ss = ss, sse = sse, epsilon = epsilon)
+}
+
+.obs_anova_repeated_one_way_gg_analyse <- function(data, occasion_columns, independent_subjects = FALSE, 
+    alternative = "two.sided", conf.level = 0.95, complete_cases = FALSE) {
+    prepared <- .obs_anova_repeated_one_way_gg_prepare(data, occasion_columns, independent_subjects, 
+        alternative, conf.level, complete_cases)
+    y <- prepared$y
+    n_total <- prepared$n_total
+    n <- prepared$n
+    k <- prepared$k
+    unavailable <- function(reason) list(status = "not_applicable", reason = reason, p_value = NULL, 
+        confidence_interval = NULL, interval_status = "not_computed", n_total = n_total, n_used = n, 
+        n_excluded = n_total - n)
+    parts <- .obs_anova_repeated_one_way_gg_decompose(y, n, k)
+    if (!is.null(parts$reason)) 
+        return(unavailable(parts$reason))
+    ss <- parts$ss
+    sse <- parts$sse
+    epsilon <- parts$epsilon
     df1 <- k - 1L
     df2 <- (n - 1L) * df1
     F <- (ss/df1)/(sse/df2)

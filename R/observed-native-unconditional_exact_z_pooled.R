@@ -8,14 +8,19 @@
         0, conf.level < 1)
 }
 
-.obs_unconditional_exact_z_pooled_analyse <- function(table, alternative = "two.sided", conf.level = 0.95, 
-    independent_binomial_groups = FALSE, tolerance = 1e-08, max_subdivisions = 4096L) {
-    .obs_unconditional_exact_z_pooled_check_settings(alternative, conf.level)
+.obs_unconditional_exact_z_pooled_check_input <- function(table, independent_binomial_groups, tolerance, 
+    max_subdivisions) {
     stopifnot(isTRUE(independent_binomial_groups), is.matrix(table), is.numeric(table), identical(dim(table), 
         c(2L, 2L)), all(is.finite(table)), all(table >= 0), all(table == floor(table)), all(rowSums(table) > 
         0), sum(table) <= 30, is.numeric(tolerance), length(tolerance) == 1L, is.finite(tolerance), tolerance >= 
         1e-10, tolerance <= 1e-04, is.numeric(max_subdivisions), length(max_subdivisions) == 1L, is.finite(max_subdivisions), 
         max_subdivisions >= 1, max_subdivisions <= 4096, max_subdivisions == floor(max_subdivisions))
+}
+
+.obs_unconditional_exact_z_pooled_analyse <- function(table, alternative = "two.sided", conf.level = 0.95, 
+    independent_binomial_groups = FALSE, tolerance = 1e-08, max_subdivisions = 4096L) {
+    .obs_unconditional_exact_z_pooled_check_settings(alternative, conf.level)
+    .obs_unconditional_exact_z_pooled_check_input(table, independent_binomial_groups, tolerance, max_subdivisions)
     n1 <- sum(table[1, ])
     n2 <- sum(table[2, ])
     N <- n1 + n2

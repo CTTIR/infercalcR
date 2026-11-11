@@ -21,7 +21,8 @@ Language: en-US
 Depends: R (>= 4.1.0)
 Imports: stats, utils
 Suggests: digest, jsonlite, cluster, nlme, MASS, nnet, lme4, geepack, knitr,
-    rmarkdown, testthat (>= 3.0.0), withr
+    rmarkdown, testthat (>= 3.0.0), withr, DescTools (>= 0.99.60),
+    exact2x2 (>= 1.7.0), Exact (>= 3.3), brunnermunzel (>= 2.0)
 URL: https://github.com/CTTIR/infercalcR, https://cttir.github.io/infercalcR/
 BugReports: https://github.com/CTTIR/infercalcR/issues
 VignetteBuilder: knitr

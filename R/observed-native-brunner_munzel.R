@@ -2,7 +2,7 @@
 # Source: inferguidR e91938f77eaa991b69989b121bfd32c124c95db0, tpl.brunner_munzel.v1.R
 # Example execution and plotting are deliberately outside this module.
 
-.obs_brunner_munzel_analyse <- function(x, y, alternative = "two.sided", conf.level = 0.95) {
+.obs_brunner_munzel_check <- function(x, y, alternative, conf.level) {
     stopifnot(is.numeric(x), is.numeric(y), all(is.finite(x)), all(is.finite(y)), is.character(alternative), 
         length(alternative) == 1L, alternative %in% c("two.sided", "greater", "less"), is.numeric(conf.level), 
         length(conf.level) == 1L, is.finite(conf.level), conf.level > 0, conf.level < 1)
@@ -10,6 +10,13 @@
     ny <- length(y)
     if (nx < 10L || ny < 10L) 
         stop("This t-approximation teaching example requires at least 10 observations per group; smaller samples need a separately justified permutation method.")
+    invisible(c(nx, ny))
+}
+
+.obs_brunner_munzel_analyse <- function(x, y, alternative = "two.sided", conf.level = 0.95) {
+    sizes <- .obs_brunner_munzel_check(x, y, alternative, conf.level)
+    nx <- sizes[[1L]]
+    ny <- sizes[[2L]]
     pooled <- rank(c(x, y), ties.method = "average")
     px <- (pooled[seq_len(nx)] - rank(x, ties.method = "average"))/ny
     py <- 1 - (pooled[nx + seq_len(ny)] - rank(y, ties.method = "average"))/nx

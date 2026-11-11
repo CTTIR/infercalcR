@@ -9,8 +9,7 @@
 
 .obs_boschloo_two_sided_minlike_analyse <- function(table, alternative = "two.sided", conf.level = 0.95) {
     .obs_boschloo_two_sided_minlike_check_settings(alternative, conf.level)
-    stopifnot(is.matrix(table), is.numeric(table), identical(dim(table), c(2L, 2L)), all(is.finite(table)), 
-        all(table >= 0), all(table == floor(table)), all(rowSums(table) > 0))
+    .obs_boschloo_check_table(table)
     variant <- "minlike"
     fit <- boschloo_inference(table[1, 1], sum(table[1, ]), table[2, 1], sum(table[2, ]), variant = variant, 
         alpha = 1 - conf.level, groups = c("group_x", "group_y"), event = "event")$payload$native

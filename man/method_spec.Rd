@@ -6,7 +6,7 @@
 \description{Use an explicit method identity, sidedness, confidence level and method-specific options. Method selection is never based on observed pretests.}
 \usage{
 method_spec(method_id, alternative = "two.sided", conf.level = 0.95,
-  missing = "error", options = list())
+  missing = "error", options = list(), engine = "base")
 method_catalogue()
 run_inference(spec, ..., result_id = NULL)
 }
@@ -16,6 +16,7 @@ run_inference(spec, ..., result_id = NULL)
 \item{conf.level}{Confidence level strictly between zero and one.}
 \item{missing}{Explicit error or omit policy, subject to each procedure's supported scope.}
 \item{options}{Uniquely named list of supported procedure settings. Unknown settings are errors.}
+\item{engine}{\code{"base"} (default) computes with infercalcR's own implementation. \code{"reference"} computes with the validated original package listed in the \code{reference} column of \code{method_catalogue()}; it is an error if that package is not installed, and no other engine is used instead. Methods whose test is computed by R's stats package, or whose model is fitted by stats or an optional model backend, have a single engine, which either value runs. The engine used is recorded in \code{result_metadata(x)$engine}.}
 \item{spec}{A method_spec.}
 \item{result_id}{Optional explicit stable identifier for joining distinct results.}
 \item{...}{Observations and design arguments for the selected method.}
