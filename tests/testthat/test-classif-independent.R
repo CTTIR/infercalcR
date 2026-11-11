@@ -152,6 +152,7 @@ bf_data <- function(seed, n = 60, weights = FALSE) {
 # Tests --------------------------------------------------------------------------------
 
 test_that("decision sets equal an independent enumeration for every comparator and direction", {
+  skip_if_not_installed("digest")
   for (seed in 1:6) for (cmp in c(">=", ">", "<=", "<")) for (wt in c(FALSE, TRUE)) {
     d <- bf_data(seed, weights = wt)
     spec <- classification_spec(d, truth = "y", positive_label = 1, scores = "s", cutoff = 0,
@@ -197,6 +198,7 @@ test_that("every operating-point metric equals independent arithmetic, including
 })
 
 test_that("ROC AUC with ties equals the pairwise Mann-Whitney definition in both directions", {
+  skip_if_not_installed("digest")
   for (seed in 1:5) for (wt in c(FALSE, TRUE)) {
     d <- bf_data(seed, weights = wt)
     for (dir in c("higher_is_positive", "lower_is_positive")) {
@@ -210,6 +212,7 @@ test_that("ROC AUC with ties equals the pairwise Mann-Whitney definition in both
 })
 
 test_that("the AUC equals the trapezoidal area under the enumerated ROC polygon", {
+  skip_if_not_installed("digest")
   d <- bf_data(11)
   spec <- classification_spec(d, truth = "y", positive_label = 1, scores = "s", cutoff = 0)
   bf <- bf_sets(d$s, d$y, d$w, ">=")
@@ -219,6 +222,7 @@ test_that("the AUC equals the trapezoidal area under the enumerated ROC polygon"
 })
 
 test_that("partial AUC equals a dense numerical integration of the ROC polygon", {
+  skip_if_not_installed("digest")
   for (seed in c(2, 7, 9)) {
     d <- bf_data(seed)
     spec <- classification_spec(d, truth = "y", positive_label = 1, scores = "s", cutoff = 0)
@@ -240,6 +244,7 @@ test_that("partial AUC equals a dense numerical integration of the ROC polygon",
 })
 
 test_that("average precision and the trapezoidal PR area are distinct and equal their definitions", {
+  skip_if_not_installed("digest")
   for (seed in 1:5) {
     d <- bf_data(seed)
     spec <- classification_spec(d, truth = "y", positive_label = 1, scores = "s", cutoff = 0)
@@ -255,6 +260,7 @@ test_that("average precision and the trapezoidal PR area are distinct and equal 
 })
 
 test_that("the DeLong variance equals the explicit pairwise-kernel computation", {
+  skip_if_not_installed("digest")
   for (seed in 1:4) {
     d <- bf_data(seed)
     spec <- classification_spec(d, truth = "y", positive_label = 1, scores = "s", cutoff = 0)
@@ -267,6 +273,7 @@ test_that("the DeLong variance equals the explicit pairwise-kernel computation",
 })
 
 test_that("frequency weights act exactly as replicated units", {
+  skip_if_not_installed("digest")
   d <- bf_data(5, weights = TRUE)
   long <- d[rep(seq_len(nrow(d)), d$w), c("y", "s")]
   sw <- classification_spec(d, truth = "y", positive_label = 1, scores = "s", cutoff = 0.4, weights = "w")
@@ -287,6 +294,7 @@ test_that("frequency weights act exactly as replicated units", {
 })
 
 test_that("the paired DeLong comparison equals the explicit kernel covariance", {
+  skip_if_not_installed("digest")
   set.seed(42)
   n <- 50
   y <- rbinom(n, 1, 0.4)
@@ -306,6 +314,7 @@ test_that("the paired DeLong comparison equals the explicit kernel covariance", 
 })
 
 test_that("exhaustive selection equals an independent search over all decision sets", {
+  skip_if_not_installed("digest")
   for (seed in 1:6) {
     d <- bf_data(seed, n = 80)
     spec <- classification_spec(d, truth = "y", positive_label = 1, scores = "s", cutoff = 0)

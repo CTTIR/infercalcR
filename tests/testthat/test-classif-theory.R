@@ -35,6 +35,7 @@ test_that("rates at real cutoffs are analytic tails, including far tails", {
 })
 
 test_that("expected counts scale with the model N and rates do not", {
+  skip_if_not_installed("digest")
   r1 <- evaluate_cutoff(th_spec(n_total = 1000))
   r2 <- evaluate_cutoff(th_spec(n_total = 50000))
   m1 <- classification_table(r1, "metrics")
@@ -47,6 +48,7 @@ test_that("expected counts scale with the model N and rates do not", {
 })
 
 test_that("changing AUC or sigma keeps the numerical cutoff", {
+  skip_if_not_installed("digest")
   s <- th_spec(auc = 0.8, sigma = 1, cutoff = 1.25)
   s2 <- update(s, theory = list(sigma = 1.5))
   s3 <- update(s2, theory = list(auc = 0.9))
@@ -58,6 +60,7 @@ test_that("changing AUC or sigma keeps the numerical cutoff", {
 })
 
 test_that("theoretical partial AUC and average precision equal numerical integration", {
+  skip_if_not_installed("digest")
   spec <- th_spec(auc = 0.8, sigma = 1.5, prevalence = 0.1)
   m <- binormal_model(0.8, 1.5)
   res <- evaluate_cutoff(spec, partial_auc = list(focus = "fpr", range = c(0, 0.2)))
@@ -84,6 +87,7 @@ test_that("theoretical partial AUC and average precision equal numerical integra
 })
 
 test_that("theoretical results carry no sampling interval", {
+  skip_if_not_installed("digest")
   res <- evaluate_cutoff(th_spec())
   iv <- classification_table(res, "intervals")
   expect_true(nrow(iv) > 0)
@@ -95,6 +99,7 @@ test_that("theoretical results carry no sampling interval", {
 })
 
 test_that("the Youden optimum is analytic (d/2 for equal variances) and matches a fine grid", {
+  skip_if_not_installed("digest")
   for (s in c(1, 0.6, 1.5, 2)) {
     spec <- th_spec(auc = 0.8, sigma = s)
     m <- binormal_model(0.8, s)
@@ -112,6 +117,7 @@ test_that("the Youden optimum is analytic (d/2 for equal variances) and matches 
 })
 
 test_that("numerical theory optima (F1, MCC, cost, constraints) match a brute-force grid", {
+  skip_if_not_installed("digest")
   spec <- th_spec(auc = 0.85, sigma = 1.3, prevalence = 0.2)
   m <- binormal_model(0.85, 1.3)
   g <- seq(-6, 9, by = 2e-4)
@@ -138,6 +144,7 @@ test_that("numerical theory optima (F1, MCC, cost, constraints) match a brute-fo
 })
 
 test_that("theory selection reports limits, endpoints and unattainable suprema honestly", {
+  skip_if_not_installed("digest")
   # Costs that make alerting everyone optimal: with sigma = 2 the likelihood
   # ratio f1/f0 never falls below 0.40 > fp/fn = 0.01, so the expected cost
   # increases with the cutoff and the limiting rule "alert all" is optimal.
@@ -164,6 +171,7 @@ test_that("theory selection reports limits, endpoints and unattainable suprema h
 })
 
 test_that("theory specifications refuse data-only settings", {
+  skip_if_not_installed("digest")
   expect_identical(th_condition_code(classification_spec(theory = list(auc = 0.8, sigma = 1), cutoff = 0)), "invalid_input")
   expect_identical(th_condition_code(classification_spec(theory = list(auc = 0.8, sigma = 1), cutoff = 0,
                                                          prevalence = 0.1, evaluation_split = "same_data")), "invalid_input")
@@ -183,6 +191,7 @@ test_that("theory specifications refuse data-only settings", {
 })
 
 test_that("the theoretical curve keeps the exact operating point and both limiting rules", {
+  skip_if_not_installed("digest")
   res <- evaluate_cutoff(th_spec(cutoff = 1.2345))
   sw <- cutoff_sweep(res)
   expect_true(any(sw$selected))

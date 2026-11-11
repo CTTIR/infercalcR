@@ -30,6 +30,7 @@ un_cp <- function(x, n, level) {
     if (x == n) 1 else un_bisect(function(p) un_tail(n, p, 0:x) - a2, 1e-300, 1 - 1e-16))
 }
 test_that("Wilson and Clopper-Pearson limits equal independent references", {
+  skip_if_not_installed("digest")
   for (level in c(0.9, 0.95)) {
     z <- un_z(level)
     for (n in c(1, 2, 7, 25)) for (x in 0:n) {
