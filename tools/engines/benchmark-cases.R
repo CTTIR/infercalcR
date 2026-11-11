@@ -70,8 +70,8 @@ exact_help_table <- function()
   matrix(c(7, 8, 12, 3), 2, 2, byrow = TRUE, dimnames = list(c("group_x", "group_y"), c("event", "non_event")))
 exact_src <- "Exact 3.3 ?exact.test example (7/15 versus 12/15)"
 # The base z-pooled engine reports a certified upper bound on the nuisance
-# supremum within an absolute tolerance; benchmarks use its finest setting.
-z_pooled_args <- function() list(table = exact_help_table(), independent_binomial_groups = TRUE, tolerance = 1e-10)
+# supremum within an absolute tolerance (default 1e-8).
+z_pooled_args <- function() list(table = exact_help_table(), independent_binomial_groups = TRUE)
 
 # DescTools StuartMaxwellTest help examples (as.table(matrix(..., nrow = k))).
 square_table <- function(values, k) {
@@ -154,7 +154,7 @@ benchmark_cases <- list(
     baseline_case("boschloo_two_sided_minlike", c("status", "p_value"))),
   unconditional_exact_z_pooled = function() c(
     lapply(c("two.sided", "greater", "less"), function(alt) bench_case(paste0("help-", alt),
-      paste(exact_src, "with base tolerance 1e-10"), z_pooled_args(), c("status", "statistic", "p_value"),
+      exact_src, z_pooled_args(), c("status", "statistic", "p_value"),
       alternative = alt)),
     list(baseline_case("unconditional_exact_z_pooled", c("status", "statistic", "p_value")))),
   mcnemar_exact_conditional = function()

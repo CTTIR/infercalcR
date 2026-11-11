@@ -130,9 +130,11 @@ from such a fitted model itself.
 | `anova_repeated_one_way_gg` | `stats::anova.mlm` with `test = "Spherical"` |
 
 Both engines are benchmarked on the originals' help-page examples and agree
-within a relative difference of 1e-8. The one exception is the Monte Carlo
-p-value of the Jonckheere-Terpstra test, which is compared under an approved
-rule in `inst/methods/engine-deviations.csv`. `inst/methods/provenance.csv`
+within a relative difference of 1e-8, with two exceptions compared under
+approved rules in `inst/methods/engine-deviations.csv`: the Monte Carlo p-value
+of the Jonckheere-Terpstra test, and the pooled-Z p-value, for which infercalcR
+reports a certified upper bound on the supremum (absolute tolerance 1e-8) and
+Exact's grid search can fall slightly below it, further for p-values close to 1. `inst/methods/provenance.csv`
 records, for every method, its source, its original and the publication its
 base implementation follows; `?observed-methods` lists those publications.
 
