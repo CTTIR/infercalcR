@@ -8,6 +8,10 @@
   benchmarked on the originals' help-page examples, and
   `inst/methods/provenance.csv` records each method's source, original and
   literature reference.
+* `anova_repeated_one_way_gg` treats a within-subject residual below the
+  numerical resolution of the inputs as zero. An exactly additive occasion
+  pattern previously left platform-dependent rounding residue and could
+  return a meaningless F test instead of "not applicable".
 * The README and every vignette now acknowledge and cite DescrTab2
   (Institute of Medical Biometry, Heidelberg University), which deeply
   inspired the suite, the Methodenberatung pages of the University of

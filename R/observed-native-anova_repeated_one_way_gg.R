@@ -27,6 +27,7 @@
 }
 
 .obs_anova_repeated_one_way_gg_decompose <- function(y, n, k) {
+    magnitude <- max(abs(y))
     y <- sweep(y, 1L, y[, 1L], "-")
     if (any(!is.finite(y))) 
         return(list(reason = "Within-subject differences exceed the numerical range."))
@@ -39,7 +40,10 @@
     residual <- sweep(y, 2L, occasion_mean, "-")
     sse <- sum(residual^2)
     ss <- n * sum(occasion_mean^2)
-    if (!is.finite(sse) || sse <= 0) 
+    # Residuals within a few rounding units of the inputs are not resolved: an
+    # exact additive pattern otherwise leaves platform-dependent rounding residue.
+    resolution <- 64 * .Machine$double.eps * magnitude/scale
+    if (!is.finite(sse) || sse <= 0 || max(abs(residual)) <= resolution) 
         return(list(reason = "Within-subject residual variance is zero or unresolved."))
     V <- crossprod(residual)
     vscale <- max(abs(V))

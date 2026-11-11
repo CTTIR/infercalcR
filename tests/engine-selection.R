@@ -100,6 +100,18 @@ if (requireNamespace("Exact", quietly = TRUE)) {
   stopifnot(inherits(base_error, "error"), identical(class(reference_error), class(base_error)))
 }
 
+# A residual below the numerical resolution of the inputs is no residual: an
+# additive occasion shift (reacttime-derived) is not testable on any platform.
+reacttime <- c(420, 420, 480, 420, 540, 360, 480, 480, 540, 480)
+for (step in c(60, 0.1, 1 / 3)) {
+  shifted <- data.frame(id = 1:10, sapply(0:5, function(j) reacttime + step * j))
+  for (engine in c("base", "reference")) {
+    status <- result_data(run_inference(method_spec("anova_repeated_one_way_gg", engine = engine), data = shifted,
+      occasion_columns = names(shifted)[-1], independent_subjects = TRUE))$status[[1L]]
+    stopifnot(identical(status, "not_applicable"))
+  }
+}
+
 catalogue <- method_catalogue()
 stopifnot(all(c("engines", "reference") %in% names(catalogue)),
   all(catalogue$engines %in% c("base", "single", "base+reference", "none")),
