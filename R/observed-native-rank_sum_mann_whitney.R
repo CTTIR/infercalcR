@@ -22,7 +22,7 @@
         stopifnot(!ties, length(x) + length(y) <= 30L)
     ranks <- rank(c(x, y))
     u <- sum(ranks[seq_along(x)]) - length(x) * (length(x) + 1)/2
-    superiority <- u/(length(x) * length(y))
+    superiority <- u/(as.double(length(x)) * length(y))
     if (length(unique(c(x, y))) == 1L) 
         return(list(status = "not_applicable", reason = "All pooled values are equal; rank variance is zero.", 
             p_value = NULL, probability_superiority = superiority, confidence_interval = NULL))

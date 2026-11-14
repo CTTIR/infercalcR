@@ -1,5 +1,9 @@
 # infercalcR 0.1.0
 
+* Compute the rank-sum probability-of-superiority denominator in double
+  precision. Groups with more than 2^31-1 pairwise comparisons previously
+  produced missing descriptive effects through integer overflow.
+
 * Thirteen methods gain a reference engine. `method_spec(engine =
   "reference")` computes them with the validated original (the function
   DescrTab2 uses, Exact for Boschloo's test, or the established package);
