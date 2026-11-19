@@ -12,8 +12,13 @@ scalar<-c(t_mean_one_sample='mean_difference',t_means_paired='mean_difference',
  regression_linear_simple='estimate',glmm_logistic_random_intercept='odds_ratio',gee_logistic_exchangeable='odds_ratio')
 same<-function(x,y){comparison<-all.equal(as.numeric(x),as.numeric(y),tolerance=1e-12);if(!isTRUE(comparison))stop(id,': ',deparse(substitute(x)),': ',paste(comparison,collapse='; '))}
 checked<-character()
+# The Monte Carlo goodness-of-fit (B = 19999) and the lme4 GLMM dominate this script's time; their numerical
+# regression stays in observed-regression.R, so the CRAN check skips only their flattening here.
+heavy_lane<-identical(Sys.getenv('INFER_SUITE_FULL'),'true')||identical(Sys.getenv('NOT_CRAN'),'true')
+heavy<-c('chisq_goodness_of_fit_mc','glmm_logistic_random_intercept')
 for(id in names(fixtures)){
  if(grepl('[.]',id))next
+ if(id%in%heavy&&!heavy_lane){cat('SKIP',id,'(set NOT_CRAN=true or INFER_SUITE_FULL=true)\n');next}
  if(grepl('^(boschloo_|classifier_|diagnostic_)',id)&&!identical(Sys.getenv('INFER_SUITE_FULL'),'true'))next
  cat<-method_catalogue();pkg<-strsplit(cat$backend[match(id,cat$method_id)],',',fixed=TRUE)[[1L]]
  if(!all(vapply(pkg,requireNamespace,logical(1),quietly=TRUE))){

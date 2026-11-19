@@ -7,13 +7,13 @@ Authors@R: person("R.", "Heller", , "raban.heller@uni-ulm.de",
 Description: Provides explicit statistical procedures, descriptive
     summaries, diagnostic calculations and a common result contract. Each
     procedure is chosen through an explicit method specification rather
-    than by data-driven pretests, and returns finalized estimates,
+    than by data-driven preliminary tests, and returns finalized estimates,
     intervals and p-values together with metadata that records the method
-    identity and numerical provenance. Includes Boschloo's unconditional
-    test for two-by-two tables (Boschloo, 1970,
-    <doi:10.1111/j.1467-9574.1970.tb00104.x>), diagnostic accuracy and classifier
-    metrics, and distribution calculators. Standard R methods are used
-    where available; optional backends such as 'lme4', 'nlme' and
+    identity and numerical provenance. Includes the unconditional test for
+    two-by-two tables of Boschloo (1970)
+    <doi:10.1111/j.1467-9574.1970.tb00104.x>, diagnostic accuracy and
+    classifier metrics, and distribution calculators. Standard R methods
+    are used where available; optional backends such as 'lme4', 'nlme' and
     'geepack' are used only when installed.
 License: MIT + file LICENSE
 Encoding: UTF-8
