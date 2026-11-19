@@ -1,5 +1,9 @@
 # infercalcR 0.1.0
 
+* The GPL-provenance audit is complete: all 69 methods are recorded as
+  `clear` in `inst/methods/provenance.csv` (wrappers around exported functions
+  or original implementations; no code adapted from GPL sources).
+
 * Compute the rank-sum probability-of-superiority denominator in double
   precision. Groups with more than 2^31-1 pairwise comparisons previously
   produced missing descriptive effects through integer overflow.
