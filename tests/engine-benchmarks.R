@@ -11,6 +11,9 @@ deviations <- utils::read.csv(system.file("methods", "engine-deviations.csv", pa
 stopifnot(identical(names(deviations), c("method_id", "case_id", "field", "kind", "rule", "explanation",
   "approved_by", "approved_on")), length(records) > 0L)
 full <- identical(Sys.getenv("INFER_SUITE_FULL"), "true")
+# Re-running the installed originals takes most of this script's time, so it is
+# done only in development and CI checks (NOT_CRAN=true) or the full lane.
+live_lane <- full || identical(Sys.getenv("NOT_CRAN"), "true")
 registry <- infercalcR:::.ic_engine_info
 
 agree <- function(a, b) {
@@ -44,7 +47,7 @@ for (record in records) {
     if (!isTRUE(ok)) stop("base engine differs from ", record$package, " ", record$version, ": ", label, " ", field)
   }
   entry <- registry[[record$method_id]]
-  live <- !is.null(entry) && requireNamespace(entry$package, quietly = TRUE) &&
+  live <- live_lane && !is.null(entry) && requireNamespace(entry$package, quietly = TRUE) &&
     utils::packageVersion(entry$package) >= entry$min_version
   if (live) {
     # A changed original is reported, and fails only the full lane.
@@ -65,6 +68,8 @@ for (record in records) {
         if (full) stop(note) else cat("NOTE", note, "\n")
       }
     }
+  } else if (!live_lane) {
+    cat("SKIP live reference for", label, "(set NOT_CRAN=true or INFER_SUITE_FULL=true)\n")
   } else {
     if (full) stop("full lane requires the original for ", label)
     cat("SKIP live reference:", record$package, "not installed for", label, "\n")

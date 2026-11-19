@@ -3,6 +3,9 @@ helper_candidates<-c('support/observed-portability.R','tests/support/observed-po
 source(helper_candidates[file.exists(helper_candidates)][1L])
 fixtures <- readRDS(system.file('methods','synthetic-baseline.rds',package='infercalcR'))
 full <- identical(Sys.getenv('INFER_SUITE_FULL'), 'true')
+# The Monte Carlo goodness-of-fit fixture (B = 19999) is the slowest single method; it runs only in
+# development and CI checks (NOT_CRAN=true) or the full lane.
+heavy_lane <- full || identical(Sys.getenv('NOT_CRAN'), 'true')
 executed <- character(); skipped <- character(); results <- list()
 for (id in names(fixtures)) {
   if (grepl('[.]predict_new$|[.]parallel_analysis$', id)) next
@@ -10,6 +13,7 @@ for (id in names(fixtures)) {
   fixture <- fixtures[[id]]
   linked <- grepl('^(boschloo_|classifier_|diagnostic_)', id)
   if (linked && !full) { skipped <- c(skipped,id); next }
+  if (id == 'chisq_goodness_of_fit_mc' && !heavy_lane) { skipped <- c(skipped,id); next }
   catalogue <- method_catalogue()
   pkgs <- strsplit(catalogue$backend[match(id,catalogue$method_id)],',',fixed=TRUE)[[1L]]
   absent <- pkgs[!vapply(pkgs,requireNamespace,logical(1),quietly=TRUE)]
