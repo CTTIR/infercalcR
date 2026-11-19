@@ -1,0 +1,4 @@
+# Reviewed exceptions to the owner's push guard (one glob per line).
+# The method provenance table is package data read by tests/provenance.R and
+# documented in ?observed-methods; changes to it are reviewed by the owner.
+inst/methods/provenance.csv

@@ -14,7 +14,8 @@ stopifnot(nrow(dual) == 13L,
   all(nzchar(dual$validated_source)), all(nzchar(dual$method_reference)), all(nzchar(dual$base_derivation)),
   all(grepl("doi.org/10\\.", dual$method_reference)),
   identical(dual$original, catalogue$reference[match(dual$method_id, catalogue$method_id)]))
-# pending: own base code outside the 13 dual-engine methods, audited with its reference engine later.
+# The GPL-provenance audit of 2026-11-19 cleared every method; "pending" stays a
+# valid value for methods added later and not yet audited.
 stopifnot(all(provenance$gpl_check %in% c("clear", "rewrite", "not_applicable", "pending")),
   all(dual$gpl_check %in% c("clear", "rewrite")))
 # A single-engine method recorded as computed entirely by the original must not
