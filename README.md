@@ -7,7 +7,8 @@ provides tables, text and plot annotations.
 
 This is development software. Use the checked revision recorded with an analysis.
 A successful calculation is not universal scientific validation. The package is
-not a CRAN release.
+not a CRAN release: version 0.1.0 is being submitted to CRAN. Until it is
+accepted, install it from GitHub (see below).
 
 Documentation, including tutorials and the function reference, is available at
 <https://cttir.github.io/infercalcR/>.
@@ -77,8 +78,14 @@ lanes. Installing another package never silently switches the model, covariance
 method or interval. Existing testthat regression coverage is a development
 integration lane; new tests are ordinary R scripts.
 
-Install the development version from GitHub, for example with
-`remotes::install_github("CTTIR/infercalcR")`, or from a local checkout:
+Until the CRAN submission is accepted, install from GitHub:
+
+```r
+# install.packages("remotes")
+remotes::install_github("CTTIR/infercalcR")
+```
+
+or from a local checkout:
 
 ```sh
 R CMD build infercalcR
