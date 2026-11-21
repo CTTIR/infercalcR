@@ -13,3 +13,4 @@
 ^docs$
 ^pkgdown$
 ^\.gitguard-allow$
+^CITATION\.cff$
