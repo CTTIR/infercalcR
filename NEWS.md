@@ -1,8 +1,10 @@
 # infercalcR 0.1.0
 
-* Every condition the package raises now inherits from `infercalcR_error`, as
-  the conditions of the diagnostic and exact-test functions already did, so
-  `tryCatch(..., infercalcR_error = )` catches all of them.
+* Every classed condition the package raises now inherits from
+  `infercalcR_error`, as the conditions of the diagnostic and exact-test
+  functions already did, so `tryCatch(..., infercalcR_error = )` catches all of
+  them. Argument checks of a few low-level helpers (for example `ig_status()`)
+  still signal plain errors without a package class.
 
 * Add a package help page (`?infercalcR`) and list it on the documentation
   site; the README gains status badges and a "Quick start" heading.
