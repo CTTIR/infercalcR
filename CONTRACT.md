@@ -4,7 +4,7 @@
 
 ## Implemented public interfaces
 
-- `method_spec(method_id, alternative = "two.sided", conf.level = .95, missing = "error", options = list())`
+- `method_spec(method_id, alternative = "two.sided", conf.level = .95, missing = "error", options = list(), engine = "base")`
 - `run_inference(spec, ..., result_id = NULL)`, with method-specific data/design arguments.
 - `new_inference_result(data, metadata, kind = "inference", payload = list())`
 - `validate_inference(x)`, `as_inference(x, ...)`, `result_data(x, ...)`, `result_metadata(x, ...)`
