@@ -6,7 +6,8 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
   if (missing(population) || !.ic_string(population)) .ic_abort("Declare the analysis population when converting an htest object")
   # A bare NA is logical; it declares unknown counts exactly as NA_real_ does.
   if (is.logical(n) && length(n) && all(is.na(n))) n <- as.double(n)
-  if (is.logical(n_excluded) && length(n_excluded) == 1L && is.na(n_excluded)) n_excluded <- NA_real_
+  if (is.logical(n_excluded) && length(n_excluded) == 1L && is.na(n_excluded))
+    n_excluded <- NA_real_
   if (!is.numeric(n) || !length(n) || any(is.nan(n)) || any(!is.na(n) & (!is.finite(n) | n < 0 | n != floor(n)))) .ic_abort("n must contain known sample counts or explicit NA")
   if (!is.numeric(n_excluded) || length(n_excluded) != 1L || is.nan(n_excluded) || (!is.na(n_excluded) && (!is.finite(n_excluded) || n_excluded < 0 || n_excluded != floor(n_excluded)))) .ic_abort("n_excluded must be one known count or explicit NA")
   label <- x$method
@@ -121,9 +122,10 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
   df <- stats::df.residual(x)
   # Classes that extend lm or glm (aov, mlm, rlm, ...) have their own summaries, which
   # this conversion does not interpret; it never substitutes another summary for them.
-  if (!inherits(sm, if (glm) "summary.glm" else "summary.lm") || !is.matrix(table) || !is.numeric(table) ||
-      ncol(table) != 4L || !is.numeric(df) || length(df) != 1L || is.na(df))
-    .ic_abort(paste0("Only plain ", if (glm) "glm" else "lm", " fits are converted; no explicit conversion for class ",
+  if (!inherits(sm, if (glm) "summary.glm" else "summary.lm") || !is.matrix(table) ||
+      !is.numeric(table) || ncol(table) != 4L || !is.numeric(df) || length(df) != 1L || is.na(df))
+    .ic_abort(paste0("Only plain ", if (glm) "glm" else "lm",
+      " fits are converted; no explicit conversion for class ",
       paste(class(x), collapse = "/")), "unsupported")
   is_normal <- !glm || identical(x$family$family, "gaussian")
   # A saturated normal-theory fit has no residual degrees of freedom and so no t quantile.

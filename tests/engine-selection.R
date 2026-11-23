@@ -136,10 +136,12 @@ stopifnot(inherits(short, "infercalcR_method_error"), inherits(short, "simpleErr
   endsWith(conditionMessage(short), conditionMessage(short$parent)))
 unknown <- caught(run_inference(method_spec("anova_one_way"), data = 1, outcome = 2))
 stopifnot(inherits(unknown, "infercalcR_invalid_input"),
-  grepl("unknown method arguments: data, outcome; accepted: x, group", conditionMessage(unknown), fixed = TRUE))
+  grepl("unknown method arguments: data, outcome; accepted: x, group", conditionMessage(unknown),
+    fixed = TRUE))
 # Package-classed conditions pass through unchanged.
 classed <- caught(run_inference(method_spec("variance_chisq_one_sample"), x = 1))
-stopifnot(inherits(classed, "infercalcR_unsupported"), !inherits(classed, "infercalcR_method_error"))
+stopifnot(inherits(classed, "infercalcR_unsupported"),
+  !inherits(classed, "infercalcR_method_error"))
 
 # A specification prints its class, identity and settings and returns itself invisibly.
 shown <- method_spec("t_mean_one_sample", conf.level = 0.9, options = list(mu0 = 0))
@@ -147,7 +149,8 @@ printed <- utils::capture.output(returned <- withVisible(print(shown)))
 stopifnot(identical(printed, c("<method_spec> t_mean_one_sample", "  alternative: two.sided",
   "  conf.level:  0.9", "  missing:     error", "  engine:      base", "  options:     mu0 = 0")),
   !returned$visible, identical(returned$value, shown))
-stopifnot(identical(utils::capture.output(print(method_spec("cochran_q", engine = "reference")))[c(1L, 5L, 6L)],
+reference_lines <- utils::capture.output(print(method_spec("cochran_q", engine = "reference")))
+stopifnot(identical(reference_lines[c(1L, 5L, 6L)],
   c("<method_spec> cochran_q", "  engine:      reference", "  options:     none")))
 cat("PASS method identity in errors, required arguments and specification printing\n")
 

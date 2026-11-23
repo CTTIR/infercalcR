@@ -24,11 +24,14 @@ print.method_spec <- function(x, ...) {
     text <- paste(deparse(value, width.cutoff = 60L), collapse = " ")
     if (nchar(text) > 60L) paste0(substr(text, 1L, 57L), "...") else text
   }
-  plain <- function(value) if (is.character(value) && length(value) == 1L && !is.na(value)) value else shown(value)
+  plain <- function(value) {
+    if (is.character(value) && length(value) == 1L && !is.na(value)) value else shown(value)
+  }
   options <- if (length(x$options)) paste(sprintf("%s = %s", names(x$options),
     vapply(x$options, shown, "")), collapse = ", ") else "none"
   cat(sprintf("<method_spec> %s\n", .ic_text(x$method_id, "<invalid method_id>")))
-  cat(sprintf("  alternative: %s\n  conf.level:  %s\n  missing:     %s\n  engine:      %s\n  options:     %s\n",
+  cat(sprintf(paste0("  alternative: %s\n  conf.level:  %s\n  missing:     %s\n",
+    "  engine:      %s\n  options:     %s\n"),
     plain(x$alternative), plain(x$conf.level), plain(x$missing),
     plain(if (is.null(x[["engine"]])) "base" else x[["engine"]]), options))
   invisible(x)
@@ -86,14 +89,17 @@ method_catalogue <- function() {
 .ic_method_abort <- function(method_id, fun, args, error) {
   if (any(grepl("^(infercalcR|inferguidR)_", class(error)))) stop(error)
   formal <- if (is.function(fun)) formals(fun) else NULL
-  required <- names(formal)[vapply(formal, function(value) is.symbol(value) && !nzchar(as.character(value)), NA)]
+  required <- names(formal)[vapply(formal,
+    function(value) is.symbol(value) && !nzchar(as.character(value)), NA)]
   absent <- setdiff(required, c(names(args), "..."))
   if (length(absent))
-    .ic_abort(paste0("Method ", method_id, " requires the argument", if (length(absent) > 1L) "s" else "", " ",
+    .ic_abort(paste0("Method ", method_id, " requires the argument",
+      if (length(absent) > 1L) "s" else "", " ",
       paste(absent, collapse = ", "), "; supply ", if (length(absent) > 1L) "them" else "it",
       " in run_inference() or in method_spec(options = )"))
-  stop(structure(list(message = paste0("Method ", method_id, ": ", conditionMessage(error)), call = NULL,
-    method_id = method_id, parent = error), class = unique(c("infercalcR_method_error", "infercalcR_error", class(error)))))
+  stop(structure(list(message = paste0("Method ", method_id, ": ", conditionMessage(error)),
+    call = NULL, method_id = method_id, parent = error),
+    class = unique(c("infercalcR_method_error", "infercalcR_error", class(error)))))
 }
 
 .ic_run_method <- function(spec, ..., result_id = NULL) {
@@ -136,7 +142,8 @@ method_catalogue <- function() {
     args <- unserialize(serialize(args, NULL))
   warnings <- character()
   native <- withCallingHandlers(
-    tryCatch(do.call(fun, args), error = function(e) .ic_method_abort(spec$method_id, fun, args, e)),
+    tryCatch(do.call(fun, args),
+      error = function(e) .ic_method_abort(spec$method_id, fun, args, e)),
     warning = function(w) {
       warnings <<- c(warnings, conditionMessage(w))
     })
