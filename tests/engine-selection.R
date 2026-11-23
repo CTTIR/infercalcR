@@ -161,4 +161,10 @@ helper <- withCallingHandlers(caught(parallel_analysis(data.frame(id = 1:5, a = 
 stopifnot(inherits(helper, "infercalcR_method_error"),
   identical(helper$method_id, "efa_common_factor_ml.parallel_analysis"),
   startsWith(conditionMessage(helper), "Method efa_common_factor_ml.parallel_analysis: "))
+stored <- new_inference_result(data.frame(), list(method_id = "prediction_model_linear"),
+  payload = list(native = fixtures[["prediction_model_linear"]]$expected))
+predicted <- caught(predict_inference(stored, data.frame(not_a_predictor = 1)))
+stopifnot(inherits(predicted, "infercalcR_method_error"), inherits(predicted, "infercalcR_error"),
+  identical(predicted$method_id, "prediction_model_linear.predict_new"),
+  startsWith(conditionMessage(predicted), "Method prediction_model_linear.predict_new: "))
 cat("PASS method identity in helper errors\n")
