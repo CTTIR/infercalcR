@@ -22,7 +22,7 @@ home:
     - authors
   title: infercalcR
   description: Explicit statistical procedures, diagnostic calculations and a
-    common finalized result contract with recorded method settings and provenance.
+    common finalised result contract with recorded method settings and provenance.
 articles:
 - title: Learn infercalcR
   navbar: null
@@ -39,7 +39,7 @@ reference:
   - observed-methods
   - describe_data
 - title: Result contract
-  desc: Construct, validate, access, convert and adjust finalized results.
+  desc: Construct, validate, access, convert and adjust finalised results.
   contents:
   - result-contract
   - as_inference.htest

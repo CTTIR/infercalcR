@@ -80,7 +80,7 @@ validate_inference <- function(x) {
   invisible(x)
 }
 
-#' Extract finalized numerical rows
+#' Extract finalised numerical rows
 #' @export
 result_data <- function(x, ...) UseMethod("result_data")
 #' @export

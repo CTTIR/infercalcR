@@ -4,9 +4,9 @@
 \docType{package}
 \title{infercalcR: Statistical Inference and Diagnostic Calculations}
 \description{Explicit statistical procedures, descriptive summaries, diagnostic
-calculations and a common finalized result contract. A procedure is chosen
+calculations and a common finalised result contract. A procedure is chosen
 through an explicit method specification, never by a data-driven preliminary
-test, and returns finalized estimates, intervals and p-values together with
+test, and returns finalised estimates, intervals and p-values together with
 metadata that records the method identity and numerical provenance.}
 \details{The main entry points are:
 \itemize{

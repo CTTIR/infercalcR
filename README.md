@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
 
-Explicit observed statistical procedures, diagnostic calculations and finalized
+Explicit observed statistical procedures, diagnostic calculations and finalised
 results in R. `infercalcR` supplies the computational core of the inference suite;
 `inferguidR` provides guidance and prospective design planning, and `infereportR`
 provides tables, text and plot annotations.
@@ -51,10 +51,10 @@ explicitly unsupported as an observed adapter.
 
 `as_inference()` explicitly converts supported htest, lm/glm, Boschloo and
 classifier results. It never chooses or fits a replacement analysis. Model
-conversion finalizes its declared numerical summaries once, before reporting.
+conversion finalises its declared numerical summaries once, before reporting.
 Unknown sample sizes are not inferred from degrees of freedom.
 
-The common result is an ordinary S3 object containing finalized data, metadata
+The common result is an ordinary S3 object containing finalised data, metadata
 and method-specific payload. Raw and adjusted p-values remain separate.
 `adjust_inference()` requires a declared complete family and rejects silent
 readjustment. Reporting may select rows but cannot change that family. See
@@ -161,12 +161,12 @@ JSON remains readable through inferguidR with unchanged identities; new results
 can legitimately record new producing-package provenance. Trusted RDS regression
 fixtures are not an untrusted interchange format.
 
-Raban Heller. MIT license; see
+Raban Heller. MIT licence; see
 [`LICENSE.md`](https://github.com/CTTIR/infercalcR/blob/main/LICENSE.md). Record
 package versions, repository revisions, method settings and sessionInfo() with
 reproducible work.
 
-## Acknowledgments and sources
+## Acknowledgements and sources
 
 infercalcR is part of an inference suite with inferguidR and infereportR. The
 suite builds on the work of others. We gratefully acknowledge that work here and

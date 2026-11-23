@@ -179,7 +179,7 @@ noncentral_t_density(x, df, ncp)
 \item{threshold_probability}{Procedure-specific input, setting, or metadata field. Its accepted values are validated by the function; retained settings are included in the result.}
 \item{calibration_bins}{Procedure-specific input, setting, or metadata field. Its accepted values are validated by the function; retained settings are included in the result.}
 \item{partial_auc}{Procedure-specific input, setting, or metadata field. Its accepted values are validated by the function; retained settings are included in the result.}
-\item{x}{Input data, finalized result, or numeric values as specified by the selected function.}
+\item{x}{Input data, finalised result, or numeric values as specified by the selected function.}
 \item{text}{A data-only canonical JSON document or decimal string, according to the function.}
 \item{path}{Procedure-specific input, setting, or metadata field. Its accepted values are validated by the function; retained settings are included in the result.}
 \item{spec}{A classification specification returned by classification_spec().}
@@ -202,7 +202,7 @@ noncentral_t_density(x, df, ncp)
 \item{support}{Procedure-specific input, setting, or metadata field. Its accepted values are validated by the function; retained settings are included in the result.}
 \item{start}{Procedure-specific input, setting, or metadata field. Its accepted values are validated by the function; retained settings are included in the result.}
 }
-\details{Boschloo tests use Fisher ordering and bounded nuisance maximization. The central variant doubles the smaller separately maximized one-sided value. Rejection uses the numerical upper bound; this bound is not a sampling confidence interval. The shared Boschloo inference path requires only standard R. Historical hashed specifications and the legacy calculator decimal parser require the optional packages digest and/or jsonlite and give an explicit missing-dependency error when absent.
+\details{Boschloo tests use Fisher ordering and bounded nuisance maximisation. The central variant doubles the smaller separately maximised one-sided value. Rejection uses the numerical upper bound; this bound is not a sampling confidence interval. The shared Boschloo inference path requires only standard R. Historical hashed specifications and the legacy calculator decimal parser require the optional packages digest and/or jsonlite and give an explicit missing-dependency error when absent.
 
 Classifier specifications preserve the positive class, direction, cutoff origin, missing-value exclusions, evaluation split and raw-data fingerprint. Raw observations are not retained in the common reporting payload. Basic count metrics, binormal rates and static dictionary access do not require contributed packages. Undefined metrics retain statuses and denominator reasons.
 

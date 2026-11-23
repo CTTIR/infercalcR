@@ -18,7 +18,7 @@ predict_inference(result, newdata, interval = "none", conf.level = NULL)
 \item{quantile_probability}{Prespecified null-spectrum quantile, using quantile type 6.}
 \item{complete_cases}{Explicit complete-case choice; missingness assumptions remain the analyst's responsibility.}
 \item{permutations}{Optional validated column permutation indices.}
-\item{result}{A finalized \code{prediction_model_linear} or \code{prediction_model_logistic} result.}
+\item{result}{A finalised \code{prediction_model_linear} or \code{prediction_model_logistic} result.}
 \item{newdata}{New numeric predictor values matching the fitted model.}
 \item{interval}{\code{"none"}; for linear predictions \code{"mean"} or \code{"prediction"}; for logistic predictions \code{"risk"}.}
 \item{conf.level}{Confidence level. NULL retains the development result's requested level.}
@@ -38,7 +38,7 @@ use already fitted bootstrap models and type-6 percentile limits, requiring at
 least five expected replicates per tail. They concern risk estimation, not a
 binary outcome, validation performance, or Monte Carlo precision. No model is
 refitted by \code{predict_inference()}.}
-\value{A common result with finalized rows, metadata and full native helper output in \code{payload$native}.}
+\value{A common result with finalised rows, metadata and full native helper output in \code{payload$native}.}
 \examples{
 # Parallel analysis of four measurements, three sharing one common factor
 set.seed(1)

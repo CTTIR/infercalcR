@@ -6,8 +6,8 @@
 \alias{result_metadata}
 \alias{as_inference}
 \alias{adjust_inference}
-\title{Finalized statistical result contract}
-\description{Construct, validate and access plain-data statistical results. Numerical inference is finalized before presentation.}
+\title{Finalised statistical result contract}
+\description{Construct, validate and access plain-data statistical results. Numerical inference is finalised before presentation.}
 \usage{
 new_inference_result(data, metadata, kind = "inference", payload = list())
 validate_inference(x)
@@ -17,10 +17,10 @@ as_inference(x, ...)
 adjust_inference(x, method = "holm", family_id, rows = NULL)
 }
 \arguments{
-\item{data}{A data frame of finalized numerical rows, with unique row IDs.}
+\item{data}{A data frame of finalised numerical rows, with unique row IDs.}
 \item{metadata}{A named list including method_id; optional variant_id, result_id, provenance, population, settings and validation evidence.}
 \item{kind}{One of inference, planning, classification or descriptive.}
-\item{payload}{Method-specific finalized quantities that do not fit scalar columns. No raw data are required.}
+\item{payload}{Method-specific finalised quantities that do not fit scalar columns. No raw data are required.}
 \item{x}{An existing result.}
 \item{...}{Arguments to a documented adapter or accessor method.}
 \item{method}{A method supported by \code{stats::p.adjust}.}
@@ -29,7 +29,7 @@ adjust_inference(x, method = "holm", family_id, rows = NULL)
 }
 \details{Rows distinguish estimate, statistic, degrees of freedom, confidence limits and their level/method/scale/scope, raw p.value, p.adjusted and p.reported, family metadata, null/alternative, sample and exclusion counts, status and reason. NA means unavailable; legitimate unbounded confidence limits remain infinite. A numerical p-value bound is a separate method-specific quantity and is never a sampling confidence interval.
 
-A finalized \code{conf.level} is NA when unavailable or a finite attained/reported
+A finalised \code{conf.level} is NA when unavailable or a finite attained/reported
 level in \code{(0, 1]}. Conservative discrete intervals can attain level 1,
 including intervals with infinite endpoints. The native-reported level, endpoints and
 diagnostics are preserved. Requested confidence levels in \code{method_spec()}

@@ -204,7 +204,7 @@ points(point$value[point$metric_id == "fpr"],
 ## Select a cutoff, then evaluate it on new data
 
 `select_cutoff()` searches all distinct decision sets for the cutoff that
-optimizes a declared objective. Here the objective is Youden's J.
+optimises a declared objective. Here the objective is Youden's J.
 
 ```{r select, eval = has_fingerprints}
 selected <- select_cutoff(tuning_spec, "max_youden")

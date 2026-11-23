@@ -168,7 +168,7 @@ parallel_analysis <- function(data, variables, independent_units = FALSE,
   .ic_native_result(native, spec, list(data = data), character())
 }
 
-#' Predict from a finalized prediction-development result
+#' Predict from a finalised prediction-development result
 #' @export
 predict_inference <- function(result, newdata, interval = "none", conf.level = NULL) {
   validate_inference(result)

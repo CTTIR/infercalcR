@@ -7,7 +7,7 @@ Authors@R: person("R.", "Heller", , "raban.heller@uni-ulm.de",
 Description: Provides explicit statistical procedures, descriptive
     summaries, diagnostic calculations and a common result contract. Each
     procedure is chosen through an explicit method specification rather
-    than by data-driven preliminary tests, and returns finalized estimates,
+    than by data-driven preliminary tests, and returns finalised estimates,
     intervals and p-values together with metadata that records the method
     identity and numerical provenance. Includes the unconditional test for
     two-by-two tables of Boschloo (1970)
@@ -17,7 +17,7 @@ Description: Provides explicit statistical procedures, descriptive
     'geepack' are used only when installed.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Language: en-US
+Language: en-GB
 Depends: R (>= 4.1.0)
 Imports: stats, utils
 Suggests: digest, jsonlite, cluster, nlme, MASS, nnet, lme4, geepack, knitr,
