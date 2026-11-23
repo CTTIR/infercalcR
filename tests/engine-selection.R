@@ -149,3 +149,12 @@ stopifnot(identical(printed, c("<method_spec> t_mean_one_sample", "  alternative
 stopifnot(identical(utils::capture.output(print(method_spec("cochran_q", engine = "reference")))[c(1L, 5L, 6L)],
   c("<method_spec> cochran_q", "  engine:      reference", "  options:     none")))
 cat("PASS method identity in errors, required arguments and specification printing\n")
+
+# The callable helpers name themselves in errors raised by their procedures.
+helper <- withCallingHandlers(caught(parallel_analysis(data.frame(id = 1:5, a = 1:5), "a",
+  independent_units = TRUE, continuous_measurements = TRUE, B = 19L)),
+  warning = function(w) stop("unexpected warning: ", conditionMessage(w)))
+stopifnot(inherits(helper, "infercalcR_method_error"),
+  identical(helper$method_id, "efa_common_factor_ml.parallel_analysis"),
+  startsWith(conditionMessage(helper), "Method efa_common_factor_ml.parallel_analysis: "))
+cat("PASS method identity in helper errors\n")

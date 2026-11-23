@@ -24,7 +24,8 @@
   error from a method keeps its classes and message, gains the prefix
   `"Method <method_id>: "` and additionally inherits from
   `infercalcR_method_error`. The error for unknown method arguments lists the
-  accepted ones.
+  accepted ones. `parallel_analysis()` and `predict_inference()` report errors
+  of their procedures in the same way.
 * `method_spec()` objects gain a print method showing the method identity and
   settings.
 

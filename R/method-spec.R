@@ -85,7 +85,7 @@ method_catalogue <- function() {
 # error keeps its classes and message and gains the method identity.
 .ic_method_abort <- function(method_id, fun, args, error) {
   if (any(grepl("^(infercalcR|inferguidR)_", class(error)))) stop(error)
-  formal <- formals(fun)
+  formal <- if (is.function(fun)) formals(fun) else NULL
   required <- names(formal)[vapply(formal, function(value) is.symbol(value) && !nzchar(as.character(value)), NA)]
   absent <- setdiff(required, c(names(args), "..."))
   if (length(absent))
@@ -151,8 +151,9 @@ method_catalogue <- function() {
 parallel_analysis <- function(data, variables, independent_units = FALSE,
     continuous_measurements = FALSE, B = 199L, seed = 104729L,
     quantile_probability = .95, complete_cases = FALSE, permutations = NULL) {
-  native <- .obs_efa_common_factor_ml_parallel_analysis(data, variables, independent_units,
-    continuous_measurements, B, seed, quantile_probability, complete_cases, permutations)
+  native <- tryCatch(.obs_efa_common_factor_ml_parallel_analysis(data, variables, independent_units,
+    continuous_measurements, B, seed, quantile_probability, complete_cases, permutations),
+    error = function(e) .ic_method_abort("efa_common_factor_ml.parallel_analysis", NULL, list(), e))
   spec <- list(method_id = "efa_common_factor_ml.parallel_analysis", alternative = NA_character_, conf.level = NA_real_,
     options = list(variables = variables, independent_units = independent_units,
       continuous_measurements = continuous_measurements, B = B, seed = seed,
@@ -170,7 +171,8 @@ predict_inference <- function(result, newdata, interval = "none", conf.level = N
   native <- result$payload$native
   if (is.null(conf.level)) conf.level <- native$requested_confidence_level
   fun <- if (id == "prediction_model_linear") .obs_prediction_model_linear_predict_new else .obs_prediction_model_logistic_predict_new
-  out <- fun(native, newdata, interval = interval, conf.level = conf.level)
+  out <- tryCatch(fun(native, newdata, interval = interval, conf.level = conf.level),
+    error = function(e) .ic_method_abort(paste0(id, ".predict_new"), NULL, list(), e))
   if (is.numeric(out)) out <- list(status = "ok", estimate = out, interval = "none")
   n <- length(out$estimate)
   target <- if (id == "prediction_model_logistic") "event_probability" else if (interval == "prediction") "new_outcome" else "conditional_mean"
