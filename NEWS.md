@@ -8,8 +8,9 @@
 
 * Add a package help page (`?infercalcR`) and list it on the documentation
   site; the README gains status badges and a "Quick start" heading.
-* The vignettes print their wide result tables within the page width, so no
-  table column wraps onto a separate block.
+* The vignettes print the descriptive summary, the classification metrics and
+  the exact-test tables within the page width, so the columns of these tables
+  no longer wrap onto a separate block.
 
 * `describe_data()` counts an explicit NA factor level (as created by
   `addNA()`) as missing. It previously returned NA counts with status `ok`.
