@@ -74,7 +74,8 @@ orders the tables.
 
 ```{r variants}
 variants <- boschloo_variants()
-variants[, c("variant", "alternative", "label")]
+print(variants[, c("variant", "alternative")], row.names = FALSE)
+writeLines(paste0(format(variants$variant), ": ", variants$label))
 ```
 
 The `minlike` variant orders tables by the two-sided Fisher p-value. The
@@ -93,8 +94,9 @@ boschloo <- boschloo_inference(x1 = 2, n1 = 12, x2 = 8, n2 = 12,
                                variant = "minlike", alpha = 0.05,
                                groups = c("control", "treatment"),
                                event = "response")
-print(result_data(boschloo)[, c("estimand", "contrast", "estimate", "p.value",
-                                "p.upper", "decision", "status")],
+boschloo_rows <- result_data(boschloo)
+print(boschloo_rows[, c("estimand", "contrast")], row.names = FALSE)
+print(boschloo_rows[, c("estimate", "p.value", "p.upper", "decision", "status")],
       row.names = FALSE)
 ```
 
@@ -159,9 +161,9 @@ Fisher's exact test is available through the same interface and agrees with
 
 ```{r fisher}
 fisher <- run_inference(method_spec("fisher_exact_2x2"), table = responses)
-print(result_data(fisher)[, c("estimand", "estimate", "conf.low", "conf.high",
-                              "p.value")],
-      row.names = FALSE)
+fisher_rows <- result_data(fisher)
+print(fisher_rows[, c("estimand", "estimate")], row.names = FALSE)
+print(fisher_rows[, c("conf.low", "conf.high", "p.value")], row.names = FALSE)
 stopifnot(isTRUE(all.equal(result_data(fisher)$p.value,
                            stats::fisher.test(responses)$p.value)))
 ```
