@@ -81,3 +81,29 @@ for(exact in c(TRUE,FALSE))for(alternative in c('two.sided','greater')){
  }
 }
 cat('PASS signed-rank design ambiguity, explicit paired/one-sample identity and preserved exact/approximate intervals\n')
+
+# A bare (logical) NA declares unknown counts, as NA_real_ does; other logical values stay errors.
+bare <- result_data(as_inference(t, population = 'sizes not recorded', groups = c('x', 'y'), n = NA, n_excluded = NA))
+stopifnot(is.na(bare$n), is.na(bare$n.excluded), is.numeric(bare$n), is.numeric(bare$n.excluded))
+err(as_inference(t, population = 'synthetic groups', groups = c('x', 'y'), n = TRUE))
+err(as_inference(t, population = 'synthetic groups', groups = c('x', 'y'), n_excluded = FALSE))
+
+# Classes that extend lm have their own summaries and are rejected, not reported as aliased rows.
+err(as_inference(stats::aov(y ~ x, dat), population = 'synthetic'), 'infercalcR_unsupported')
+err(as_inference(stats::lm(cbind(y, x) ~ 1, dat), population = 'synthetic'), 'infercalcR_unsupported')
+if (requireNamespace('MASS', quietly = TRUE))
+  err(as_inference(MASS::rlm(y ~ x, dat), population = 'synthetic'), 'infercalcR_unsupported')
+
+# A saturated fit keeps its coefficients; standard errors, tests and intervals are explicit NA.
+two <- data.frame(x = 1:2, y = c(1, 3))
+for (saturated in list(stats::lm(y ~ x, two), stats::glm(y ~ x, data = two))) {
+  sat <- result_data(as_inference(saturated, population = 'two synthetic points'))
+  stopifnot(isTRUE(all.equal(sat$estimate, c(-1, 2))), all(sat$status == 'undefined'), all(sat$df == 0),
+    all(is.na(sat$statistic)), all(is.na(sat$p.value)), all(is.na(sat$conf.low)), all(is.na(sat$conf.high)),
+    all(grepl('no residual degrees of freedom', sat$reason)))
+}
+# Converted rows carry no row names taken from the coefficient table.
+stopifnot(identical(rownames(lmd), as.character(seq_len(nrow(lmd)))),
+  identical(rownames(aliasout), as.character(seq_len(nrow(aliasout)))),
+  identical(rownames(gg), as.character(seq_len(nrow(gg)))))
+cat('PASS bare NA counts, rejected lm subclasses, saturated fits and plain row names\n')

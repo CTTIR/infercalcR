@@ -1,5 +1,15 @@
 # infercalcR 0.1.0
 
+* `as_inference()` for fitted models rejects classes that extend `lm` or `glm`
+  with their own summary (`aov`, multivariate `mlm`, `MASS::rlm`, ...) as
+  unsupported. An `aov` fit previously returned every coefficient as "aliased"
+  and the others failed with an unrelated contract error. A saturated fit (no
+  residual degrees of freedom) now returns its coefficients with explicit NA
+  standard errors, tests and intervals and status `undefined` instead of
+  failing. Converted rows no longer carry row names from the coefficient table.
+* `as_inference()` for `htest` objects accepts a bare `NA` for unknown `n` and
+  `n_excluded`, as its error message already stated.
+
 * Errors raised inside a method now name the method. `run_inference()` reports
   omitted required arguments as an `infercalcR_invalid_input` condition that
   lists them (previously "argument ... is missing, with no default"). Any other

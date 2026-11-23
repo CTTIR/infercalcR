@@ -14,7 +14,7 @@
 \arguments{
 \item{x}{A recognized \code{htest}, \code{lm} or \code{glm} object.}
 \item{method_id}{Optional identity, which must agree with the stored test. For an imported signed-rank test, a compatible explicit identity declares the otherwise unrecoverable one-sample or paired design.}
-\item{n}{Known analysis sample counts, or explicit NA when unavailable. Never reconstructed from degrees of freedom.}
+\item{n}{Known analysis sample counts, or explicit NA (\code{NA} or \code{NA_real_}) when unavailable. Never reconstructed from degrees of freedom.}
 \item{population}{Required description of the supplied analysis population.}
 \item{groups}{Two ordered labels for independent two-sample location, odds-ratio or variance-ratio contrasts; optionally, labels of the two measurements for a declared paired signed-rank contrast.}
 \item{event}{Explicit event definition for binary/proportion and odds-ratio tests.}
@@ -52,7 +52,12 @@ model-based covariance and explicitly labeled Wald or t intervals. It does not
 invoke generic profile dispatch or switch covariance backends. Binomial slopes
 may also be shown as odds ratios and Poisson slopes as rate ratios; intercepts
 are not ratios. Exponentiation overflow is a numerical failure, distinct from a
-legitimate unbounded sampling interval. Aliased coefficients remain unavailable.}
+legitimate unbounded sampling interval. Aliased coefficients remain unavailable.
+A saturated normal-theory fit (no residual degrees of freedom) keeps its
+coefficients; standard errors, tests and intervals are explicit NA with status
+\code{undefined}. Only plain \code{lm} and \code{glm} fits are converted:
+classes that extend them with their own summary (for example \code{aov},
+multivariate \code{mlm} or \code{MASS::rlm} fits) are rejected as unsupported.}
 
 \value{A common finalized \code{inference_result}. The supplied source object is unchanged.}
 \examples{

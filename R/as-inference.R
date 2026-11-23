@@ -4,6 +4,9 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
     groups = NULL, event = NULL, n_excluded = NA_real_, ...) {
   if (length(list(...))) .ic_abort("unknown htest conversion arguments")
   if (missing(population) || !.ic_string(population)) .ic_abort("Declare the analysis population when converting an htest object")
+  # A bare NA is logical; it declares unknown counts exactly as NA_real_ does.
+  if (is.logical(n) && length(n) && all(is.na(n))) n <- as.double(n)
+  if (is.logical(n_excluded) && length(n_excluded) == 1L && is.na(n_excluded)) n_excluded <- NA_real_
   if (!is.numeric(n) || !length(n) || any(is.nan(n)) || any(!is.na(n) & (!is.finite(n) | n < 0 | n != floor(n)))) .ic_abort("n must contain known sample counts or explicit NA")
   if (!is.numeric(n_excluded) || length(n_excluded) != 1L || is.nan(n_excluded) || (!is.na(n_excluded) && (!is.finite(n_excluded) || n_excluded < 0 || n_excluded != floor(n_excluded)))) .ic_abort("n_excluded must be one known count or explicit NA")
   label <- x$method
@@ -116,14 +119,25 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
   sm <- summary(x)
   table <- sm$coefficients
   df <- stats::df.residual(x)
+  # Classes that extend lm or glm (aov, mlm, rlm, ...) have their own summaries, which
+  # this conversion does not interpret; it never substitutes another summary for them.
+  if (!inherits(sm, if (glm) "summary.glm" else "summary.lm") || !is.matrix(table) || !is.numeric(table) ||
+      ncol(table) != 4L || !is.numeric(df) || length(df) != 1L || is.na(df))
+    .ic_abort(paste0("Only plain ", if (glm) "glm" else "lm", " fits are converted; no explicit conversion for class ",
+      paste(class(x), collapse = "/")), "unsupported")
   is_normal <- !glm || identical(x$family$family, "gaussian")
-  critical <- if (is_normal) stats::qt((1-conf.level)/2, df, lower.tail=FALSE) else stats::qnorm((1-conf.level)/2, lower.tail=FALSE)
+  # A saturated normal-theory fit has no residual degrees of freedom and so no t quantile.
+  critical <- if (!is_normal) stats::qnorm((1-conf.level)/2, lower.tail=FALSE) else
+    if (df > 0) stats::qt((1-conf.level)/2, df, lower.tail=FALSE) else NA_real_
   all_terms <- names(stats::coef(x)); rows <- list()
   for (term in all_terms) {
     available <- term %in% rownames(table)
-    z <- if (available) table[term, ] else rep(NA_real_, 4)
+    z <- if (available) unname(table[term, ]) else rep(NA_real_, 4)
+    # Undefined standard errors and tests (0/0) are explicit NA with a status, never NaN.
+    z[is.nan(z)] <- NA_real_
     state <- if (available && all(is.finite(z))) "ok" else "undefined"
     ci <- z[1L] + c(-1,1)*critical*z[2L]
+    ci[is.nan(ci)] <- NA_real_
     rows[[length(rows)+1L]] <- data.frame(row_id = paste0("coefficient:", length(rows)+1L), component = "coefficient",
       estimand = if (glm) paste(x$family$link, "scale coefficient") else "conditional mean coefficient", contrast = term,
       estimate = z[1L], statistic = z[3L], df = if (is_normal) df else NA_real_, p.value = if (is.finite(z[4L])) z[4L] else NA_real_,
@@ -131,7 +145,9 @@ as_inference.htest <- function(x, method_id = NULL, n = NA_real_, population,
       interval.method = if (is_normal) "model-based marginal t" else "model-based marginal Wald normal",
       interval.scope = "pointwise", interval.scale = if (glm) "link" else "outcome", null.value = 0,
       alternative = "two.sided", n = as.double(stats::nobs(x)), status = state,
-      reason = if (state == "ok") NA_character_ else "aliased or numerically unresolved coefficient", stringsAsFactors = FALSE)
+      reason = if (state == "ok") NA_character_ else if (available && is_normal && df <= 0)
+        "no residual degrees of freedom: standard error, test and interval are undefined" else
+        "aliased or numerically unresolved coefficient", stringsAsFactors = FALSE)
     if (glm && fam %in% c("binomial", "poisson") && term != "(Intercept)" && state == "ok") {
       ratio <- exp(c(z[1L], ci)); resolved <- all(is.finite(ratio)) && all(ratio > 0)
       rr <- rows[[length(rows)]]
