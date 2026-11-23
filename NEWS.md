@@ -1,5 +1,15 @@
 # infercalcR 0.1.0
 
+* Errors raised inside a method now name the method. `run_inference()` reports
+  omitted required arguments as an `infercalcR_invalid_input` condition that
+  lists them (previously "argument ... is missing, with no default"). Any other
+  error from a method keeps its classes and message, gains the prefix
+  `"Method <method_id>: "` and additionally inherits from
+  `infercalcR_method_error`. The error for unknown method arguments lists the
+  accepted ones.
+* `method_spec()` objects gain a print method showing the method identity and
+  settings.
+
 * The GPL-provenance audit is complete: all 69 methods are recorded as
   `clear` in `inst/methods/provenance.csv` (wrappers around exported functions
   or original implementations; no code adapted from GPL sources).

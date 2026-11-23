@@ -118,3 +118,34 @@ stopifnot(all(c("engines", "reference") %in% names(catalogue)),
   identical(catalogue$engines[catalogue$method_id == "variance_chisq_one_sample"], "none"),
   identical(catalogue$engines[catalogue$method_id == "t_means_paired"], "single"))
 cat("PASS engine selection, recording, legacy specifications and missing originals\n")
+
+# Errors raised inside a method name the method. Omitted required arguments are
+# invalid input naming them; other errors keep their class and message.
+caught <- function(expr) tryCatch(expr, error = identity)
+absent <- caught(run_inference(method_spec("t_mean_one_sample"), x = c(1, 2, 3)))
+stopifnot(inherits(absent, "infercalcR_invalid_input"),
+  grepl("t_mean_one_sample requires the argument mu0", conditionMessage(absent), fixed = TRUE))
+none <- caught(run_inference(method_spec("t_mean_one_sample")))
+stopifnot(inherits(none, "infercalcR_invalid_input"),
+  grepl("requires the arguments x, mu0", conditionMessage(none), fixed = TRUE))
+short <- caught(run_inference(method_spec("t_mean_one_sample", options = list(mu0 = 0)), x = 1))
+stopifnot(inherits(short, "infercalcR_method_error"), inherits(short, "simpleError"),
+  identical(short$method_id, "t_mean_one_sample"), inherits(short$parent, "error"),
+  startsWith(conditionMessage(short), "Method t_mean_one_sample: "),
+  endsWith(conditionMessage(short), conditionMessage(short$parent)))
+unknown <- caught(run_inference(method_spec("anova_one_way"), data = 1, outcome = 2))
+stopifnot(inherits(unknown, "infercalcR_invalid_input"),
+  grepl("unknown method arguments: data, outcome; accepted: x, group", conditionMessage(unknown), fixed = TRUE))
+# Package-classed conditions pass through unchanged.
+classed <- caught(run_inference(method_spec("variance_chisq_one_sample"), x = 1))
+stopifnot(inherits(classed, "infercalcR_unsupported"), !inherits(classed, "infercalcR_method_error"))
+
+# A specification prints its class, identity and settings and returns itself invisibly.
+shown <- method_spec("t_mean_one_sample", conf.level = 0.9, options = list(mu0 = 0))
+printed <- utils::capture.output(returned <- withVisible(print(shown)))
+stopifnot(identical(printed, c("<method_spec> t_mean_one_sample", "  alternative: two.sided",
+  "  conf.level:  0.9", "  missing:     error", "  engine:      base", "  options:     mu0 = 0")),
+  !returned$visible, identical(returned$value, shown))
+stopifnot(identical(utils::capture.output(print(method_spec("cochran_q", engine = "reference")))[c(1L, 5L, 6L)],
+  c("<method_spec> cochran_q", "  engine:      reference", "  options:     none")))
+cat("PASS method identity in errors, required arguments and specification printing\n")

@@ -18,6 +18,22 @@ method_spec <- function(method_id, alternative = "two.sided", conf.level = 0.95,
     contract_version = "1.0.0"), class = "method_spec")
 }
 
+#' @export
+print.method_spec <- function(x, ...) {
+  shown <- function(value) {
+    text <- paste(deparse(value, width.cutoff = 60L), collapse = " ")
+    if (nchar(text) > 60L) paste0(substr(text, 1L, 57L), "...") else text
+  }
+  plain <- function(value) if (is.character(value) && length(value) == 1L && !is.na(value)) value else shown(value)
+  options <- if (length(x$options)) paste(sprintf("%s = %s", names(x$options),
+    vapply(x$options, shown, "")), collapse = ", ") else "none"
+  cat(sprintf("<method_spec> %s\n", .ic_text(x$method_id, "<invalid method_id>")))
+  cat(sprintf("  alternative: %s\n  conf.level:  %s\n  missing:     %s\n  engine:      %s\n  options:     %s\n",
+    plain(x$alternative), plain(x$conf.level), plain(x$missing),
+    plain(if (is.null(x[["engine"]])) "base" else x[["engine"]]), options))
+  invisible(x)
+}
+
 #' Execute a prespecified observed procedure
 #' @export
 run_inference <- function(spec, ..., result_id = NULL) {
@@ -52,13 +68,32 @@ method_catalogue <- function() {
   nm <- names(args)
   if (is.null(nm)) nm <- rep("", length(args))
   if (anyNA(nm) || anyDuplicated(nm[nzchar(nm)])) .ic_abort("arguments must have unique, nonmissing names")
-  if (any(!nm[nzchar(nm)] %in% formal_names)) .ic_abort(paste("unknown method arguments:", paste(setdiff(nm[nzchar(nm)], formal_names), collapse = ", ")))
+  if (any(!nm[nzchar(nm)] %in% formal_names)) .ic_abort(paste0("unknown method arguments: ",
+    paste(setdiff(nm[nzchar(nm)], formal_names), collapse = ", "), "; accepted: ",
+    paste(setdiff(formal_names, c("alternative", "conf.level")), collapse = ", ")))
   free <- setdiff(formal_names, nm[nzchar(nm)])
   unnamed <- which(!nzchar(nm))
   if (length(unnamed) > length(free)) .ic_abort("too many method arguments")
   nm[unnamed] <- free[seq_along(unnamed)]
   names(args) <- nm
   args
+}
+
+# Re-signal an error raised inside a method with the method identity. Errors that
+# already carry a package condition class pass through unchanged. A call that
+# omitted required arguments is reported as invalid input naming them; any other
+# error keeps its classes and message and gains the method identity.
+.ic_method_abort <- function(method_id, fun, args, error) {
+  if (any(grepl("^(infercalcR|inferguidR)_", class(error)))) stop(error)
+  formal <- formals(fun)
+  required <- names(formal)[vapply(formal, function(value) is.symbol(value) && !nzchar(as.character(value)), NA)]
+  absent <- setdiff(required, c(names(args), "..."))
+  if (length(absent))
+    .ic_abort(paste0("Method ", method_id, " requires the argument", if (length(absent) > 1L) "s" else "", " ",
+      paste(absent, collapse = ", "), "; supply ", if (length(absent) > 1L) "them" else "it",
+      " in run_inference() or in method_spec(options = )"))
+  stop(structure(list(message = paste0("Method ", method_id, ": ", conditionMessage(error)), call = NULL,
+    method_id = method_id, parent = error), class = unique(c("infercalcR_method_error", class(error)))))
 }
 
 .ic_run_method <- function(spec, ..., result_id = NULL) {
@@ -100,9 +135,11 @@ method_catalogue <- function() {
   if (spec$method_id %in% c("regression_multinomial", "regression_ordinal_proportional_odds"))
     args <- unserialize(serialize(args, NULL))
   warnings <- character()
-  native <- withCallingHandlers(do.call(fun, args), warning = function(w) {
-    warnings <<- c(warnings, conditionMessage(w))
-  })
+  native <- withCallingHandlers(
+    tryCatch(do.call(fun, args), error = function(e) .ic_method_abort(spec$method_id, fun, args, e)),
+    warning = function(w) {
+      warnings <<- c(warnings, conditionMessage(w))
+    })
   out <- .ic_native_result(native, spec, args, warnings)
   out$metadata$engine <- engine
   if (!is.null(result_id)) out$metadata$result_id <- result_id

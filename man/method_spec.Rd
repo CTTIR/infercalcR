@@ -21,5 +21,14 @@ run_inference(spec, ..., result_id = NULL)
 \item{result_id}{Optional explicit stable identifier for joining distinct results.}
 \item{...}{Observations and design arguments for the selected method.}
 }
+\details{Printing a specification shows its class, method identity and settings.
+
+An error raised inside a method names the method. A call that omits arguments
+the method requires fails with an \code{infercalcR_invalid_input} condition that
+lists them. Any other error raised by the method keeps its classes and its
+message, which is prefixed with \code{"Method <method_id>: "}; it additionally
+inherits from \code{infercalcR_method_error} and stores the method identity in
+\code{method_id} and the original condition in \code{parent}. Conditions that
+already carry a package class are passed on unchanged.}
 \value{A specification, capability data frame, or finalized common result respectively.}
 \examples{run_inference(method_spec("descriptive_summary"), data = data.frame(x = 1:5))}
