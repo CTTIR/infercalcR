@@ -58,7 +58,8 @@ The common result is an ordinary S3 object containing finalized data, metadata
 and method-specific payload. Raw and adjusted p-values remain separate.
 `adjust_inference()` requires a declared complete family and rejects silent
 readjustment. Reporting may select rows but cannot change that family. See
-[CONTRACT.md](CONTRACT.md) for the shared schema and legacy boundaries.
+[`CONTRACT.md`](https://github.com/CTTIR/infercalcR/blob/main/CONTRACT.md) for
+the shared schema and legacy boundaries.
 
 ```r
 # Optional reporting consumer; the calculation object needs no raw observations.
@@ -160,8 +161,10 @@ JSON remains readable through inferguidR with unchanged identities; new results
 can legitimately record new producing-package provenance. Trusted RDS regression
 fixtures are not an untrusted interchange format.
 
-Raban Heller. MIT license; see [LICENSE.md](LICENSE.md). Record package versions,
-repository revisions, method settings and sessionInfo() with reproducible work.
+Raban Heller. MIT license; see
+[`LICENSE.md`](https://github.com/CTTIR/infercalcR/blob/main/LICENSE.md). Record
+package versions, repository revisions, method settings and sessionInfo() with
+reproducible work.
 
 ## Acknowledgments and sources
 
