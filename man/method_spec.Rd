@@ -27,9 +27,10 @@ An error raised inside a method names the method. A call that omits arguments
 the method requires fails with an \code{infercalcR_invalid_input} condition that
 lists them. Any other error raised by the method keeps its classes and its
 message, which is prefixed with \code{"Method <method_id>: "}; it additionally
-inherits from \code{infercalcR_method_error} and stores the method identity in
+inherits from \code{infercalcR_method_error} and \code{infercalcR_error} and stores the method identity in
 \code{method_id} and the original condition in \code{parent}. Conditions that
-already carry a package class are passed on unchanged. The helpers
+already carry a package class are passed on unchanged. All conditions the
+package raises inherit from \code{infercalcR_error}. The helpers
 \code{\link{parallel_analysis}()} and \code{\link{predict_inference}()} report
 errors of their procedures in the same way.}
 \value{A specification, capability data frame, or finalized common result respectively.}

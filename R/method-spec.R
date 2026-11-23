@@ -93,7 +93,7 @@ method_catalogue <- function() {
       paste(absent, collapse = ", "), "; supply ", if (length(absent) > 1L) "them" else "it",
       " in run_inference() or in method_spec(options = )"))
   stop(structure(list(message = paste0("Method ", method_id, ": ", conditionMessage(error)), call = NULL,
-    method_id = method_id, parent = error), class = unique(c("infercalcR_method_error", class(error)))))
+    method_id = method_id, parent = error), class = unique(c("infercalcR_method_error", "infercalcR_error", class(error)))))
 }
 
 .ic_run_method <- function(spec, ..., result_id = NULL) {

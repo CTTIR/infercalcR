@@ -1,7 +1,7 @@
 # Shared plain-data contract, revision 1.
 .ic_abort <- function(message, code = "invalid_input") {
   stop(structure(list(message = message, call = NULL),
-                 class = c(paste0("infercalcR_", code), "error", "condition")))
+                 class = c(paste0("infercalcR_", code), "infercalcR_error", "error", "condition")))
 }
 .ic_string <- function(x) is.character(x) && length(x) == 1L && !is.na(x) && nzchar(x)
 .ic_statuses <- c("ok", "undefined", "not_applicable", "unsupported", "invalid_input",

@@ -130,6 +130,7 @@ stopifnot(inherits(none, "infercalcR_invalid_input"),
   grepl("requires the arguments x, mu0", conditionMessage(none), fixed = TRUE))
 short <- caught(run_inference(method_spec("t_mean_one_sample", options = list(mu0 = 0)), x = 1))
 stopifnot(inherits(short, "infercalcR_method_error"), inherits(short, "simpleError"),
+  inherits(short, "infercalcR_error"), inherits(absent, "infercalcR_error"),
   identical(short$method_id, "t_mean_one_sample"), inherits(short$parent, "error"),
   startsWith(conditionMessage(short), "Method t_mean_one_sample: "),
   endsWith(conditionMessage(short), conditionMessage(short$parent)))

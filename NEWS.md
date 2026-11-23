@@ -1,5 +1,9 @@
 # infercalcR 0.1.0
 
+* Every condition the package raises now inherits from `infercalcR_error`, as
+  the conditions of the diagnostic and exact-test functions already did, so
+  `tryCatch(..., infercalcR_error = )` catches all of them.
+
 * Add a package help page (`?infercalcR`) and list it on the documentation
   site; the README gains status badges and a "Quick start" heading.
 * The vignettes print their wide result tables within the page width, so no
