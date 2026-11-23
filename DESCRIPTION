@@ -13,7 +13,7 @@ Description: Provides explicit statistical procedures, descriptive
     two-by-two tables of Boschloo (1970)
     <doi:10.1111/j.1467-9574.1970.tb00104.x>, diagnostic accuracy and
     classifier metrics, and distribution calculators. Standard R methods
-    are used where available; optional backends such as 'lme4', 'nlme' and
+    are used where available; optional back ends such as 'lme4', 'nlme' and
     'geepack' are used only when installed.
 License: MIT + file LICENSE
 Encoding: UTF-8
