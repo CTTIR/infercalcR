@@ -1,4 +1,5 @@
 \name{legacy-computation}
+\alias{legacy-computation}
 \alias{attach_classification_data}
 \alias{binormal_model}
 \alias{binormal_rates}

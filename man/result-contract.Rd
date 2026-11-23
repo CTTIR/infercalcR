@@ -1,4 +1,5 @@
 \name{result-contract}
+\alias{result-contract}
 \alias{new_inference_result}
 \alias{validate_inference}
 \alias{result_data}

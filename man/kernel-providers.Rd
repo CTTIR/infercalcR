@@ -1,4 +1,5 @@
 \name{kernel-providers}
+\alias{kernel-providers}
 \alias{boschloo_design_kernel}
 \alias{binomial_region_probability}
 \alias{binomial_table_space}
