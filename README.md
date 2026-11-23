@@ -1,5 +1,11 @@
 # infercalcR <picture class="cttir-readme-logo"><source class="cttir-logo-dark-source" media="(prefers-color-scheme: dark)" srcset="man/figures/logo-dark.png" /><img src="man/figures/logo.png" align="right" alt="infercalcR logo" width="120" height="139" /></picture>
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/CTTIR/infercalcR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CTTIR/infercalcR/actions/workflows/R-CMD-check.yaml)
+[![pkgdown](https://github.com/CTTIR/infercalcR/actions/workflows/pkgdown.yaml/badge.svg)](https://cttir.github.io/infercalcR/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<!-- badges: end -->
+
 Explicit observed statistical procedures, diagnostic calculations and finalized
 results in R. `infercalcR` supplies the computational core of the inference suite;
 `inferguidR` provides guidance and prospective design planning, and `infereportR`
@@ -13,7 +19,7 @@ accepted, install it from GitHub (see below).
 Documentation, including tutorials and the function reference, is available at
 <https://cttir.github.io/infercalcR/>.
 
-## Start
+## Quick start
 
 ```r
 spec <- infercalcR::method_spec("t_means_two_independent_welch")

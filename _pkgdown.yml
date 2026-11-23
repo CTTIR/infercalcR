@@ -49,6 +49,8 @@ reference:
   contents:
   - legacy-computation
 - title: Exploration and prediction helpers
+  desc: Common-factor parallel analysis and prediction from a stored
+    prediction-development result.
   contents:
   - parallel_analysis
 - title: Numerical and compatibility providers
@@ -56,5 +58,9 @@ reference:
     identity helpers for validated package consumers.
   contents:
   - kernel-providers
+- title: Package
+  desc: Package overview and main entry points.
+  contents:
+  - infercalcR-package
 
 llm-docs: false
