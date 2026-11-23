@@ -16,3 +16,13 @@ tools::assertError(describe_data(d, c("value", "value")), classes = "infercalcR_
 stopifnot(identical(result_data(run_inference(method_spec("descriptive_summary"), data = d)),
                     result_data(describe_data(d))))
 cat("description checks completed\n")
+
+# An explicit NA factor level is a missing value: counted as missing, never an NA count with status ok.
+na_level <- result_data(describe_data(data.frame(a = addNA(factor(c("x", NA, "y", "x"))))))
+stopifnot(identical(na_level$level, c("x", "y")), identical(na_level$estimate, c(2, 1)),
+  all(na_level$n == 3), all(na_level$n.missing == 1), all(na_level$status == "ok"),
+  isTRUE(all.equal(na_level$proportion, c(2, 1) / 3)))
+all_na_level <- result_data(describe_data(data.frame(a = addNA(factor(c(NA, NA))))))
+stopifnot(nrow(all_na_level) == 1L, all_na_level$status == "undefined", all_na_level$n == 0,
+  all_na_level$n.missing == 2)
+cat("explicit NA factor level checks completed\n")

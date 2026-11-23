@@ -1,5 +1,8 @@
 # infercalcR 0.1.0
 
+* `describe_data()` counts an explicit NA factor level (as created by
+  `addNA()`) as missing. It previously returned NA counts with status `ok`.
+
 * `as_inference()` for fitted models rejects classes that extend `lm` or `glm`
   with their own summary (`aov`, multivariate `mlm`, `MASS::rlm`, ...) as
   unsupported. An `aov` fit previously returned every coefficient as "aliased"

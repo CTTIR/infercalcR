@@ -20,6 +20,8 @@ describe_data <- function(data, variables = setdiff(names(data), group), group =
       if (!is.atomic(x) || !is.null(dim(x))) .ic_abort("descriptive columns must be atomic vectors")
       type <- if (!is.null(types) && v %in% names(types)) types[[v]] else if (is.numeric(x) && !is.factor(x)) "continuous" else "categorical"
       if (type == "continuous" && !is.numeric(x)) .ic_abort("continuous variables must be numeric")
+      # An explicit NA factor level (addNA()) is a missing value, like any other NA.
+      if (is.factor(x) && anyNA(levels(x))) x <- factor(x, levels = levels(x)[!is.na(levels(x))])
       n <- sum(!is.na(x)); miss <- sum(is.na(x)); total <- length(x)
       add <- function(stat, estimate, level = NA_character_, proportion = NA_real_, status = "ok") {
         rows[[length(rows) + 1L]] <<- data.frame(row_id = paste0("description:", match(v, variables), ":", j, ":", length(rows) + 1L),
