@@ -1,6 +1,6 @@
 \name{observed-methods}
 \alias{observed-methods}
-\title{Explicit observed methods and finalized numerical results}
+\title{Explicit observed methods and finalised numerical results}
 \description{Execute a prespecified procedure through \code{method_spec()} and
 \code{run_inference()}. Each procedure retains its existing finite-sample,
 numerical, missingness and backend policies.}
@@ -17,13 +17,13 @@ An optional \code{result_id} argument to \code{run_inference()} supplies an
 explicit external result key for joins. Default IDs are stable only within one
 object, so supply distinct IDs when joining separate results.
 For classifier-template views, native payloads omit the original specification
-and attached source result; finalized aggregate fields remain, with the raw-data-free
+and attached source result; finalised aggregate fields remain, with the raw-data-free
 classifier conversion payload stored separately. The legacy teaching wrappers
 continue to use public classifier APIs for their original specification shape.
 The method never selects an alternative or a test from observed diagnostic p-values.
 \code{result_data()} returns explicit effect, coefficient, omnibus or descriptive
 rows. \code{result_metadata()} records method identity, settings, population and
-source status. \code{result$payload$native} retains the complete finalized native
+source status. \code{result$payload$native} retains the complete finalised native
 output, including quantities that do not fit a scalar row. Numeric p-value bounds
 and Monte Carlo intervals are separate from sampling intervals.
 

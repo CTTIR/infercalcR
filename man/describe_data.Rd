@@ -6,7 +6,7 @@
   labels = NULL, units = NULL, types = NULL)}
 \arguments{
 \item{data}{A data frame.}
-\item{variables}{Distinct column names to summarize.}
+\item{variables}{Distinct column names to summarise.}
 \item{group}{Optional single grouping column name. Missing groups are retained explicitly.}
 \item{labels, units}{Optional named display metadata keyed by variable name.}
 \item{types}{Optional named continuous/categorical overrides. Ordered factors are categorical by default.}

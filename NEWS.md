@@ -70,9 +70,9 @@
   technical terms used in the documentation.
 * `parallel_analysis()` and `predict_inference()` gain runnable examples.
 * The GitHub Actions check matrix adds R-devel and R oldrel-1 on Linux.
-* Add a CTTIR v5 hex logo in the statistical inference color shared with
+* Add a CTTIR v5 hex logo in the statistical inference colour shared with
   the other inference packages; `tools/branding/render.R` draws it in R.
-* Introduce common finalized result/accessor contracts, explicit method
+* Introduce common finalised result/accessor contracts, explicit method
   specifications, descriptive summaries and declared-family p-value adjustment.
 * Extract Boschloo, classifier, distribution and calculator engines from
   inferguidR while preserving historical numerical and identity contracts.

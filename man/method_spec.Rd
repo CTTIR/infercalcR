@@ -33,5 +33,5 @@ already carry a package class are passed on unchanged. All classed conditions
 the package raises inherit from \code{infercalcR_error}. The helpers
 \code{\link{parallel_analysis}()} and \code{\link{predict_inference}()} report
 errors of their procedures in the same way.}
-\value{A specification, capability data frame, or finalized common result respectively.}
+\value{A specification, capability data frame, or finalised common result respectively.}
 \examples{run_inference(method_spec("descriptive_summary"), data = data.frame(x = 1:5))}

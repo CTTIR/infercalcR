@@ -1,6 +1,6 @@
 ---
 title: "Getting started with infercalcR"
-author: "Raban Heller"
+author: "R. Heller"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting started with infercalcR}
@@ -39,7 +39,7 @@ library(infercalcR)
 
 infercalcR carries out statistical procedures that the analyst names in
 advance. It never chooses a test from the data, for example after a normality
-pretest. Every procedure returns the same kind of object: a table of finalized
+pretest. Every procedure returns the same kind of object: a table of finalised
 rows (estimates, intervals, p-values, counts and a status), a list of metadata
 (method identity, settings, population and provenance) and a method-specific
 payload.
@@ -71,7 +71,7 @@ head(trial)
 
 ## Describe the data
 
-`describe_data()` summarizes variables, optionally within groups. It computes
+`describe_data()` summarises variables, optionally within groups. It computes
 no hypothesis tests. Continuous variables get the mean, standard deviation,
 median, quartiles and range; categorical variables get counts and proportions.
 
@@ -151,7 +151,7 @@ tryCatch(run_inference(spec, x = treated, y = control), error = conditionMessage
 
 `missing = "omit"` does not change this for the Welch test: the package does not
 pick a missing-data assumption on the analyst's behalf. Here we decide to
-analyze the complete observations and do so visibly in the code. A `result_id`
+analyse the complete observations and do so visibly in the code. A `result_id`
 gives the result a stable name for later joins.
 
 ```{r compute}
@@ -164,7 +164,7 @@ welch
 
 ## Read the result contract
 
-`result_data()` returns the finalized rows as a data frame. Every result has the
+`result_data()` returns the finalised rows as a data frame. Every result has the
 same mandatory columns; unavailable quantities are `NA`.
 
 ```{r rows}
@@ -262,7 +262,7 @@ result_data(imported)[, c("estimand", "estimate", "conf.low", "conf.high",
                           "p.value", "n")]
 ```
 
-A fitted linear model is summarized once, with classical t intervals for each
+A fitted linear model is summarised once, with classical t intervals for each
 coefficient.
 
 ```{r convert-lm}
@@ -280,7 +280,7 @@ label states this explicitly.
 ## Adjust a declared family of p-values
 
 Suppose the three continuous outcomes form a prespecified family of secondary
-comparisons. Each is analyzed with the same specification, and the rows are
+comparisons. Each is analysed with the same specification, and the rows are
 collected into one result with `new_inference_result()`.
 
 ```{r family}

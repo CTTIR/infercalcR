@@ -303,7 +303,7 @@ cutoff_rule <- function(cutoff = NULL, selection = NULL, selection_data = NULL,
 #' cutoff selection.
 #'
 #' Bootstrap limits use type-7 empirical quantiles. Undefined replicates are
-#' excluded only when at most 10 percent are undefined; otherwise the interval
+#' excluded only when at most 10 per cent are undefined; otherwise the interval
 #' is explicitly unavailable. Class stratification conditions on the observed
 #' class totals, so it does not estimate population-prevalence uncertainty.
 #' Frequency weights represent replicated units; declared clusters are sampled

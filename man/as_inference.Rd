@@ -3,7 +3,7 @@
 \alias{as_inference.lm}
 \alias{as_inference.glm}
 \title{Explicit conversion of supplied tests and fitted models}
-\description{Convert recognized finalized test objects or summarize an existing fitted model once, without refitting.}
+\description{Convert recognised finalised test objects or summarise an existing fitted model once, without refitting.}
 \usage{
 \method{as_inference}{htest}(x, method_id = NULL, n = NA_real_, population,
   groups = NULL, event = NULL, n_excluded = NA_real_, ...)
@@ -12,7 +12,7 @@
   interval = "wald", ...)
 }
 \arguments{
-\item{x}{A recognized \code{htest}, \code{lm} or \code{glm} object.}
+\item{x}{A recognised \code{htest}, \code{lm} or \code{glm} object.}
 \item{method_id}{Optional identity, which must agree with the stored test. For an imported signed-rank test, a compatible explicit identity declares the otherwise unrecoverable one-sample or paired design.}
 \item{n}{Known analysis sample counts, or explicit NA (\code{NA} or \code{NA_real_}) when unavailable. Never reconstructed from degrees of freedom.}
 \item{population}{Required description of the supplied analysis population.}
@@ -29,7 +29,7 @@ newer versions can return a fully unbounded conservative interval. The common
 interval-method label and metadata identify this convention. No level, endpoint,
 or captured native diagnostic is replaced.
 
-Recognized htest objects include standard t, Wilcoxon, binomial,
+Recognised htest objects include standard t, Wilcoxon, binomial,
 proportion, Fisher, correlation, variance and common omnibus tests. Stored
 estimates, intervals and p-values are preserved with method-specific estimands.
 Two group means become their difference; no odds ratio is invented for a general
@@ -44,11 +44,11 @@ analysis or paired differences. Its default identity is therefore
 respectively; metadata records that this design was declared by the caller.
 The converter never infers design from the printed data expression. Stored
 estimates, confidence intervals, null values and p-values are unchanged.
-For a paired result, supplied \code{n} counts analyzed pairs, not twice the pair count.
+For a paired result, supplied \code{n} counts analysed pairs, not twice the pair count.
 
 Linear models use classical model-based marginal t intervals. GLM conversion is
 restricted to binomial-logit, Poisson-log and Gaussian-identity models; it uses
-model-based covariance and explicitly labeled Wald or t intervals. It does not
+model-based covariance and explicitly labelled Wald or t intervals. It does not
 invoke generic profile dispatch or switch covariance backends. Binomial slopes
 may also be shown as odds ratios and Poisson slopes as rate ratios; intercepts
 are not ratios. Exponentiation overflow is a numerical failure, distinct from a
@@ -59,7 +59,7 @@ coefficients; standard errors, tests and intervals are explicit NA with status
 classes that extend them with their own summary (for example \code{aov},
 multivariate \code{mlm} or \code{MASS::rlm} fits) are rejected as unsupported.}
 
-\value{A common finalized \code{inference_result}. The supplied source object is unchanged.}
+\value{A common finalised \code{inference_result}. The supplied source object is unchanged.}
 \examples{
 fit <- stats::t.test(c(1, 3, 4, 8), c(2, 4, 5, 6, 9))
 as_inference(fit, n = c(4, 5), population = "Synthetic independent groups",
