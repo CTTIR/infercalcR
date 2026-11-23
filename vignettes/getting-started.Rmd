@@ -85,8 +85,9 @@ desc <- describe_data(
 )
 class(desc)
 desc_rows <- result_data(desc)
-desc_rows[, c("group", "variable_id", "estimand", "level", "estimate",
-              "proportion", "n", "n.missing", "n.total")]
+print(desc_rows[, c("group", "variable_id", "estimand", "level", "estimate",
+                    "proportion", "n", "n.missing")],
+      row.names = FALSE)
 ```
 
 Missing values are counted in `n.missing` and kept apart from the `n` used for

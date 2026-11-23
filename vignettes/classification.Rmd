@@ -61,9 +61,10 @@ has_fingerprints
 ```{r counts}
 counts <- c(tp = 40, fn = 10, fp = 20, tn = 130)
 metrics <- classification_metrics(counts)
-metrics[metrics$metric_id %in% c("prevalence", "tpr", "tnr", "ppv", "npv",
-                                 "lr_pos", "lr_neg", "youden_j"),
-        c("metric_id", "value", "status", "denominator", "denominator_value")]
+shown <- metrics[metrics$metric_id %in% c("prevalence", "tpr", "tnr", "ppv", "npv",
+                                          "lr_pos", "lr_neg", "youden_j"), ]
+print(shown[, c("metric_id", "value", "status")], row.names = FALSE)
+print(shown[, c("metric_id", "denominator")], row.names = FALSE)
 ```
 
 Sensitivity (`tpr`) divides TP by all events and specificity (`tnr`) divides TN

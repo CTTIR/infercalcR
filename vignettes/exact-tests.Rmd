@@ -123,14 +123,14 @@ The Boschloo variants are also available through `method_spec()` and
 ```{r specification}
 minlike_spec <- method_spec("boschloo_two_sided_minlike")
 via_spec <- run_inference(minlike_spec, table = responses)
-print(result_data(via_spec)[, c("estimand", "estimate", "p.value")],
+print(result_data(via_spec)[, c("component", "estimate", "p.value")],
       row.names = FALSE)
 stopifnot(isTRUE(all.equal(result_data(via_spec)$p.value[1],
                            result_data(boschloo)$p.value)))
 ```
 
-This result has one row for the test and one for the observed difference in
-proportions. One-sided tests use `boschloo_one_sided` with the alternative
+This result has one row for the test (`omnibus`) and one for the observed
+difference in proportions (`description`). One-sided tests use `boschloo_one_sided` with the alternative
 declared in the specification.
 
 ```{r one-sided}

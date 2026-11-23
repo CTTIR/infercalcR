@@ -1,5 +1,10 @@
 # infercalcR 0.1.0
 
+* Add a package help page (`?infercalcR`) and list it on the documentation
+  site; the README gains status badges and a "Quick start" heading.
+* The vignettes print their wide result tables within the page width, so no
+  table column wraps onto a separate block.
+
 * `describe_data()` counts an explicit NA factor level (as created by
   `addNA()`) as missing. It previously returned NA counts with status `ok`.
 
