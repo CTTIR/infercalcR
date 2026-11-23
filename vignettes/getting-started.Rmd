@@ -1,6 +1,6 @@
 ---
 title: "Getting started with infercalcR"
-author: "Raban Heller"
+author: "R. Heller"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting started with infercalcR}

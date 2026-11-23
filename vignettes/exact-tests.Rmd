@@ -1,6 +1,6 @@
 ---
 title: "Exact tests for two-by-two tables"
-author: "Raban Heller"
+author: "R. Heller"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Exact tests for two-by-two tables}

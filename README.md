@@ -161,7 +161,7 @@ JSON remains readable through inferguidR with unchanged identities; new results
 can legitimately record new producing-package provenance. Trusted RDS regression
 fixtures are not an untrusted interchange format.
 
-Raban Heller. MIT licence; see
+R. Heller. MIT licence; see
 [`LICENSE.md`](https://github.com/CTTIR/infercalcR/blob/main/LICENSE.md). Record
 package versions, repository revisions, method settings and sessionInfo() with
 reproducible work.

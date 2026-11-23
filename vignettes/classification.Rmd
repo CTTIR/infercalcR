@@ -1,6 +1,6 @@
 ---
 title: "Diagnostic accuracy and classifier metrics"
-author: "Raban Heller"
+author: "R. Heller"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Diagnostic accuracy and classifier metrics}
